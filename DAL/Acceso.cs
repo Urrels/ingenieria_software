@@ -13,7 +13,7 @@ namespace DAL
         private SqlConnection conexion;
         private SqlTransaction transaccion;
 
-
+        //HOLA GISELAAAA
         public void Abrir()
         {
             conexion = new SqlConnection();
