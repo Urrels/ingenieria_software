@@ -9,7 +9,7 @@ namespace BE
     public class PERSONA
     {
 		private int id;
-
+		 
 		public int Id
 		{
 			get { return id; }
