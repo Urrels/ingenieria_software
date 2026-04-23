@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppInicializador.cs" />
+    <Compile Include="LoginBLL.cs" />
     <Compile Include="PERSONA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="USUARIO.cs" />
