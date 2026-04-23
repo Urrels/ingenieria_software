@@ -45,6 +45,7 @@
     <Compile Include="DBInicializador.cs" />
     <Compile Include="MAPPER.cs" />
     <Compile Include="MP_PERSONA.cs" />
+    <Compile Include="MP_USUARIO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UsuarioDAL.cs" />
   </ItemGroup>
@@ -58,7 +59,7 @@
     <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Script_DB.sql" />
+    <Content Include="usuarios.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
