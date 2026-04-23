@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CAPAS
@@ -15,6 +8,36 @@ namespace CAPAS
         public LogIn()
         {
             InitializeComponent();
+        }
+
+        private void btnIngresar_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtUsuario.Text) ||
+                string.IsNullOrWhiteSpace(txtContrasena.Text))
+            {
+                MessageBox.Show("Completá usuario y contraseña.", "Atención",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            BLL.USUARIO bll = new BLL.USUARIO();
+            bool ok = bll.Login(txtUsuario.Text.Trim(), txtContrasena.Text.Trim());
+
+            if (ok)
+            {
+                BE.USUARIO usuarioActual = BE.SessionManager.getInstane().getUsuario();
+                MessageBox.Show($"Bienvenido, {usuarioActual.Usuario}!",
+                    "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Form1 form1 = new Form1();
+                form1.Show();
+                this.Hide();
+            }
+            else
+            {
+                MessageBox.Show("Usuario o contraseña incorrectos.", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
