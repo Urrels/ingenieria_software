@@ -1,29 +1,28 @@
 ﻿using BE;
-using DAL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL
 {
     public class LoginBLL
     {
-        private readonly UsuarioDAL _dal = new UsuarioDAL();
+        private readonly DAL.UsuarioDAL _dal = new DAL.UsuarioDAL();
 
-        public UsuarioComponente AutenticarUsuario(string nombre, string contrasena)
+        public bool AutenticarUsuario(string usuario, string contrasena)
         {
-            var usuarioIngresado = new Usuario
+            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(contrasena))
+                return false;
+
+            // ← Hashea la contraseña antes de comparar
+            string contrasenHash = HashHelper.HashSHA256(contrasena);
+
+            BE.USUARIO u = _dal.ObtenerPorCredenciales(usuario, contrasenHash);
+
+            if (u != null)
             {
-                Nombre = nombre,
-                Contrasena = contrasena
-            };
+                BE.SessionManager.getInstane().setUsuario(u);
+                return true;
+            }
 
-            if (!usuarioIngresado.Validar())
-                return null;
-
-            return _dal.ObtenerPorCredenciales(nombre, contrasena);
+            return false;
         }
     }
 }
