@@ -15,6 +15,7 @@ namespace CAPAS
     {
         BE.PERSONA persona;
         BLL.PERSONA gestor = new BLL.PERSONA();
+
         public Form1()
         {
             InitializeComponent();
@@ -26,9 +27,17 @@ namespace CAPAS
             dataGridView1.DataSource = gestor.Listar();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
+            // Mostrar usuario logueado en el título
+            BE.USUARIO u = BE.SessionManager.getInstane().getUsuario();
+            this.Text = "Form1 — Usuario: " + u.Usuario;
 
+            Enlazar();
+        }
+
+        private void button1_Click(object sender, EventArgs e) // Insertar
+        {
             if (!string.IsNullOrEmpty(textBox1.Text) && !string.IsNullOrEmpty(textBox2.Text))
             {
                 persona = new BE.PERSONA();
@@ -41,25 +50,11 @@ namespace CAPAS
             {
                 MessageBox.Show("Complete los campos");
             }
-
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e) // Editar
         {
-            Enlazar();
-        }
-
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            persona = dataGridView1.Rows[e.RowIndex].DataBoundItem as BE.PERSONA;
-            textBox1.Text = persona.Nombre;
-            textBox2.Text = persona.Apellido;
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (persona !=null && !string.IsNullOrEmpty(textBox1.Text) && !string.IsNullOrEmpty(textBox2.Text))
+            if (persona != null && !string.IsNullOrEmpty(textBox1.Text) && !string.IsNullOrEmpty(textBox2.Text))
             {
                 persona.Nombre = textBox1.Text;
                 persona.Apellido = textBox2.Text;
@@ -72,7 +67,7 @@ namespace CAPAS
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e) // Borrar
         {
             if (persona != null)
             {
@@ -83,6 +78,23 @@ namespace CAPAS
             {
                 MessageBox.Show("Seleccione una persona");
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e) // Cerrar Sesión
+        {
+            BLL.USUARIO bll = new BLL.USUARIO();
+            bll.Logout();
+
+            LogIn login = new LogIn();
+            login.Show();
+            this.Close();
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            persona = dataGridView1.Rows[e.RowIndex].DataBoundItem as BE.PERSONA;
+            textBox1.Text = persona.Nombre;
+            textBox2.Text = persona.Apellido;
         }
     }
 }

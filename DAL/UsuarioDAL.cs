@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DAL
 {
@@ -13,32 +10,28 @@ namespace DAL
     {
         private readonly Acceso _acceso = new Acceso();
 
-        public Usuario ObtenerPorCredenciales(string nombre, string contrasena)
+        public BE.USUARIO ObtenerPorCredenciales(string usuario, string contrasena)
         {
-            Usuario usuario = null;
+            BE.USUARIO u = null;
 
             List<SqlParameter> parametros = new List<SqlParameter>
             {
-                _acceso.CrearParametro("@Nombre",      nombre),
-                _acceso.CrearParametro("@Contrasena",  contrasena)
+                _acceso.CrearParametro("@usuario",   usuario),
+                _acceso.CrearParametro("@pass",      contrasena)
             };
 
             try
             {
                 _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("SP_Login", parametros);
+                DataTable tabla = _acceso.Leer("USUARIO_LOGIN", parametros);
 
                 if (tabla.Rows.Count > 0)
                 {
                     DataRow fila = tabla.Rows[0];
-                    usuario = new Usuario
+                    u = new BE.USUARIO
                     {
-                        Id = Convert.ToInt32(fila["Id"]),
-                        Nombre = fila["Nombre"].ToString(),
-                        Apellido = fila["Apellido"].ToString(),
-                        Email = fila["Email"].ToString(),
-                        Rol = fila["Rol"].ToString(),
-                        Contrasena = contrasena
+                        Id = Convert.ToInt32(fila["ID"]),
+                        Usuario = fila["USUARIO"].ToString()
                     };
                 }
             }
@@ -47,7 +40,7 @@ namespace DAL
                 _acceso.Cerrar();
             }
 
-            return usuario;
+            return u;
         }
     }
 }

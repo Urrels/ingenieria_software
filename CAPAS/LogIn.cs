@@ -20,13 +20,13 @@ namespace CAPAS
                 return;
             }
 
-            BLL.USUARIO bll = new BLL.USUARIO();
-            bool ok = bll.Login(txtUsuario.Text.Trim(), txtContrasena.Text.Trim());
+            BLL.LoginBLL bll = new BLL.LoginBLL();
+            bool ok = bll.AutenticarUsuario(txtUsuario.Text.Trim(), txtContrasena.Text.Trim());
 
             if (ok)
             {
                 BE.USUARIO usuarioActual = BE.SessionManager.getInstane().getUsuario();
-                MessageBox.Show($"Bienvenido, {usuarioActual.Usuario}!",
+                MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
                     "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 Form1 form1 = new Form1();
@@ -39,5 +39,7 @@ namespace CAPAS
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
     }
 }
