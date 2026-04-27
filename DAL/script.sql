@@ -1,137 +1,96 @@
-﻿-- =============================================
--- 1. CREAR BASE DE DATOS
--- =============================================
-CREATE DATABASE [BDCAPAS]
+﻿USE [BDCAPAS]
+GO
+/****** Object:  Table [dbo].[PERSONA]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PERSONA](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[NOMBRE] [varchar](50) NULL,
+	[APELLIDO] [varchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[USUARIO]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[USUARIO](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[USUARIO] [varchar](50) NULL,
+	[PASS] [varchar](64) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  StoredProcedure [dbo].[PERSONA_BORRAR]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 
-USE [BDCAPAS]
-GO
-
--- =============================================
--- 2. CREAR TABLAS
--- =============================================
-CREATE TABLE PERSONAS (
-    ID       INT PRIMARY KEY IDENTITY,
-    NOMBRE   VARCHAR(50),
-    APELLIDO VARCHAR(50)
-)
-GO
-
--- ✅ ACÁ ESTÁ — Tabla de usuarios
-CREATE TABLE USUARIOS (
-    ID      INT PRIMARY KEY IDENTITY,
-    USUARIO VARCHAR(50),
-    PASS    VARCHAR(50)
-)
-GO
-
--- =============================================
--- 3. USUARIO DE PRUEBA
--- =============================================
--- ✅ ACÁ ESTÁ — Insert de prueba
-INSERT INTO USUARIOS (USUARIO, PASS) VALUES ('admin', '1234')
-GO
-
--- =============================================
--- 4. STORED PROCEDURES - PERSONA
--- =============================================
-CREATE PROCEDURE PERSONA_INSERTAR
-    @nom VARCHAR(50),
-    @ape VARCHAR(50)
+CREATE PROCEDURE [dbo].[PERSONA_BORRAR]
+    @ID INT
 AS
-    INSERT INTO PERSONAS (NOMBRE, APELLIDO) 
-    VALUES (@nom, @ape)
+    DELETE FROM PERSONA WHERE ID = @ID
+GO
+/****** Object:  StoredProcedure [dbo].[PERSONA_EDITAR]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE PERSONA_EDITAR
+CREATE PROCEDURE [dbo].[PERSONA_EDITAR]
     @ID  INT,
     @nom VARCHAR(50),
     @ape VARCHAR(50)
 AS
-    UPDATE PERSONAS 
-    SET NOMBRE = @nom, APELLIDO = @ape 
-    WHERE ID = @ID
+    UPDATE PERSONA SET NOMBRE = @nom, APELLIDO = @ape WHERE ID = @ID
+GO
+/****** Object:  StoredProcedure [dbo].[PERSONA_INSERTAR]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE PERSONA_BORRAR
-    @ID INT
+CREATE PROCEDURE [dbo].[PERSONA_INSERTAR]
+    @nom VARCHAR(50),
+    @ape VARCHAR(50)
 AS
-    DELETE FROM PERSONAS 
-    WHERE ID = @ID
+    INSERT INTO PERSONA (NOMBRE, APELLIDO) VALUES (@nom, @ape)
+GO
+/****** Object:  StoredProcedure [dbo].[PERSONA_LISTAR]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE PERSONA_LISTAR
+CREATE PROCEDURE [dbo].[PERSONA_LISTAR]
 AS
-    SELECT ID, NOMBRE, APELLIDO 
-    FROM PERSONAS
+    SELECT ID, NOMBRE, APELLIDO FROM PERSONA
+GO
+/****** Object:  StoredProcedure [dbo].[USUARIO_LOGIN]    Script Date: 27/04/2026 1:27:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 
--- =============================================
--- 5. STORED PROCEDURE - LOGIN
--- =============================================
--- ✅ ACÁ ESTÁ — SP de login
-CREATE PROCEDURE USUARIO_LOGIN
-    @usuario VARCHAR(50),
-    @pass    VARCHAR(50)
-AS
-    SELECT ID, USUARIO 
-    FROM USUARIOS
-    WHERE USUARIO = @usuario AND PASS = @pass
-GO
-
--- =============================================
--- 6. VERIFICAR QUE TODO SE CREO BIEN
--- =============================================
-SELECT 'TABLAS:' AS INFO
-SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES 
-WHERE TABLE_TYPE = 'BASE TABLE'
-
-SELECT 'STORED PROCEDURES:' AS INFO
-SELECT NAME FROM SYS.PROCEDURES
-
-SELECT 'USUARIOS CARGADOS:' AS INFO
-SELECT * FROM USUARIOS
-GO
-
-
-USE [BDCAPAS]
-GO
-
-USE [BDCAPAS]
-GO
-
--- Agrandar la columna PASS para que entre el hash SHA256 (64 caracteres)
-ALTER TABLE USUARIOS
-ALTER COLUMN PASS VARCHAR(64)
-GO
-
--- Ahora sí actualizar con el hash
-UPDATE USUARIOS 
-SET PASS = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
-WHERE USUARIO = 'admin'
-GO
-
--- Verificar
-SELECT * FROM USUARIOS
-GO
-
-USE [BDCAPAS]
-GO
-
-DROP PROCEDURE USUARIO_LOGIN
-GO
-
-CREATE PROCEDURE USUARIO_LOGIN
+CREATE PROCEDURE [dbo].[USUARIO_LOGIN]
     @usuario VARCHAR(64),
     @pass    VARCHAR(64)
 AS
     SELECT ID, USUARIO 
-    FROM USUARIOS
+    FROM USUARIO
     WHERE USUARIO = @usuario AND PASS = @pass
 GO
-
--- Probar que funciona
-EXEC USUARIO_LOGIN 
-    @usuario = 'admin', 
-    @pass = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
+/****** Datos iniciales ******/
+INSERT INTO USUARIO (USUARIO, PASS) 
+VALUES ('admin', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4')
 GO
