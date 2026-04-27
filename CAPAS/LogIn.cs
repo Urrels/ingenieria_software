@@ -29,9 +29,15 @@ namespace CAPAS
                 MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
                     "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                Form1 form1 = new Form1();
-                form1.Show();
+                //Form1 form1 = new Form1();
+                //form1.Show();
+                //this.Hide();
+
+                frmMenu frmMenu1 = new frmMenu();
+                frmMenu1.Show();
                 this.Hide();
+
+
             }
             else
             {

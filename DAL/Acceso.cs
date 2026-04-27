@@ -17,7 +17,7 @@ namespace DAL
         public void Abrir()
         {
             conexion = new SqlConnection();
-            conexion.ConnectionString = "Server=localhost\\SQLEXPRESS01; Database=BDCAPAS; Trusted_Connection=True";
+            conexion.ConnectionString = "initial catalog=BDCAPAS; Data Source=.; Integrated Security=SSPI";
             conexion.Open();
         }
 
