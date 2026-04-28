@@ -30,6 +30,8 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.form1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.proximamenteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.proximamenteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -38,25 +40,39 @@
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.form1ToolStripMenuItem});
+            this.form1ToolStripMenuItem,
+            this.proximamenteToolStripMenuItem,
+            this.proximamenteToolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1306, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // form1ToolStripMenuItem
             // 
             this.form1ToolStripMenuItem.Name = "form1ToolStripMenuItem";
-            this.form1ToolStripMenuItem.Size = new System.Drawing.Size(80, 29);
-            this.form1ToolStripMenuItem.Text = "Form1";
+            this.form1ToolStripMenuItem.Size = new System.Drawing.Size(117, 29);
+            this.form1ToolStripMenuItem.Text = "PERSONAS";
             this.form1ToolStripMenuItem.Click += new System.EventHandler(this.form1ToolStripMenuItem_Click);
+            // 
+            // proximamenteToolStripMenuItem
+            // 
+            this.proximamenteToolStripMenuItem.Name = "proximamenteToolStripMenuItem";
+            this.proximamenteToolStripMenuItem.Size = new System.Drawing.Size(154, 29);
+            this.proximamenteToolStripMenuItem.Text = "Proximamente...";
+            // 
+            // proximamenteToolStripMenuItem1
+            // 
+            this.proximamenteToolStripMenuItem1.Name = "proximamenteToolStripMenuItem1";
+            this.proximamenteToolStripMenuItem1.Size = new System.Drawing.Size(154, 29);
+            this.proximamenteToolStripMenuItem1.Text = "Proximamente...";
             // 
             // frmMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1306, 450);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "frmMenu";
@@ -72,5 +88,7 @@
 
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem form1ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem proximamenteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem proximamenteToolStripMenuItem1;
     }
 }
