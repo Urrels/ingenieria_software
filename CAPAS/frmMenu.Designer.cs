@@ -29,9 +29,11 @@
         private void InitializeComponent()
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.form1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.proximamenteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.proximamenteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.configuraciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FrmPersonasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cambiarContraseñaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.usuarioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cerrarSesionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -40,39 +42,57 @@
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.form1ToolStripMenuItem,
-            this.proximamenteToolStripMenuItem,
-            this.proximamenteToolStripMenuItem1});
+            this.usuarioToolStripMenuItem,
+            this.configuraciónToolStripMenuItem,
+            this.FrmPersonasToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1306, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(852, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // form1ToolStripMenuItem
+            // configuraciónToolStripMenuItem
             // 
-            this.form1ToolStripMenuItem.Name = "form1ToolStripMenuItem";
-            this.form1ToolStripMenuItem.Size = new System.Drawing.Size(117, 29);
-            this.form1ToolStripMenuItem.Text = "PERSONAS";
-            this.form1ToolStripMenuItem.Click += new System.EventHandler(this.form1ToolStripMenuItem_Click);
+            this.configuraciónToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cambiarContraseñaToolStripMenuItem});
+            this.configuraciónToolStripMenuItem.Name = "configuraciónToolStripMenuItem";
+            this.configuraciónToolStripMenuItem.Size = new System.Drawing.Size(139, 29);
+            this.configuraciónToolStripMenuItem.Text = "Configuración";
             // 
-            // proximamenteToolStripMenuItem
+            // FrmPersonasToolStripMenuItem
             // 
-            this.proximamenteToolStripMenuItem.Name = "proximamenteToolStripMenuItem";
-            this.proximamenteToolStripMenuItem.Size = new System.Drawing.Size(154, 29);
-            this.proximamenteToolStripMenuItem.Text = "Proximamente...";
+            this.FrmPersonasToolStripMenuItem.Name = "FrmPersonasToolStripMenuItem";
+            this.FrmPersonasToolStripMenuItem.Size = new System.Drawing.Size(98, 29);
+            this.FrmPersonasToolStripMenuItem.Text = "Personas";
+            this.FrmPersonasToolStripMenuItem.Click += new System.EventHandler(this.FrmPersonasToolStripMenuItem_Click);
             // 
-            // proximamenteToolStripMenuItem1
+            // cambiarContraseñaToolStripMenuItem
             // 
-            this.proximamenteToolStripMenuItem1.Name = "proximamenteToolStripMenuItem1";
-            this.proximamenteToolStripMenuItem1.Size = new System.Drawing.Size(154, 29);
-            this.proximamenteToolStripMenuItem1.Text = "Proximamente...";
+            this.cambiarContraseñaToolStripMenuItem.Name = "cambiarContraseñaToolStripMenuItem";
+            this.cambiarContraseñaToolStripMenuItem.Size = new System.Drawing.Size(274, 34);
+            this.cambiarContraseñaToolStripMenuItem.Text = "Cambiar Contraseña";
+            this.cambiarContraseñaToolStripMenuItem.Click += new System.EventHandler(this.cambiarContraseñaToolStripMenuItem_Click);
+            // 
+            // usuarioToolStripMenuItem
+            // 
+            this.usuarioToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cerrarSesionToolStripMenuItem});
+            this.usuarioToolStripMenuItem.Name = "usuarioToolStripMenuItem";
+            this.usuarioToolStripMenuItem.Size = new System.Drawing.Size(88, 29);
+            this.usuarioToolStripMenuItem.Text = "Usuario";
+            // 
+            // cerrarSesionToolStripMenuItem
+            // 
+            this.cerrarSesionToolStripMenuItem.Name = "cerrarSesionToolStripMenuItem";
+            this.cerrarSesionToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.cerrarSesionToolStripMenuItem.Text = "Cerrar Sesion";
+            this.cerrarSesionToolStripMenuItem.Click += new System.EventHandler(this.cerrarSesionToolStripMenuItem_Click);
             // 
             // frmMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1306, 450);
+            this.ClientSize = new System.Drawing.Size(852, 450);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "frmMenu";
@@ -87,8 +107,10 @@
         #endregion
 
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem form1ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem proximamenteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem proximamenteToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem FrmPersonasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem configuraciónToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem usuarioToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
     }
 }

@@ -17,10 +17,22 @@ namespace CAPAS
             InitializeComponent();
         }
 
-        private void form1ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FrmPersonasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form1 form1 = new Form1();
-            form1.ShowDialog();
+            Form1 FrmPersonas = new Form1();
+            FrmPersonas.ShowDialog();
+        }
+
+        private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmContraseña frmContraseña1 = new frmContraseña();
+            frmContraseña1.ShowDialog();
+        }
+
+        private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //ACA DEBERIA CERRAR LA SESION Y VOLVER AL LOGIN
+             this.Close();
         }
     }
 }
