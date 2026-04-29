@@ -94,3 +94,40 @@ GO
 INSERT INTO USUARIO (USUARIO, PASS) 
 VALUES ('admin', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4')
 GO
+
+-- crear sp para cambiar contrase;a
+
+USE [BDCAPAS]
+GO
+
+CREATE PROCEDURE [dbo].[USUARIO_CAMBIAR_PASS]
+    @usuario VARCHAR(50),
+    @pass    VARCHAR(64)
+AS
+    UPDATE USUARIO 
+    SET PASS = @pass 
+    WHERE USUARIO = @usuario
+GO
+
+CREATE PROCEDURE [dbo].[BITACORA_INSERTAR]
+    @usuario VARCHAR(50),
+    @accion  VARCHAR(50)
+AS
+    INSERT INTO BITACORA (USUARIO, ACCION, FECHA)
+    VALUES (@usuario, @accion, GETDATE())
+GO
+
+CREATE PROCEDURE [dbo].[BITACORA_LISTAR]
+AS
+    SELECT ID, USUARIO, ACCION, FECHA 
+    FROM BITACORA
+    ORDER BY FECHA DESC
+GO 
+CREATE TABLE [dbo].[BITACORA](
+    [ID]      [int] IDENTITY(1,1) NOT NULL,
+    [USUARIO] [varchar](50) NULL,
+    [ACCION]  [varchar](50) NULL,
+    [FECHA]   [datetime] NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC)
+)
+GO

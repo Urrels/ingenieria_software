@@ -51,6 +51,7 @@
             this.Text = "Iniciar Sesión";
             this.Name = "LogIn";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.AcceptButton = this.btnIngresar; 
             this.ResumeLayout(false);
             this.PerformLayout();
         }

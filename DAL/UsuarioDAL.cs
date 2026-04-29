@@ -13,18 +13,15 @@ namespace DAL
         public BE.USUARIO ObtenerPorCredenciales(string usuario, string contrasena)
         {
             BE.USUARIO u = null;
-
             List<SqlParameter> parametros = new List<SqlParameter>
             {
-                _acceso.CrearParametro("@usuario",   usuario),
-                _acceso.CrearParametro("@pass",      contrasena)
+                _acceso.CrearParametro("@usuario", usuario),
+                _acceso.CrearParametro("@pass",    contrasena)
             };
-
             try
             {
                 _acceso.Abrir();
                 DataTable tabla = _acceso.Leer("USUARIO_LOGIN", parametros);
-
                 if (tabla.Rows.Count > 0)
                 {
                     DataRow fila = tabla.Rows[0];
@@ -39,8 +36,27 @@ namespace DAL
             {
                 _acceso.Cerrar();
             }
-
             return u;
+        }
+
+
+        public bool CambiarContrasena(string usuario, string nuevaPassHash)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@usuario", usuario),
+                _acceso.CrearParametro("@pass",    nuevaPassHash)
+            };
+            try
+            {
+                _acceso.Abrir();
+                int filas = _acceso.Escribir("USUARIO_CAMBIAR_PASS", parametros);
+                return filas > 0;
+            }
+            finally
+            {
+                _acceso.Cerrar();
+            }
         }
     }
 }

@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CAPAS
@@ -15,6 +8,13 @@ namespace CAPAS
         public frmMenu()
         {
             InitializeComponent();
+        }
+
+        private void frmMenu_Load(object sender, EventArgs e)
+        {
+            // Mostrar usuario logueado en el título
+            BE.USUARIO u = BE.SessionManager.getInstane().getUsuario();
+            this.Text = "Menu — " + u.Usuario;
         }
 
         private void FrmPersonasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -31,8 +31,23 @@ namespace CAPAS
 
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //ACA DEBERIA CERRAR LA SESION Y VOLVER AL LOGIN
-             this.Close();
+            // Registrar logout en bitácora
+            string usuario = BE.SessionManager.getInstane().getUsuario().Usuario;
+            BLL.BitacoraBLL bitacora = new BLL.BitacoraBLL();
+            bitacora.RegistrarLogout(usuario);
+
+            // Cerrar sesión en el Singleton
+            BE.SessionManager.getInstane().cerrarSesion();
+
+            // Volver al login
+            LogIn login = new LogIn();
+            login.Show();
+            this.Close();
+        }
+        private void bitacoraToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmBitacora frmBit = new frmBitacora();
+            frmBit.ShowDialog();
         }
     }
 }
