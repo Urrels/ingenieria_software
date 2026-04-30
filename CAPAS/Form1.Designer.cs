@@ -97,9 +97,7 @@
             this.button3.Text = "Borrar";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button4 - Cerrar Sesión ← NUEVO
-            // 
+    
             this.button4.Location = new System.Drawing.Point(801, 370);
             this.button4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.button4.Name = "button4";
@@ -126,7 +124,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1200, 692);
             this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.button4); // ← NUEVO
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -152,7 +150,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4; // ← NUEVO
+        private System.Windows.Forms.Button button4; 
         private System.Windows.Forms.DataGridView dataGridView1;
     }
 }

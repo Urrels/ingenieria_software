@@ -35,8 +35,7 @@
             this.txtPassActual.Name = "txtPassActual";
             this.txtPassActual.Size = new System.Drawing.Size(199, 20);
             this.txtPassActual.TabIndex = 1;
-            this.txtPassActual.PasswordChar = '*'; // ← ocultar contraseña
-
+            this.txtPassActual.PasswordChar = '*';
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(14, 111);
             this.label2.Name = "label2";
@@ -47,7 +46,7 @@
             this.txtNuevaPass.Name = "txtNuevaPass";
             this.txtNuevaPass.Size = new System.Drawing.Size(199, 20);
             this.txtNuevaPass.TabIndex = 3;
-            this.txtNuevaPass.PasswordChar = '*'; // ← ocultar contraseña
+            this.txtNuevaPass.PasswordChar = '*'; 
 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(22, 172);
@@ -65,7 +64,7 @@
             this.txtConfPass.Name = "txtConfPass";
             this.txtConfPass.Size = new System.Drawing.Size(199, 20);
             this.txtConfPass.TabIndex = 5;
-            this.txtConfPass.PasswordChar = '*'; // ← ocultar contraseña
+            this.txtConfPass.PasswordChar = '*'; 
 
             this.btnContinuar.Location = new System.Drawing.Point(8, 310);
             this.btnContinuar.Name = "btnContinuar";
@@ -73,7 +72,7 @@
             this.btnContinuar.TabIndex = 6;
             this.btnContinuar.Text = "Continuar";
             this.btnContinuar.UseVisualStyleBackColor = true;
-            this.btnContinuar.Click += new System.EventHandler(this.btnContinuar_Click); // ← ya estaba
+            this.btnContinuar.Click += new System.EventHandler(this.btnContinuar_Click); 
 
             this.button1.Location = new System.Drawing.Point(124, 310);
             this.button1.Name = "button1";
@@ -81,7 +80,7 @@
             this.button1.TabIndex = 7;
             this.button1.Text = "Cancelar";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click); // ← AGREGADO
+            this.button1.Click += new System.EventHandler(this.button1_Click); 
 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);

@@ -12,7 +12,6 @@ namespace CAPAS
 
         private void frmContraseña_Load(object sender, EventArgs e)
         {
-            // Ocultar contraseñas
             txtPassActual.PasswordChar = '*';
             txtNuevaPass.PasswordChar = '*';
             txtConfPass.PasswordChar = '*';
@@ -24,7 +23,6 @@ namespace CAPAS
             string nuevaPass = txtNuevaPass.Text.Trim();
             string confPass = txtConfPass.Text.Trim();
 
-            // Validar campos vacíos
             if (string.IsNullOrEmpty(passActual) ||
                 string.IsNullOrEmpty(nuevaPass) ||
                 string.IsNullOrEmpty(confPass))
@@ -34,7 +32,6 @@ namespace CAPAS
                 return;
             }
 
-            // Validar que nueva y confirmación coincidan
             if (nuevaPass != confPass)
             {
                 MessageBox.Show("Las contraseñas no coinciden.", "Error",
@@ -42,7 +39,7 @@ namespace CAPAS
                 return;
             }
 
-            // Validar requisitos de la nueva contraseña
+   
             if (!ValidarContrasena(nuevaPass))
             {
                 MessageBox.Show("La contraseña debe tener:\n- 6 o más caracteres\n- 1 o más letras MAYÚSCULAS\n- 1 o más NÚMEROS",
@@ -50,7 +47,6 @@ namespace CAPAS
                 return;
             }
 
-            // Verificar contraseña actual
             string usuario = BE.SessionManager.getInstane().getUsuario().Usuario;
             BLL.UsuarioBLL bll = new BLL.UsuarioBLL();
             bool passCorrecta = bll.VerificarContrasena(usuario, passActual);
@@ -62,7 +58,6 @@ namespace CAPAS
                 return;
             }
 
-            // Cambiar contraseña
             bool ok = bll.CambiarContrasena(usuario, nuevaPass);
 
             if (ok)
@@ -91,7 +86,7 @@ namespace CAPAS
             return tieneMayuscula && tieneNumero;
         }
 
-        private void button1_Click(object sender, EventArgs e) // Cancelar
+        private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
         }

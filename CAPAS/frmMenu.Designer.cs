@@ -19,7 +19,7 @@
             this.configuraciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cambiarContraseñaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FrmPersonasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem(); // ← NUEVO
+            this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem(); 
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
 
@@ -29,7 +29,7 @@
                 this.usuarioToolStripMenuItem,
                 this.configuraciónToolStripMenuItem,
                 this.FrmPersonasToolStripMenuItem,
-                this.bitacoraToolStripMenuItem  // ← NUEVO
+                this.bitacoraToolStripMenuItem
             });
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -72,7 +72,7 @@
             this.FrmPersonasToolStripMenuItem.Text = "Personas";
             this.FrmPersonasToolStripMenuItem.Click += new System.EventHandler(this.FrmPersonasToolStripMenuItem_Click);
 
-            // bitacoraToolStripMenuItem ← NUEVO
+            // bitacoraToolStripMenuItem 
             this.bitacoraToolStripMenuItem.Name = "bitacoraToolStripMenuItem";
             this.bitacoraToolStripMenuItem.Size = new System.Drawing.Size(66, 22);
             this.bitacoraToolStripMenuItem.Text = "Bitácora";
@@ -100,6 +100,6 @@
         private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem usuarioToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem; // ← NUEVO
+        private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem; 
     }
 }

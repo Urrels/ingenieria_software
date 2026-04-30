@@ -20,7 +20,7 @@ namespace BLL
             bool resultado = _dal.CambiarContrasena(usuario, hash);
 
             if (resultado)
-                _bitacora.RegistrarAccion(usuario, "CAMBIO_CONTRASENA"); // ← CAMBIO
+                _bitacora.RegistrarAccion(usuario, "CAMBIO_CONTRASENA");
 
             return resultado;
         }

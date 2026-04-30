@@ -7,7 +7,6 @@ namespace DAL
 {
     public class MP_USUARIO : MAPPER<BE.USUARIO>
     {
-        // No se usan pero son obligatorios por el MAPPER abstracto
         public override int Insertar(USUARIO objeto) { return 0; }
         public override int Editar(USUARIO objeto) { return 0; }
         public override int Borrar(USUARIO objeto) { return 0; }

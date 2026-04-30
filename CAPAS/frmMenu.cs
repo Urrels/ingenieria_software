@@ -12,7 +12,6 @@ namespace CAPAS
 
         private void frmMenu_Load(object sender, EventArgs e)
         {
-            // Mostrar usuario logueado en el título
             BE.USUARIO u = BE.SessionManager.getInstane().getUsuario();
             this.Text = "Menu — " + u.Usuario;
         }
@@ -31,15 +30,14 @@ namespace CAPAS
 
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Registrar logout en bitácora
+
             string usuario = BE.SessionManager.getInstane().getUsuario().Usuario;
             BLL.BitacoraBLL bitacora = new BLL.BitacoraBLL();
             bitacora.RegistrarLogout(usuario);
 
-            // Cerrar sesión en el Singleton
+
             BE.SessionManager.getInstane().cerrarSesion();
 
-            // Volver al login
             LogIn login = new LogIn();
             login.Show();
             this.Close();

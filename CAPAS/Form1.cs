@@ -29,14 +29,13 @@ namespace CAPAS
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Mostrar usuario logueado en el título
             BE.USUARIO u = BE.SessionManager.getInstane().getUsuario();
             this.Text = "Form1 — Usuario: " + u.Usuario;
 
             Enlazar();
         }
 
-        private void button1_Click(object sender, EventArgs e) // Insertar
+        private void button1_Click(object sender, EventArgs e) 
         {
             if (!string.IsNullOrEmpty(textBox1.Text) && !string.IsNullOrEmpty(textBox2.Text))
             {
@@ -52,7 +51,7 @@ namespace CAPAS
             }
         }
 
-        private void button2_Click(object sender, EventArgs e) // Editar
+        private void button2_Click(object sender, EventArgs e) 
         {
             if (persona != null && !string.IsNullOrEmpty(textBox1.Text) && !string.IsNullOrEmpty(textBox2.Text))
             {
@@ -67,7 +66,7 @@ namespace CAPAS
             }
         }
 
-        private void button3_Click(object sender, EventArgs e) // Borrar
+        private void button3_Click(object sender, EventArgs e) 
         {
             if (persona != null)
             {
@@ -80,7 +79,7 @@ namespace CAPAS
             }
         }
 
-        private void button4_Click(object sender, EventArgs e) // Cerrar Sesión
+        private void button4_Click(object sender, EventArgs e) 
         {
             BLL.USUARIO bll = new BLL.USUARIO();
             bll.Logout();
