@@ -14,12 +14,6 @@ namespace CAPAS
         {
             CargarBitacora();
         }
-
-        private void btnRefrescar_Click(object sender, EventArgs e)
-        {
-            CargarBitacora();
-        }
-
         private void CargarBitacora()
         {
             BLL.BitacoraBLL bll = new BLL.BitacoraBLL();

@@ -17,11 +17,7 @@ namespace CAPAS
             this.Text = "Menu — " + u.Usuario;
         }
 
-        private void FrmPersonasToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Form1 FrmPersonas = new Form1();
-            FrmPersonas.ShowDialog();
-        }
+        
 
         private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)
         {
