@@ -19,41 +19,71 @@
             this.txtContrasena = new System.Windows.Forms.TextBox();
             this.btnIngresar = new System.Windows.Forms.Button();
             this.SuspendLayout();
-
-            this.lblUsuario.Text = "Usuario";
-            this.lblUsuario.Location = new System.Drawing.Point(50, 80);
+            // 
+            // lblUsuario
+            // 
             this.lblUsuario.AutoSize = true;
-
-            this.lblContrasena.Text = "Contraseña";
-            this.lblContrasena.Location = new System.Drawing.Point(50, 130);
+            this.lblUsuario.BackColor = System.Drawing.Color.Transparent;
+            this.lblUsuario.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUsuario.ForeColor = System.Drawing.Color.White;
+            this.lblUsuario.Location = new System.Drawing.Point(50, 80);
+            this.lblUsuario.Name = "lblUsuario";
+            this.lblUsuario.Size = new System.Drawing.Size(86, 25);
+            this.lblUsuario.TabIndex = 0;
+            this.lblUsuario.Text = "Usuario";
+            // 
+            // lblContrasena
+            // 
             this.lblContrasena.AutoSize = true;
-
-            this.txtUsuario.Location = new System.Drawing.Point(160, 75);
-            this.txtUsuario.Size = new System.Drawing.Size(220, 26);
+            this.lblContrasena.BackColor = System.Drawing.Color.Transparent;
+            this.lblContrasena.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblContrasena.ForeColor = System.Drawing.Color.White;
+            this.lblContrasena.Location = new System.Drawing.Point(50, 130);
+            this.lblContrasena.Name = "lblContrasena";
+            this.lblContrasena.Size = new System.Drawing.Size(124, 25);
+            this.lblContrasena.TabIndex = 1;
+            this.lblContrasena.Text = "Contraseña";
+            // 
+            // txtUsuario
+            // 
+            this.txtUsuario.Location = new System.Drawing.Point(187, 79);
             this.txtUsuario.Name = "txtUsuario";
-
-            this.txtContrasena.Location = new System.Drawing.Point(160, 125);
-            this.txtContrasena.Size = new System.Drawing.Size(220, 26);
+            this.txtUsuario.Size = new System.Drawing.Size(220, 26);
+            this.txtUsuario.TabIndex = 2;
+            // 
+            // txtContrasena
+            // 
+            this.txtContrasena.Location = new System.Drawing.Point(187, 131);
             this.txtContrasena.Name = "txtContrasena";
             this.txtContrasena.PasswordChar = '*';
-
-            this.btnIngresar.Text = "Ingresar";
+            this.txtContrasena.Size = new System.Drawing.Size(220, 26);
+            this.txtContrasena.TabIndex = 3;
+            // 
+            // btnIngresar
+            // 
             this.btnIngresar.Location = new System.Drawing.Point(160, 180);
+            this.btnIngresar.Name = "btnIngresar";
             this.btnIngresar.Size = new System.Drawing.Size(120, 40);
+            this.btnIngresar.TabIndex = 4;
+            this.btnIngresar.Text = "Ingresar";
             this.btnIngresar.Click += new System.EventHandler(this.btnIngresar_Click);
-
-            this.ClientSize = new System.Drawing.Size(450, 280);
-            this.Controls.AddRange(new System.Windows.Forms.Control[] {
-                this.lblUsuario, this.lblContrasena,
-                this.txtUsuario, this.txtContrasena,
-                this.btnIngresar
-            });
-            this.Text = "Iniciar Sesión";
+            // 
+            // LogIn
+            // 
+            this.AcceptButton = this.btnIngresar;
+            this.BackgroundImage = global::CAPAS.Properties.Resources.login_bg;
+            this.ClientSize = new System.Drawing.Size(493, 280);
+            this.Controls.Add(this.lblUsuario);
+            this.Controls.Add(this.lblContrasena);
+            this.Controls.Add(this.txtUsuario);
+            this.Controls.Add(this.txtContrasena);
+            this.Controls.Add(this.btnIngresar);
             this.Name = "LogIn";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.AcceptButton = this.btnIngresar; 
+            this.Text = "Iniciar Sesión";
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private System.Windows.Forms.Label lblUsuario;

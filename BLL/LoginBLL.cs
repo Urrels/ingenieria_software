@@ -18,7 +18,7 @@ namespace BLL
             if (u != null)
             {
                 BE.SessionManager.getInstane().setUsuario(u);
-                _bitacora.RegistrarLogin(usuario); // ← LOGIN
+                _bitacora.RegistrarLogin(usuario); 
                 return true;
             }
 
