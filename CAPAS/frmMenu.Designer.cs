@@ -96,6 +96,6 @@
         private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem usuarioToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem; // ← NUEVO
+        private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem; 
     }
 }
