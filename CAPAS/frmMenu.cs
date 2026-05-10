@@ -12,8 +12,16 @@ namespace CAPAS
 
         private void frmMenu_Load(object sender, EventArgs e)
         {
-            BE.USUARIO u = BE.SessionManager.getInstane().getUsuario();
+            BE.USUARIO u = BE.SessionManager.getInstance().getUsuario();
             this.Text = "Menu — " + u.Usuario;
+
+            administracionToolStripMenuItem.Visible = BE.SessionManager.getInstance().EsAdmin();
+        }
+
+        private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmAdminUsuarios frm = new frmAdminUsuarios();
+            frm.ShowDialog();
         }
 
         
@@ -27,12 +35,12 @@ namespace CAPAS
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            string usuario = BE.SessionManager.getInstane().getUsuario().Usuario;
+            string usuario = BE.SessionManager.getInstance().getUsuario().Usuario;
             BLL.BitacoraBLL bitacora = new BLL.BitacoraBLL();
             bitacora.RegistrarLogout(usuario);
 
 
-            BE.SessionManager.getInstane().cerrarSesion();
+            BE.SessionManager.getInstance().cerrarSesion();
 
             LogIn login = new LogIn();
             login.Show();

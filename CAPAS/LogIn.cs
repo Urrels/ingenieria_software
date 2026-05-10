@@ -21,28 +21,32 @@ namespace CAPAS
             }
 
             BLL.LoginBLL bll = new BLL.LoginBLL();
-            bool ok = bll.AutenticarUsuario(txtUsuario.Text.Trim(), txtContrasena.Text.Trim());
+            BE.LoginResultado resultado = bll.AutenticarUsuario(
+                txtUsuario.Text.Trim(), txtContrasena.Text.Trim());
 
-            if (ok)
+            switch (resultado)
             {
-                BE.USUARIO usuarioActual = BE.SessionManager.getInstane().getUsuario();
-                MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
-                    "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                case BE.LoginResultado.Exito:
+                    BE.USUARIO usuarioActual = BE.SessionManager.getInstance().getUsuario();
+                    MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
+                        "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                //Form1 form1 = new Form1();
-                //form1.Show();
-                //this.Hide();
+                    frmMenu frmMenu1 = new frmMenu();
+                    frmMenu1.Show();
+                    this.Hide();
+                    break;
 
-                frmMenu frmMenu1 = new frmMenu();
-                frmMenu1.Show();
-                this.Hide();
+                case BE.LoginResultado.UsuarioBloqueado:
+                    MessageBox.Show(
+                        "Usuario bloqueado por intentos fallidos. Contactate con un administrador.",
+                        "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
 
-
-            }
-            else
-            {
-                MessageBox.Show("Usuario o contraseña incorrectos.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                case BE.LoginResultado.CredencialesInvalidas:
+                default:
+                    MessageBox.Show("Usuario o contraseña incorrectos.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
             }
         }
 

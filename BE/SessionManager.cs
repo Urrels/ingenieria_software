@@ -1,4 +1,7 @@
-﻿namespace BE
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace BE
 {
     public class SessionManager
     {
@@ -7,7 +10,21 @@
 
         private SessionManager() { }
 
-        public static SessionManager getInstane()
+        public static string Hashear(string texto)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(texto));
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                return sb.ToString();
+            }
+        }
+
+        public static SessionManager getInstance()
         {
             if (_instance == null)
             {
@@ -21,16 +38,20 @@
             return _usuario;
         }
 
-        public int setUsuario(USUARIO usuario)
+        public void setUsuario(USUARIO usuario)
         {
             _usuario = usuario;
-            return 1;
         }
 
         public void cerrarSesion()
         {
             _usuario = null;
             _instance = null;
+        }
+
+        public bool EsAdmin()
+        {
+            return _usuario != null && _usuario.Rol == "admin";
         }
     }
 }

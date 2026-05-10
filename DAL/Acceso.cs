@@ -66,17 +66,8 @@ namespace DAL
         public int Escribir(string sql, List<SqlParameter> parametros = null)
         {
             SqlCommand cmd = CrearComando(sql, parametros);
-            int filas = 0;
-            try
-            {
-                filas = cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                filas = -1;
-            }
+            int filas = cmd.ExecuteNonQuery();
             cmd.Parameters.Clear();
-            cmd = null;
             return filas;
         }
 

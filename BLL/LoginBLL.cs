@@ -7,22 +7,35 @@ namespace BLL
         private readonly DAL.UsuarioDAL _dal = new DAL.UsuarioDAL();
         private readonly BitacoraBLL _bitacora = new BitacoraBLL();
 
-        public bool AutenticarUsuario(string usuario, string contrasena)
+        public LoginResultado AutenticarUsuario(string usuario, string contrasena)
         {
             if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(contrasena))
-                return false;
+                return LoginResultado.CredencialesInvalidas;
 
-            string contrasenHash = HashHelper.HashSHA256(contrasena);
+            if (_dal.EstaBloqueado(usuario))
+                return LoginResultado.UsuarioBloqueado;
+
+            string contrasenHash = SessionManager.Hashear(contrasena);
             BE.USUARIO u = _dal.ObtenerPorCredenciales(usuario, contrasenHash);
 
             if (u != null)
             {
-                BE.SessionManager.getInstane().setUsuario(u);
-                _bitacora.RegistrarLogin(usuario); 
-                return true;
+                _dal.ResetearIntentos(usuario);
+                BE.SessionManager.getInstance().setUsuario(u);
+                _bitacora.RegistrarLogin(usuario);
+                return LoginResultado.Exito;
             }
 
-            return false;
+            bool quedoBloqueado = _dal.IncrementarIntentos(usuario);
+            _bitacora.RegistrarAccion(usuario, "LOGIN_FALLIDO");
+
+            if (quedoBloqueado)
+            {
+                _bitacora.RegistrarAccion(usuario, "USUARIO_BLOQUEADO");
+                return LoginResultado.UsuarioBloqueado;
+            }
+
+            return LoginResultado.CredencialesInvalidas;
         }
     }
 }

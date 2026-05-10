@@ -47,7 +47,7 @@ namespace CAPAS
                 return;
             }
 
-            string usuario = BE.SessionManager.getInstane().getUsuario().Usuario;
+            string usuario = BE.SessionManager.getInstance().getUsuario().Usuario;
             BLL.UsuarioBLL bll = new BLL.UsuarioBLL();
             bool passCorrecta = bll.VerificarContrasena(usuario, passActual);
 
