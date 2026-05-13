@@ -1,4 +1,6 @@
-﻿using BE;
+using BE;
+using Seguridad;
+using Servicio;
 
 namespace BLL
 {
@@ -9,14 +11,14 @@ namespace BLL
 
         public bool VerificarContrasena(string usuario, string contrasena)
         {
-            string hash = SessionManager.Hashear(contrasena);
+            string hash = Hasher.Hashear(contrasena);
             BE.USUARIO u = _dal.ObtenerPorCredenciales(usuario, hash);
             return u != null;
         }
 
         public bool CambiarContrasena(string usuario, string nuevaContrasena)
         {
-            string hash = SessionManager.Hashear(nuevaContrasena);
+            string hash = Hasher.Hashear(nuevaContrasena);
             bool resultado = _dal.CambiarContrasena(usuario, hash);
 
             if (resultado)

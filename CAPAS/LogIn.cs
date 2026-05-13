@@ -27,7 +27,7 @@ namespace CAPAS
             switch (resultado)
             {
                 case BE.LoginResultado.Exito:
-                    BE.USUARIO usuarioActual = BE.SessionManager.getInstance().getUsuario();
+                    BE.USUARIO usuarioActual = Servicio.SessionManager.getInstance().getUsuario();
                     MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
                         "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

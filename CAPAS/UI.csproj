@@ -125,6 +125,10 @@
       <Project>{a3b015f1-0568-4ce2-a766-60a11e57c28b}</Project>
       <Name>BLL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Servicio\Servicio.csproj">
+      <Project>{34a82e7e-2216-484e-b70f-9afbb939138f}</Project>
+      <Name>Servicio</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\login bg.jpg" />

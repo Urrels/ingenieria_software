@@ -1,4 +1,6 @@
-﻿using BE;
+using BE;
+using Seguridad;
+using Servicio;
 
 namespace BLL
 {
@@ -15,13 +17,13 @@ namespace BLL
             if (_dal.EstaBloqueado(usuario))
                 return LoginResultado.UsuarioBloqueado;
 
-            string contrasenHash = SessionManager.Hashear(contrasena);
+            string contrasenHash = Hasher.Hashear(contrasena);
             BE.USUARIO u = _dal.ObtenerPorCredenciales(usuario, contrasenHash);
 
             if (u != null)
             {
                 _dal.ResetearIntentos(usuario);
-                BE.SessionManager.getInstance().setUsuario(u);
+                SessionManager.getInstance().setUsuario(u);
                 _bitacora.RegistrarLogin(usuario);
                 return LoginResultado.Exito;
             }
