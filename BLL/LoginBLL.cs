@@ -1,28 +1,52 @@
-﻿using BE;
+using BE;
+using SeguridadYServicios;
+using System.Collections.Generic;
 
 namespace BLL
 {
     public class LoginBLL
     {
-        private readonly DAL.UsuarioDAL _dal = new DAL.UsuarioDAL();
-        private readonly BitacoraBLL _bitacora = new BitacoraBLL();
+        private readonly DAL.UsuarioDAL      _dal        = new DAL.UsuarioDAL();
+        private readonly BitacoraBLL         _bitacora   = new BitacoraBLL();
+        private readonly UsuarioPerfilBLL    _perfilBll  = new UsuarioPerfilBLL();
+        private readonly IntegridadBLL       _integridad = new IntegridadBLL();
+        private readonly UsuarioHistorialBLL _historial  = new UsuarioHistorialBLL();
 
-        public bool AutenticarUsuario(string usuario, string contrasena)
+        public LoginResultado AutenticarUsuario(string usuario, string contrasena)
         {
             if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(contrasena))
-                return false;
+                return LoginResultado.CredencialesInvalidas;
 
-            string contrasenHash = HashHelper.HashSHA256(contrasena);
+            if (_dal.EstaBloqueado(usuario))
+                return LoginResultado.UsuarioBloqueado;
+
+            string contrasenHash = Hasher.Hashear(contrasena);
             BE.USUARIO u = _dal.ObtenerPorCredenciales(usuario, contrasenHash);
 
             if (u != null)
             {
-                BE.SessionManager.getInstane().setUsuario(u);
-                _bitacora.RegistrarLogin(usuario); 
-                return true;
+                _dal.ResetearIntentos(usuario);
+                _integridad.RecalcularIntegridadUsuarios();
+                SessionManager.getInstance().setUsuario(u);
+                List<string> permisos = _perfilBll.ObtenerPermisos(u.Id);
+                SessionManager.getInstance().setPermisos(permisos);
+                _bitacora.RegistrarLogin(usuario);
+                return LoginResultado.Exito;
             }
 
-            return false;
+            bool quedoBloqueado = _dal.IncrementarIntentos(usuario);
+            _integridad.RecalcularIntegridadUsuarios();
+            _bitacora.RegistrarAccion(usuario, "LOGIN_FALLIDO");
+
+            if (quedoBloqueado)
+            {
+                _bitacora.RegistrarAccion(usuario, "USUARIO_BLOQUEADO");
+                int? id = _dal.ObtenerIdPorNombre(usuario);
+                if (id.HasValue) _historial.RegistrarCambio(id.Value, "BLOQUEO", "sistema");
+                return LoginResultado.UsuarioBloqueado;
+            }
+
+            return LoginResultado.CredencialesInvalidas;
         }
     }
 }

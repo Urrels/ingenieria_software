@@ -1,12 +1,11 @@
-﻿using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace BE
+namespace Seguridad
 {
-    public class HashHelper
+    public static class Hasher
     {
-        public static string HashSHA256(string texto)
+        public static string Hashear(string texto)
         {
             using (SHA256 sha256 = SHA256.Create())
             {

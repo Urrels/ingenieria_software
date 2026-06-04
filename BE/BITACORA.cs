@@ -31,5 +31,7 @@ namespace BE
             get { return fecha; }
             set { fecha = value; }
         }
+
+        public int DVH { get; set; }
     }
 }

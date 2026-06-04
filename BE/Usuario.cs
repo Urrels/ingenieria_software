@@ -22,5 +22,10 @@
             get { return contrasena; }
             set { contrasena = value; }
         }
+
+        public int IntentosFallidos { get; set; }
+        public bool Bloqueado { get; set; }
+        public string Rol { get; set; }
+        public int DVH { get; set; }
     }
 }

@@ -41,11 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppInicializador.cs" />
     <Compile Include="BitacoraBLL.cs" />
+    <Compile Include="IntegridadBLL.cs" />
+    <Compile Include="UsuarioHistorialBLL.cs" />
+    <Compile Include="IdiomaBLL.cs" />
     <Compile Include="LoginBLL.cs" />
+    <Compile Include="PerfilBLL.cs" />
+    <Compile Include="UsuarioPerfilBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="USUARIO.cs" />
     <Compile Include="UsuarioBLL.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +59,10 @@
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{a3dce225-8612-47f3-bfe1-30e5f7c77abb}</Project>
       <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SeguridadYServicios\SeguridadYServicios.csproj">
+      <Project>{99bee6c4-9900-40a3-9a90-162def0417eb}</Project>
+      <Name>SeguridadYServicios</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

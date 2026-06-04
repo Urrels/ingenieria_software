@@ -144,6 +144,7 @@
             this.Name = "frmContraseña";
             this.Text = "Cambiar Contraseña";
             this.Load += new System.EventHandler(this.frmContraseña_Load);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmContraseña_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
