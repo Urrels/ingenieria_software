@@ -1,7 +1,7 @@
 using BE;
 using System.Collections.Generic;
 
-namespace Servicio
+namespace SeguridadYServicios
 {
     public sealed class SessionManager
     {

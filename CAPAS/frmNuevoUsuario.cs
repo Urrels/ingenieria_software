@@ -4,18 +4,31 @@ using System.Windows.Forms;
 
 namespace CAPAS
 {
-    public partial class LogIn : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmNuevoUsuario : Form, SeguridadYServicios.IObservadorIdioma
     {
+        public string NombreUsuario => txtNombre.Text.Trim();
+        public string Contrasena    => txtContrasena.Text;
+        public string Rol           => (string)cboRol.SelectedValue;
+
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
         private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
 
-        public LogIn()
+        public frmNuevoUsuario()
         {
             InitializeComponent();
         }
 
-        private void LogIn_Load(object sender, EventArgs e)
+        private void frmNuevoUsuario_Load(object sender, EventArgs e)
         {
+            cboRol.DataSource = new[]
+            {
+                new { Texto = "Administrador", Valor = "admin"   },
+                new { Texto = "Usuario común",  Valor = "usuario" }
+            };
+            cboRol.DisplayMember = "Texto";
+            cboRol.ValueMember   = "Valor";
+            cboRol.SelectedIndex = 1;
+
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
             _defaults[this.Name]  = this.Text;
@@ -24,7 +37,7 @@ namespace CAPAS
             IdiomaUIHelper.AgregarSelector(this);
         }
 
-        private void LogIn_FormClosed(object sender, FormClosedEventArgs e)
+        private void frmNuevoUsuario_FormClosed(object sender, FormClosedEventArgs e)
         {
             SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
         }
@@ -52,41 +65,28 @@ namespace CAPAS
             }
         }
 
-        private void btnIngresar_Click(object sender, EventArgs e)
+        private void btnAceptar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtUsuario.Text) ||
-                string.IsNullOrWhiteSpace(txtContrasena.Text))
+            if (string.IsNullOrWhiteSpace(NombreUsuario))
             {
-                MessageBox.Show("Completá usuario y contraseña.", "Atención",
+                MessageBox.Show("Ingresá un nombre de usuario.", "Atención",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            BLL.LoginBLL bll = new BLL.LoginBLL();
-            BE.LoginResultado resultado = bll.AutenticarUsuario(
-                txtUsuario.Text.Trim(), txtContrasena.Text.Trim());
-
-            switch (resultado)
+            if (string.IsNullOrWhiteSpace(Contrasena))
             {
-                case BE.LoginResultado.Exito:
-                    BE.USUARIO usuarioActual = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-                    MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
-                        "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    new frmMenu().Show();
-                    this.Hide();
-                    break;
-
-                case BE.LoginResultado.UsuarioBloqueado:
-                    MessageBox.Show(
-                        "Usuario bloqueado por intentos fallidos. Contactate con un administrador.",
-                        "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
-
-                default:
-                    MessageBox.Show("Usuario o contraseña incorrectos.", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    break;
+                MessageBox.Show("Ingresá una contraseña.", "Atención",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+
+        private void btnCancelar_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
         }
     }
 }
