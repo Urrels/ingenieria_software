@@ -204,7 +204,6 @@ namespace CAPAS
             MessageBox.Show("Traducciones guardadas.", "Éxito",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            // Si el idioma guardado es el activo, refrescar todos los observers
             var mgr = SeguridadYServicios.IdiomaManager.getInstance();
             if (mgr.IdiomaActivo != null && mgr.IdiomaActivo.Id == _idiomaSeleccionado.Id)
             {

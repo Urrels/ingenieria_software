@@ -6,11 +6,10 @@ namespace BLL
 {
     public class LoginBLL
     {
-        private readonly DAL.UsuarioDAL      _dal        = new DAL.UsuarioDAL();
-        private readonly BitacoraBLL         _bitacora   = new BitacoraBLL();
-        private readonly UsuarioPerfilBLL    _perfilBll  = new UsuarioPerfilBLL();
-        private readonly IntegridadBLL       _integridad = new IntegridadBLL();
-        private readonly UsuarioHistorialBLL _historial  = new UsuarioHistorialBLL();
+        private readonly DAL.UsuarioDAL      _dal       = new DAL.UsuarioDAL();
+        private readonly BitacoraBLL         _bitacora  = new BitacoraBLL();
+        private readonly UsuarioPerfilBLL    _perfilBll = new UsuarioPerfilBLL();
+        private readonly UsuarioHistorialBLL _historial = new UsuarioHistorialBLL();
 
         public LoginResultado AutenticarUsuario(string usuario, string contrasena)
         {
@@ -26,7 +25,6 @@ namespace BLL
             if (u != null)
             {
                 _dal.ResetearIntentos(usuario);
-                _integridad.RecalcularIntegridadUsuarios();
                 SessionManager.getInstance().setUsuario(u);
                 List<string> permisos = _perfilBll.ObtenerPermisos(u.Id);
                 SessionManager.getInstance().setPermisos(permisos);
@@ -35,7 +33,6 @@ namespace BLL
             }
 
             bool quedoBloqueado = _dal.IncrementarIntentos(usuario);
-            _integridad.RecalcularIntegridadUsuarios();
             _bitacora.RegistrarAccion(usuario, "LOGIN_FALLIDO");
 
             if (quedoBloqueado)

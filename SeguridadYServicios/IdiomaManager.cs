@@ -53,8 +53,6 @@ namespace SeguridadYServicios
                 obs.ActualizarIdioma();
         }
 
-        // Devuelve la traducción para la clave dada, o null si no existe.
-        // Las formas usan su texto de diseño como fallback cuando reciben null.
         public string Traducir(string clave)
         {
             return _traducciones.TryGetValue(clave, out string texto) ? texto : null;

@@ -9,47 +9,17 @@ namespace BLL
     {
         public bool EsValido { get; set; } = true;
         public List<string> Errores { get; set; } = new List<string>();
+        public List<int> IdsUsuariosAfectados { get; set; } = new List<int>();
     }
 
-    /// <summary>
-    /// Gestiona los dígitos verificadores horizontales (DVH) y verticales (DVV)
-    /// para las entidades más sensibles del sistema: USUARIO, BITACORA y NODO_PERMISO.
-    ///
-    /// DVH (horizontal): un valor por fila, almacenado en la propia tabla.
-    ///   Detecta modificaciones en cualquier atributo de un registro.
-    ///
-    /// DVV (vertical): un valor por columna lógica, en DIGITO_VERIFICADOR_VERTICAL.
-    ///   Detecta inserciones, eliminaciones e intercambios de filas.
-    ///
-    /// Solución multi-tabla (USUARIO): el estado de un usuario incluye también sus
-    /// perfiles (USUARIO_PERFIL). Se incorpora el atributo virtual "PERFILES" —
-    /// lista ordenada de IDs de perfil — al cálculo del DVH de USUARIO. Cualquier
-    /// cambio externo en USUARIO_PERFIL invalida el DVH del usuario afectado.
-    ///
-    /// Mecanismo genérico: el algoritmo reside en SeguridadYServicios.CalculadorDVH
-    /// y opera sobre string[]. Extender a una nueva entidad requiere solo definir
-    /// su lista canónica de atributos y agregar un bloque análogo en
-    /// VerificarIntegridad / RecalcularIntegridad.
-    /// </summary>
     public class IntegridadBLL
     {
-        // Orden canónico de atributos por entidad (excluye DVH).
-        // "PERFILES" en USUARIO es atributo virtual derivado de USUARIO_PERFIL.
         private static readonly string[] ColumnasUsuario =
             { "ID", "USUARIO", "PASS", "INTENTOS_FALLIDOS", "BLOQUEADO", "ROL", "PERFILES" };
-
-        private static readonly string[] ColumnasBitacora =
-            { "ID", "USUARIO", "ACCION", "FECHA" };
-
-        private static readonly string[] ColumnasNodoPermiso =
-            { "ID", "NOMBRE", "TIPO", "PADRE_ID" };
 
         private readonly DAL.IntegridadDAL    _dal       = new DAL.IntegridadDAL();
         private readonly DAL.UsuarioPerfilDAL _perfilDal = new DAL.UsuarioPerfilDAL();
 
-        // -------------------------------------------------------
-        // Extracción de atributos
-        // -------------------------------------------------------
 
         private string[] ExtraerAtributosUsuario(DataRow fila, string perfilesStr)
         {
@@ -72,31 +42,6 @@ namespace BLL
             return string.Join(",", ids);
         }
 
-        private string[] ExtraerAtributosBitacora(DataRow fila)
-        {
-            return new string[]
-            {
-                fila["ID"].ToString(),
-                fila["USUARIO"].ToString(),
-                fila["ACCION"].ToString(),
-                fila["FECHA"].ToString()   // SP devuelve CONVERT(VARCHAR, FECHA, 120)
-            };
-        }
-
-        private string[] ExtraerAtributosNodoPermiso(DataRow fila)
-        {
-            return new string[]
-            {
-                fila["ID"].ToString(),
-                fila["NOMBRE"].ToString(),
-                fila["TIPO"].ToString(),
-                fila["PADRE_ID"].ToString()  // SP devuelve '0' cuando es NULL
-            };
-        }
-
-        // -------------------------------------------------------
-        // Verificación de una tabla (método genérico interno)
-        // -------------------------------------------------------
 
         private void VerificarTabla(
             string          nombreTabla,
@@ -117,8 +62,9 @@ namespace BLL
                 if (dvhAlmacenado != dvhCalculado)
                 {
                     resultado.EsValido = false;
-                    resultado.Errores.Add(
-                        $"{nombreTabla} ID={id}: DVH inválido.");
+                    resultado.Errores.Add($"{nombreTabla} ID={id}: DVH inválido.");
+                    if (nombreTabla == "USUARIO")
+                        resultado.IdsUsuariosAfectados.Add(id);
                 }
 
                 todasFilas.Add(atribs);
@@ -152,9 +98,6 @@ namespace BLL
             }
         }
 
-        // -------------------------------------------------------
-        // Recálculo de una tabla (método genérico interno)
-        // -------------------------------------------------------
 
         private void RecalcularTabla(
             string          nombreTabla,
@@ -181,14 +124,7 @@ namespace BLL
             }
         }
 
-        // -------------------------------------------------------
-        // API pública — verificación
-        // -------------------------------------------------------
 
-        /// <summary>
-        /// Verifica la integridad de USUARIO, BITACORA y NODO_PERMISO.
-        /// Se llama al iniciar la aplicación, antes del login.
-        /// </summary>
         public ResultadoIntegridad VerificarIntegridad()
         {
             ResultadoIntegridad resultado = new ResultadoIntegridad();
@@ -199,26 +135,10 @@ namespace BLL
                 fila => ExtraerAtributosUsuario(fila, ObtenerPerfilesStr(Convert.ToInt32(fila["ID"]))),
                 resultado);
 
-            DataTable bitacora = _dal.ListarBitacoraParaIntegridad();
-            VerificarTabla(
-                "BITACORA", ColumnasBitacora, bitacora,
-                ExtraerAtributosBitacora,
-                resultado);
-
-            DataTable nodos = _dal.ListarNodosParaIntegridad();
-            VerificarTabla(
-                "NODO_PERMISO", ColumnasNodoPermiso, nodos,
-                ExtraerAtributosNodoPermiso,
-                resultado);
-
             return resultado;
         }
 
-        // -------------------------------------------------------
-        // API pública — recálculo por entidad
-        // -------------------------------------------------------
 
-        /// <summary>Recalcula DVH y DVV de USUARIO. Llamar tras cualquier mutación de usuarios o perfiles.</summary>
         public void RecalcularIntegridadUsuarios()
         {
             RecalcularTabla(
@@ -228,46 +148,15 @@ namespace BLL
                 _dal.ActualizarDVHUsuario);
         }
 
-        /// <summary>Recalcula DVH y DVV de BITACORA. Llamar tras cualquier escritura en bitácora.</summary>
-        public void RecalcularIntegridadBitacora()
-        {
-            RecalcularTabla(
-                "BITACORA", ColumnasBitacora,
-                _dal.ListarBitacoraParaIntegridad(),
-                ExtraerAtributosBitacora,
-                _dal.ActualizarDVHBitacora);
-        }
-
-        /// <summary>Recalcula DVH y DVV de NODO_PERMISO. Llamar tras cualquier mutación del árbol de permisos.</summary>
-        public void RecalcularIntegridadNodos()
-        {
-            RecalcularTabla(
-                "NODO_PERMISO", ColumnasNodoPermiso,
-                _dal.ListarNodosParaIntegridad(),
-                ExtraerAtributosNodoPermiso,
-                _dal.ActualizarDVHNodo);
-        }
-
-        /// <summary>Recalcula las tres entidades de una sola vez. Usado en la inicialización.</summary>
         public void RecalcularIntegridad()
         {
             RecalcularIntegridadUsuarios();
-            RecalcularIntegridadBitacora();
-            RecalcularIntegridadNodos();
         }
 
-        // -------------------------------------------------------
-        // Bootstrap
-        // -------------------------------------------------------
 
-        /// <summary>
-        /// Retorna true si el sistema de integridad fue inicializado para las tres entidades.
-        /// </summary>
         public bool EstaInicializado()
         {
-            return _dal.ObtenerDVV("USUARIO").Count      > 0
-                && _dal.ObtenerDVV("BITACORA").Count     > 0
-                && _dal.ObtenerDVV("NODO_PERMISO").Count > 0;
+            return _dal.ObtenerDVV("USUARIO").Count > 0;
         }
     }
 }

@@ -24,9 +24,6 @@ namespace CAPAS
             this.btnCerrar = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).BeginInit();
             this.SuspendLayout();
-            //
-            // lblTitulo
-            //
             this.lblTitulo.AutoSize = true;
             this.lblTitulo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.lblTitulo.Location = new System.Drawing.Point(18, 15);
@@ -34,9 +31,6 @@ namespace CAPAS
             this.lblTitulo.Size = new System.Drawing.Size(248, 26);
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Gestión de usuarios";
-            //
-            // dgvUsuarios
-            //
             this.dgvUsuarios.AllowUserToAddRows = false;
             this.dgvUsuarios.AllowUserToDeleteRows = false;
             this.dgvUsuarios.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -48,9 +42,6 @@ namespace CAPAS
             this.dgvUsuarios.MultiSelect = false;
             this.dgvUsuarios.Size = new System.Drawing.Size(750, 380);
             this.dgvUsuarios.TabIndex = 1;
-            //
-            // btnNuevo
-            //
             this.btnNuevo.Location = new System.Drawing.Point(18, 460);
             this.btnNuevo.Name = "btnNuevo";
             this.btnNuevo.Size = new System.Drawing.Size(140, 36);
@@ -58,9 +49,6 @@ namespace CAPAS
             this.btnNuevo.Text = "Nuevo usuario";
             this.btnNuevo.UseVisualStyleBackColor = true;
             this.btnNuevo.Click += new System.EventHandler(this.btnNuevo_Click);
-            //
-            // btnModificarPerfiles
-            //
             this.btnModificarPerfiles.Location = new System.Drawing.Point(170, 460);
             this.btnModificarPerfiles.Name = "btnModificarPerfiles";
             this.btnModificarPerfiles.Size = new System.Drawing.Size(155, 36);
@@ -68,9 +56,6 @@ namespace CAPAS
             this.btnModificarPerfiles.Text = "Modificar perfiles";
             this.btnModificarPerfiles.UseVisualStyleBackColor = true;
             this.btnModificarPerfiles.Click += new System.EventHandler(this.btnModificarPerfiles_Click);
-            //
-            // btnEliminar
-            //
             this.btnEliminar.Location = new System.Drawing.Point(337, 460);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(140, 36);
@@ -78,9 +63,6 @@ namespace CAPAS
             this.btnEliminar.Text = "Eliminar usuario";
             this.btnEliminar.UseVisualStyleBackColor = true;
             this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
-            //
-            // btnDesbloquear
-            //
             this.btnDesbloquear.Location = new System.Drawing.Point(489, 460);
             this.btnDesbloquear.Name = "btnDesbloquear";
             this.btnDesbloquear.Size = new System.Drawing.Size(195, 36);
@@ -88,9 +70,6 @@ namespace CAPAS
             this.btnDesbloquear.Text = "Desbloquear seleccionado";
             this.btnDesbloquear.UseVisualStyleBackColor = true;
             this.btnDesbloquear.Click += new System.EventHandler(this.btnDesbloquear_Click);
-            //
-            // btnRefrescar
-            //
             this.btnRefrescar.Location = new System.Drawing.Point(18, 508);
             this.btnRefrescar.Name = "btnRefrescar";
             this.btnRefrescar.Size = new System.Drawing.Size(100, 36);
@@ -98,9 +77,6 @@ namespace CAPAS
             this.btnRefrescar.Text = "Refrescar";
             this.btnRefrescar.UseVisualStyleBackColor = true;
             this.btnRefrescar.Click += new System.EventHandler(this.btnRefrescar_Click);
-            //
-            // btnHistorial
-            //
             this.btnHistorial.Location = new System.Drawing.Point(130, 508);
             this.btnHistorial.Name = "btnHistorial";
             this.btnHistorial.Size = new System.Drawing.Size(165, 36);
@@ -108,9 +84,6 @@ namespace CAPAS
             this.btnHistorial.Text = "Ver historial";
             this.btnHistorial.UseVisualStyleBackColor = true;
             this.btnHistorial.Click += new System.EventHandler(this.btnHistorial_Click);
-            //
-            // btnCerrar
-            //
             this.btnCerrar.Location = new System.Drawing.Point(648, 508);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(120, 36);
@@ -118,9 +91,6 @@ namespace CAPAS
             this.btnCerrar.Text = "Cerrar";
             this.btnCerrar.UseVisualStyleBackColor = true;
             this.btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
-            //
-            // frmAdminUsuarios
-            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(786, 560);

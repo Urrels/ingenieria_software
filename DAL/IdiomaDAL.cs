@@ -113,15 +113,14 @@ namespace DAL
         public Dictionary<string, string> CargarTraducciones(int idiomaId)
         {
             var dic = new Dictionary<string, string>();
-            var p = new List<SqlParameter> { _acceso.CrearParametro("@idioma_id", idiomaId) };
-            try
+            foreach (CONTROL_IDIOMA c in ListarControlesConTraduccion(idiomaId))
             {
-                _acceso.Abrir();
-                DataTable t = _acceso.Leer("TRADUCCION_LISTAR_POR_IDIOMA", p);
-                foreach (DataRow f in t.Rows)
-                    dic[f["CLAVE"].ToString()] = f["TEXTO"].ToString();
+                string valor = !string.IsNullOrEmpty(c.TextoTraduccion)
+                    ? c.TextoTraduccion
+                    : c.TextoDefault;
+                if (!string.IsNullOrEmpty(valor))
+                    dic[c.Clave] = valor;
             }
-            finally { _acceso.Cerrar(); }
             return dic;
         }
 

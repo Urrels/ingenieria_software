@@ -10,6 +10,11 @@ namespace BLL
         private readonly IntegridadBLL       _integridad = new IntegridadBLL();
         private readonly UsuarioHistorialBLL _historial  = new UsuarioHistorialBLL();
 
+        public BE.USUARIO ObtenerPorId(int id)
+        {
+            return _dal.ObtenerPorId(id);
+        }
+
         public bool VerificarContrasena(string usuario, string contrasena)
         {
             string hash = Hasher.Hashear(contrasena);
@@ -45,7 +50,6 @@ namespace BLL
 
         public void Eliminar(int id)
         {
-            // Registrar BAJA antes de borrar (último snapshot del usuario)
             string admin = SessionManager.getInstance().getUsuario().Usuario;
             _historial.RegistrarCambio(id, "BAJA", admin);
             _dal.Eliminar(id);

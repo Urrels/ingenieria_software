@@ -1,60 +1,57 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 
 namespace CAPAS
 {
     static class Program
     {
+        internal static BLL.ResultadoIntegridad ResultadoIntegridad { get; private set; }
+
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            if (!VerificarIntegridadBD())
-                return;
-
+            InicializarIntegridad();
             Application.Run(new LogIn());
         }
 
-        private static bool VerificarIntegridadBD()
+        private static void InicializarIntegridad()
         {
             try
             {
                 BLL.IntegridadBLL integridadBLL = new BLL.IntegridadBLL();
-
-                // Primer arranque tras la migración: inicializar los dígitos.
                 if (!integridadBLL.EstaInicializado())
                     integridadBLL.RecalcularIntegridad();
-
-                BLL.ResultadoIntegridad resultado = integridadBLL.VerificarIntegridad();
-
-                if (!resultado.EsValido)
-                {
-                    string detalle = string.Join(Environment.NewLine, resultado.Errores);
-                    MessageBox.Show(
-                        "Se detectaron problemas de integridad en la base de datos:" +
-                        Environment.NewLine + Environment.NewLine + detalle +
-                        Environment.NewLine + Environment.NewLine +
-                        "Contacte al administrador del sistema.",
-                        "Error de integridad de datos",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-                    return false;
-                }
-
-                return true;
+                ResultadoIntegridad = integridadBLL.VerificarIntegridad();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "No se pudo verificar la integridad de la base de datos:" +
-                    Environment.NewLine + ex.Message,
-                    "Error de integridad",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                return false;
+                ResultadoIntegridad = new BLL.ResultadoIntegridad
+                {
+                    EsValido = false,
+                    Errores  = new List<string> { ex.ToString() }
+                };
             }
+        }
+
+        internal static void GuardarLogIntegridad(List<string> errores)
+        {
+            try
+            {
+                string ruta = Path.Combine(Application.StartupPath, "integridad_error.log");
+                using (StreamWriter sw = new StreamWriter(ruta, append: true))
+                {
+                    sw.WriteLine($"=== {DateTime.Now:yyyy-MM-dd HH:mm:ss} ===");
+                    foreach (string error in errores)
+                        sw.WriteLine(error);
+                    sw.WriteLine();
+                }
+            }
+            catch { }
         }
     }
 }

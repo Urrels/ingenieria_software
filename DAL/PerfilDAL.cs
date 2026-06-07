@@ -10,7 +10,7 @@ namespace DAL
     {
         private readonly Acceso _acceso = new Acceso();
 
-        public List<NodoPermiso> ListarTodos()
+        public List<NodoPermiso> ListarRoles()
         {
             List<NodoPermiso> lista = new List<NodoPermiso>();
             try
@@ -19,32 +19,97 @@ namespace DAL
                 DataTable tabla = _acceso.Leer("PERFIL_LISTAR_TODOS");
                 foreach (DataRow fila in tabla.Rows)
                 {
-                    string tipo = fila["TIPO"].ToString();
-                    NodoPermiso nodo = tipo == "PERFIL"
-                        ? (NodoPermiso)new PerfilPermiso()
-                        : new Permiso();
-
-                    nodo.Id = Convert.ToInt32(fila["ID"]);
-                    nodo.Nombre = fila["NOMBRE"].ToString();
-                    nodo.PadreId = fila["PADRE_ID"] == DBNull.Value
-                        ? (int?)null
-                        : Convert.ToInt32(fila["PADRE_ID"]);
-
-                    lista.Add(nodo);
+                    lista.Add(new Rol
+                    {
+                        Id        = Convert.ToInt32(fila["ID"]),
+                        Nombre    = fila["NOMBRE"].ToString(),
+                        PadreId   = fila["PADRE_ID"] == DBNull.Value
+                                      ? (int?)null
+                                      : Convert.ToInt32(fila["PADRE_ID"]),
+                        Protegido = Convert.ToBoolean(fila["PROTEGIDO"])
+                    });
                 }
             }
-            finally
-            {
-                _acceso.Cerrar();
-            }
+            finally { _acceso.Cerrar(); }
             return lista;
+        }
+
+        public List<Permiso> ListarPermisosDisponibles()
+        {
+            List<Permiso> lista = new List<Permiso>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("PERMISO_LISTAR_TODOS");
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new Permiso
+                    {
+                        Id     = Convert.ToInt32(fila["ID"]),
+                        Nombre = fila["NOMBRE"].ToString()
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
+
+        public List<Permiso> ListarRolPermisos()
+        {
+            List<Permiso> lista = new List<Permiso>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("ROL_PERMISO_LISTAR_TODOS");
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new Permiso
+                    {
+                        Id      = Convert.ToInt32(fila["PERMISO_ID"]),
+                        Nombre  = fila["NOMBRE"].ToString(),
+                        PadreId = Convert.ToInt32(fila["ROL_ID"])
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
+
+        public void GuardarPermisosDeRol(int rolId, List<int> permisoIds)
+        {
+            try
+            {
+                _acceso.Abrir();
+                _acceso.IniciarTx();
+
+                _acceso.Escribir("ROL_PERMISO_LIMPIAR",
+                    new List<SqlParameter> { _acceso.CrearParametro("@rol_id", rolId) });
+
+                foreach (int pid in permisoIds)
+                {
+                    _acceso.Escribir("ROL_PERMISO_INSERTAR", new List<SqlParameter>
+                    {
+                        _acceso.CrearParametro("@rol_id",     rolId),
+                        _acceso.CrearParametro("@permiso_id", pid)
+                    });
+                }
+
+                _acceso.ConfirmarTX();
+            }
+            catch
+            {
+                _acceso.DeshacerTX();
+                throw;
+            }
+            finally { _acceso.Cerrar(); }
         }
 
         public int Insertar(string nombre, string tipo, int? padreId)
         {
-            SqlParameter paramPadre = new SqlParameter("@padre_id", DbType.Int32);
-            paramPadre.Value = padreId.HasValue ? (object)padreId.Value : DBNull.Value;
-
+            SqlParameter paramPadre = new SqlParameter("@padre_id", DbType.Int32)
+            {
+                Value = padreId.HasValue ? (object)padreId.Value : DBNull.Value
+            };
             List<SqlParameter> parametros = new List<SqlParameter>
             {
                 _acceso.CrearParametro("@nombre", nombre),
@@ -57,27 +122,49 @@ namespace DAL
                 DataTable tabla = _acceso.Leer("PERFIL_INSERTAR", parametros);
                 return Convert.ToInt32(tabla.Rows[0]["ID"]);
             }
-            finally
-            {
-                _acceso.Cerrar();
-            }
+            finally { _acceso.Cerrar(); }
         }
 
-        public void Eliminar(int id)
+        public bool TieneUsuariosAsignados(int rolId)
         {
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("PERFIL_TIENE_USUARIOS",
+                    new List<SqlParameter> { _acceso.CrearParametro("@rol_id", rolId) });
+                return Convert.ToInt32(tabla.Rows[0]["TOTAL"]) > 0;
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public void CambiarPadre(int rolId, int? nuevoPadreId)
+        {
+            SqlParameter paramPadre = new SqlParameter("@padre_id", DbType.Int32)
+            {
+                Value = nuevoPadreId.HasValue ? (object)nuevoPadreId.Value : DBNull.Value
+            };
             List<SqlParameter> parametros = new List<SqlParameter>
             {
-                _acceso.CrearParametro("@id", id)
+                _acceso.CrearParametro("@id", rolId),
+                paramPadre
             };
             try
             {
                 _acceso.Abrir();
-                _acceso.Escribir("PERFIL_ELIMINAR", parametros);
+                _acceso.Escribir("PERFIL_CAMBIAR_PADRE", parametros);
             }
-            finally
+            finally { _acceso.Cerrar(); }
+        }
+
+        public void Eliminar(int id)
+        {
+            try
             {
-                _acceso.Cerrar();
+                _acceso.Abrir();
+                _acceso.Escribir("PERFIL_ELIMINAR",
+                    new List<SqlParameter> { _acceso.CrearParametro("@id", id) });
             }
+            finally { _acceso.Cerrar(); }
         }
     }
 }
