@@ -121,6 +121,14 @@ namespace CAPAS
             BE.UsuarioHistorial sel = dgvHistorial.CurrentRow?.DataBoundItem as BE.UsuarioHistorial;
             if (sel == null) return;
 
+            // FIX: no permitir rollback de un rollback
+            if (sel.TipoCambio == "ROLLBACK")
+            {
+                MessageBox.Show("No se puede restaurar una versión que ya es un rollback.",
+                    "Operación no permitida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             string msg = string.Format(
                 "¿Restaurar el estado del usuario '{0}' a la versión del {1:dd/MM/yyyy HH:mm}?\n\n" +
                 "Tipo de cambio registrado: {2}\n\n" +
@@ -131,13 +139,19 @@ namespace CAPAS
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
-            string admin = SeguridadYServicios.SessionManager.getInstance().getUsuario().Usuario;
-            _bll.Rollback(sel.Id, admin);
-
-            MessageBox.Show("Estado restaurado correctamente.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            CargarHistorial();
+            try
+            {
+                string admin = SeguridadYServicios.SessionManager.getInstance().getUsuario().Usuario;
+                _bll.Rollback(sel.Id, admin);
+                MessageBox.Show("Estado restaurado correctamente.", "Éxito",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CargarHistorial();
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnCerrar_Click(object sender, EventArgs e)

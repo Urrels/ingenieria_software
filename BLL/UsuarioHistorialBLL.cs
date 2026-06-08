@@ -48,6 +48,9 @@ namespace BLL
             if (snapshot == null)
                 throw new InvalidOperationException("Versión histórica no encontrada.");
 
+            if (snapshot.TipoCambio == "ROLLBACK")
+                throw new InvalidOperationException("No se puede restaurar una versión que ya es un rollback.");
+
             _usuarioDal.AplicarEstado(
                 snapshot.UsuarioId,
                 snapshot.Rol,
@@ -59,10 +62,8 @@ namespace BLL
                 _perfilDal.Asignar(snapshot.UsuarioId, pid);
 
             RegistrarCambio(snapshot.UsuarioId, "ROLLBACK", realizadoPor, historialId);
-
             new IntegridadBLL().RecalcularIntegridadUsuarios();
         }
-
         private List<int> ParsearPerfiles(string perfilesStr)
         {
             List<int> result = new List<int>();
