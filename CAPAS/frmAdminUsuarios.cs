@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmAdminUsuarios : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmAdminUsuarios : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly BLL.UsuarioBLL _bll = new BLL.UsuarioBLL();
         private readonly Dictionary<string, Control> _controles  = new Dictionary<string, Control>();
@@ -28,6 +30,8 @@ namespace CAPAS
             ActualizarIdioma();
             CargarUsuarios();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmAdminUsuarios_FormClosed(object sender, FormClosedEventArgs e)

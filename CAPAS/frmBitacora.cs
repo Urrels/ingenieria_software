@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmBitacora : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmBitacora : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private const string OPCION_TODOS = "(Todos)";
         private List<BE.BITACORA> _todas = new List<BE.BITACORA>();
@@ -32,6 +34,8 @@ namespace CAPAS
             PoblarFiltros();
             Refrescar();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmBitacora_FormClosed(object sender, FormClosedEventArgs e)

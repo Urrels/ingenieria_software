@@ -2,10 +2,12 @@ using BE;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmMenu : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmMenu : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly Dictionary<string, ToolStripItem> _menuItems  = new Dictionary<string, ToolStripItem>();
         private readonly Dictionary<string, string>        _menuDefaults = new Dictionary<string, string>();
@@ -30,6 +32,8 @@ namespace CAPAS
             GuardarMenuDefaults(menuStrip1.Items);
             CargarIdiomas();
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmMenu_FormClosed(object sender, FormClosedEventArgs e)

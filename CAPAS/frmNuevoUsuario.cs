@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmNuevoUsuario : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmNuevoUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         public string NombreUsuario => txtNombre.Text.Trim();
         public string Contrasena    => txtContrasena.Text;
@@ -35,6 +37,8 @@ namespace CAPAS
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmNuevoUsuario_FormClosed(object sender, FormClosedEventArgs e)

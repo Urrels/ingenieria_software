@@ -61,7 +61,30 @@ Servicio/    ← LEGACY: superseded by SeguridadYServicios
 - `ValidadorContrasena` — Password rules (min 6 chars, uppercase, digit).
 - `CalculadorDVH` — Static utility. `Calcular(string[])` for DVH; `CalcularVertical(List<string[]>, int)` for DVV. Formula: `Σ Unicode(char) × posAtributo × posChar` (1-based).
 
-**CAPAS** — Windows Forms. References BLL and SeguridadYServicios. Every `Form` that should react to language changes implements `IObservadorIdioma`.
+**CAPAS** — Windows Forms. References BLL and SeguridadYServicios. Every `Form` that should react to language changes implements `IObservadorIdioma`. All forms inherit from `ReaLTaiizor.Forms.MaterialForm` (not `System.Windows.Forms.Form`).
+
+## UI theme (ReaLTaiizor)
+
+The app uses **ReaLTaiizor 3.8.1.8** (NuGet, .NET Framework 4.8). Two layers cooperate:
+
+**MaterialSkinManager** (global, `Program.cs`) — configured once before `Application.Run`:
+```csharp
+var skin = MaterialSkinManager.Instance;
+skin.Theme = MaterialSkinManager.Themes.LIGHT;
+skin.ColorScheme = new MaterialColorScheme(
+    MaterialPrimary.Blue700, MaterialPrimary.Blue900, MaterialPrimary.Blue200,
+    MaterialAccent.LightBlue200, MaterialTextShade.LIGHT);
+```
+
+**Per-form** — every form's `Load` event must call, in this order:
+```csharp
+MaterialSkinManager.Instance.AddFormToManage(this);
+AppTheme.AplicarTema(this);
+```
+
+**`AppTheme.AplicarTema(form)`** (`CAPAS/AppTheme.cs`) — applies the corporate palette to Button, TextBox, Label, DataGridView, TreeView, ComboBox, Panel, GroupBox, MenuStrip, StatusStrip, and DateTimePicker controls recursively. Color constants: `FondoForm=#F5F7FA`, header/accent `#1565C0`.
+
+**Critical layout constraint** — `MaterialForm` renders its own title bar (~64 px) **inside** the client area at `y=0`. Controls in `.Designer.cs` must have `Location.Y ≥ ~70` or they will be hidden under the title bar. When designing a new form or adjusting an existing one, offset all content controls by at least 70 px from the top of the client area. The `ClientSize.Height` must be increased by the same amount relative to the visible content.
 
 ## Key design patterns
 
@@ -191,26 +214,52 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 
 ## Adding a new form with language support
 
-1. Implement `SeguridadYServicios.IObservadorIdioma`.
-2. Add `Dictionary<string, Control> _controles` and `Dictionary<string, string> _defaults` fields.
-3. In `Load`:
+1. Inherit from `ReaLTaiizor.Forms.MaterialForm` (not `Form`). Add `using ReaLTaiizor.Forms; using ReaLTaiizor.Manager;` at the top.
+2. Implement `SeguridadYServicios.IObservadorIdioma`.
+3. Add `Dictionary<string, Control> _controles` and `Dictionary<string, string> _defaults` fields.
+4. In `Load`:
    - Call `GuardarDefaults(this.Controls)`.
    - Add `_controles[this.Name] = this; _defaults[this.Name] = this.Text;` (registers the title bar).
    - Call `IdiomaManager.getInstance().Registrar(this)`, then `ActualizarIdioma()`.
-   - Call `IdiomaUIHelper.AgregarSelector(this)` last.
-4. Wire `FormClosed` → `IdiomaManager.getInstance().Desregistrar(this)`.
-5. `ActualizarIdioma()` iterates `_controles` and applies `Traducir(key) ?? _defaults[key]`. If the form has DataGridViews, also call `ActualizarEncabezados()`.
-6. Add `Load` and `FormClosed` event wiring in the `.Designer.cs`.
-7. Add the `.cs` and `.Designer.cs` entries to `CAPAS/UI.csproj`.
-8. Append `EXEC CONTROL_REGISTRAR` calls to `DAL/script.sql` for all new control keys and form name, plus `EXEC TRADUCCION_GUARDAR` for each supported language, then re-run the script.
+   - Call `IdiomaUIHelper.AgregarSelector(this)` **before** the two lines below.
+   - Call `MaterialSkinManager.Instance.AddFormToManage(this);` then `AppTheme.AplicarTema(this);` **last**.
+5. Wire `FormClosed` → `IdiomaManager.getInstance().Desregistrar(this)`.
+6. `ActualizarIdioma()` iterates `_controles` and applies `Traducir(key) ?? _defaults[key]`. If the form has DataGridViews, also call `ActualizarEncabezados()`.
+7. In `.Designer.cs`: place all content controls at `Location.Y ≥ 70` to clear the ~64 px MaterialForm title bar. Set `ClientSize.Height` to accommodate the shifted layout. Add `Load` and `FormClosed` event wiring.
+8. Add the `.cs` and `.Designer.cs` entries to `CAPAS/UI.csproj`.
+9. Append `EXEC CONTROL_REGISTRAR` calls to `DAL/script.sql` for all new control keys and form name, plus `EXEC TRADUCCION_GUARDAR` for each supported language, then re-run the script.
 
-## Diagrams
+## Documentation artifacts
 
-`DER.puml` and `DiagramaClases.puml` in the repo root are PlantUML source files. To regenerate PNG images (requires Python and internet access):
+All PlantUML sources are rendered via `generar_png.py` (uses kroki.io, requires internet).
+
+| File | Type | Purpose |
+|---|---|---|
+| `DER.puml` / `.png` | DER | Modelo entidad-relación de BDCAPAS |
+| `DiagramaClases.puml` / `.png` | Diagrama de clases | Capas BE, BLL, DAL, SeguridadYServicios |
+| `DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
+| `DiagramaSecuencia_LoginIntegridad_EA.puml` / `.png` | Secuencia (EA-style) | Variante con estética Enterprise Architect |
+| `DiagramaSecuencia_CU0X_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por caso de uso documentado |
+| `CasosDeUso/README.md` | Catálogo | Índice de los 20 CUs + actores + permisos |
+| `CasosDeUso/CU-XX_*.md` | Descripción | Cada CU en formato Cockburn (markdown) |
+| `CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |
+| `generar_casos_uso_docx.py` | Generador | Regenera el `.docx` desde el dict `CUS` definido en el script |
+
+Regenerar PNGs:
 
 ```powershell
-python generar_png.py DER.puml DER.png
-python generar_png.py DiagramaClases.puml DiagramaClases.png
+python generar_png.py <archivo.puml> <archivo.png>
 ```
 
-The script uses kroki.io as the rendering backend.
+Regenerar el `.docx` de casos de uso (tras editar `CUS` en el script):
+
+```powershell
+python generar_casos_uso_docx.py
+```
+
+## Modeling conventions (use cases & sequence diagrams)
+
+- **Actores:** solo dos — `Usuario` (base) y `Administrador` (especialización que generaliza a Usuario). Los permisos individuales (*Administrar usuarios*, *Gestión de roles*, *Gestión de idiomas*, *Ver bitácora*, *Cambiar contraseña*) son precondiciones del CU, no actores separados.
+- **Diagramas de secuencia:** nivel UI / BLL / DB. `:DB` consolida todos los DALs como un `database`. Servicios transversales (`:SessionManager`, `:IntegridadBLL`) aparecen solo cuando son relevantes al flujo del actor.
+- **Estilo PlantUML:** sin `box` agrupador; cada participante con color tenue por capa — CAPAS `#FEFECE`, BLL `#E8F4E8`, DAL `#E8E8F4`, Seguridad `#F4E8E8`. Skinparams comunes: `shadowing false`, `roundcorner 6`, `hide footbox`, `scale 0.75–0.85`.
+- **CU descriptions:** plantilla Cockburn — ID, actor primario, frecuencia, prioridad, propósito, precondiciones, postcondiciones (éxito y fallo), disparador, flujo principal numerado, flujos alternativos (`Xa`, `Xb`, etc.), excepciones, reglas de negocio y relaciones (`«include»` / `«extend»`).

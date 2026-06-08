@@ -2,10 +2,12 @@ using BE;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmAsignarPerfiles : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmAsignarPerfiles : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly BLL.PerfilBLL _perfilBll = new BLL.PerfilBLL();
         private readonly BLL.UsuarioPerfilBLL _asignacionBll = new BLL.UsuarioPerfilBLL();
@@ -34,6 +36,8 @@ namespace CAPAS
             _arbol = _perfilBll.ObtenerArbol();
             CargarArbolRoles();
             MarcarRolesAsignados();
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmAsignarPerfiles_FormClosed(object sender, FormClosedEventArgs e)
