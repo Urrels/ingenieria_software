@@ -1,0 +1,98 @@
+@startuml DER - BDCAPAS
+
+skinparam linetype ortho
+hide empty methods
+
+entity USUARIO {
+  * ID : INT <<PK>>
+  --
+  USUARIO : VARCHAR(50)
+  PASS : VARCHAR(64)
+  INTENTOS_FALLIDOS : INT
+  BLOQUEADO : BIT
+  ROL : VARCHAR(20)
+  DVH : INT
+}
+
+entity NODO_PERMISO {
+  * ID : INT <<PK>>
+  --
+  NOMBRE : VARCHAR(100)
+  TIPO : VARCHAR(10)
+  PADRE_ID : INT <<FK>>
+  PROTEGIDO : BIT
+}
+
+entity USUARIO_PERFIL {
+  * USUARIO_ID : INT <<PK, FK>>
+  * PERFIL_ID : INT <<PK, FK>>
+}
+
+entity ROL_PERMISO {
+  * ROL_ID : INT <<PK, FK>>
+  * PERMISO_ID : INT <<PK, FK>>
+}
+
+entity BITACORA {
+  * ID : INT <<PK>>
+  --
+  USUARIO : VARCHAR(50)
+  ACCION : VARCHAR(50)
+  FECHA : DATETIME
+}
+
+entity IDIOMA {
+  * ID : INT <<PK>>
+  --
+  NOMBRE : VARCHAR(50)
+  HABILITADO : BIT
+}
+
+entity CONTROL_IDIOMA {
+  * ID : INT <<PK>>
+  --
+  CLAVE : VARCHAR(100)
+  TEXTO_DEFAULT : VARCHAR(200)
+}
+
+entity TRADUCCION {
+  * IDIOMA_ID : INT <<PK, FK>>
+  * CONTROL_ID : INT <<PK, FK>>
+  --
+  TEXTO : VARCHAR(200)
+}
+
+entity USUARIO_HISTORIAL {
+  * ID : INT <<PK>>
+  --
+  USUARIO_ID : INT
+  USUARIO_LOGIN : VARCHAR(50)
+  ROL : VARCHAR(20)
+  BLOQUEADO : BIT
+  INTENTOS_FALLIDOS : INT
+  PERFILES : VARCHAR(500)
+  FECHA_CAMBIO : DATETIME
+  REALIZADO_POR : VARCHAR(50)
+  TIPO_CAMBIO : VARCHAR(25)
+  VERSION_ORIGEN : INT <<nullable>>
+}
+
+entity DIGITO_VERIFICADOR_VERTICAL {
+  * TABLA : VARCHAR(50) <<PK>>
+  * COLUMNA : VARCHAR(50) <<PK>>
+  --
+  DVV : INT
+}
+
+' Relaciones con FK real
+USUARIO        ||--o{ USUARIO_PERFIL  : "tiene >"
+NODO_PERMISO   ||--o{ USUARIO_PERFIL  : "< rol asignado a"
+NODO_PERMISO   ||--o{ ROL_PERMISO     : "ROL_ID >"
+NODO_PERMISO   ||--o{ ROL_PERMISO     : "< PERMISO_ID"
+NODO_PERMISO   ||--o{ NODO_PERMISO    : "PADRE_ID (autoref) >"
+IDIOMA         ||--o{ TRADUCCION      : "tiene >"
+CONTROL_IDIOMA ||--o{ TRADUCCION      : "< traduce"
+
+USUARIO        ..o{ USUARIO_HISTORIAL : "referencia logica >"
+
+@enduml

@@ -61,68 +61,6 @@ namespace DAL
             return resultado;
         }
 
-        public DataTable ListarBitacoraParaIntegridad()
-        {
-            try
-            {
-                _acceso.Abrir();
-                return _acceso.Leer("BITACORA_LISTAR_PARA_INTEGRIDAD");
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-        }
-
-        public void ActualizarDVHBitacora(int id, int dvh)
-        {
-            List<SqlParameter> parametros = new List<SqlParameter>
-            {
-                _acceso.CrearParametro("@id",  id),
-                _acceso.CrearParametro("@dvh", dvh)
-            };
-            try
-            {
-                _acceso.Abrir();
-                _acceso.Escribir("BITACORA_ACTUALIZAR_DVH", parametros);
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-        }
-
-        public DataTable ListarNodosParaIntegridad()
-        {
-            try
-            {
-                _acceso.Abrir();
-                return _acceso.Leer("NODO_PERMISO_LISTAR_PARA_INTEGRIDAD");
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-        }
-
-        public void ActualizarDVHNodo(int id, int dvh)
-        {
-            List<SqlParameter> parametros = new List<SqlParameter>
-            {
-                _acceso.CrearParametro("@id",  id),
-                _acceso.CrearParametro("@dvh", dvh)
-            };
-            try
-            {
-                _acceso.Abrir();
-                _acceso.Escribir("NODO_PERMISO_ACTUALIZAR_DVH", parametros);
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-        }
-
         public void ActualizarDVV(string tabla, string columna, int dvv)
         {
             List<SqlParameter> parametros = new List<SqlParameter>

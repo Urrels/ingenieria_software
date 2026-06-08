@@ -2,20 +2,6 @@ using System.Collections.Generic;
 
 namespace SeguridadYServicios
 {
-    /// <summary>
-    /// Algoritmo genérico de dígitos verificadores.
-    ///
-    /// DVH (horizontal, por fila):
-    ///   dvh = Σ_i Σ_j  Unicode(atributo[i][j])  ×  (i+1)  ×  (j+1)
-    ///   donde i = posición del atributo (0-based) y j = posición del carácter (0-based).
-    ///   La posición del atributo y la del carácter participan explícitamente en el
-    ///   producto, de modo que intercambiar atributos o caracteres produce un DVH distinto.
-    ///
-    /// DVV (vertical, por columna):
-    ///   dvv = Σ_k Σ_j  Unicode(filas[k][colIdx][j])  ×  (k+1)  ×  (j+1)
-    ///   donde k = posición de la fila en el conjunto ordenado (0-based).
-    ///   Detecta inserciones, eliminaciones e intercambios de filas.
-    /// </summary>
     public static class CalculadorDVH
     {
         public static int Calcular(string[] atributos)

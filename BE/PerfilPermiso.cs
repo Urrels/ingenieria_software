@@ -2,8 +2,10 @@ using System.Collections.Generic;
 
 namespace BE
 {
-    public class PerfilPermiso : NodoPermiso
+    public class Rol : NodoPermiso
     {
+        public bool Protegido { get; set; }
+
         private readonly List<NodoPermiso> _hijos = new List<NodoPermiso>();
 
         public override void Agregar(NodoPermiso nodo)

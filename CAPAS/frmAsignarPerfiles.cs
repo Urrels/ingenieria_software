@@ -32,8 +32,8 @@ namespace CAPAS
             IdiomaUIHelper.AgregarSelector(this);
 
             _arbol = _perfilBll.ObtenerArbol();
-            CargarArbolPerfiles();
-            MarcarPerfilesAsignados();
+            CargarArbolRoles();
+            MarcarRolesAsignados();
         }
 
         private void frmAsignarPerfiles_FormClosed(object sender, FormClosedEventArgs e)
@@ -64,38 +64,38 @@ namespace CAPAS
             }
         }
 
-        private void CargarArbolPerfiles()
+        private void CargarArbolRoles()
         {
-            treePerfiles.Nodes.Clear();
+            treeRoles.Nodes.Clear();
             foreach (NodoPermiso raiz in _arbol)
             {
                 if (!raiz.EsHoja())
                 {
                     TreeNode nodo = new TreeNode(raiz.Nombre) { Tag = raiz };
-                    AgregarPerfilesRecursivo(nodo, raiz);
-                    treePerfiles.Nodes.Add(nodo);
+                    AgregarRolesRecursivo(nodo, raiz);
+                    treeRoles.Nodes.Add(nodo);
                 }
             }
-            treePerfiles.ExpandAll();
+            treeRoles.ExpandAll();
         }
 
-        private void AgregarPerfilesRecursivo(TreeNode nodoTree, NodoPermiso nodo)
+        private void AgregarRolesRecursivo(TreeNode nodoTree, NodoPermiso nodo)
         {
             foreach (NodoPermiso hijo in nodo.ObtenerHijos())
             {
                 if (!hijo.EsHoja())
                 {
                     TreeNode nodoHijo = new TreeNode(hijo.Nombre) { Tag = hijo };
-                    AgregarPerfilesRecursivo(nodoHijo, hijo);
+                    AgregarRolesRecursivo(nodoHijo, hijo);
                     nodoTree.Nodes.Add(nodoHijo);
                 }
             }
         }
 
-        private void MarcarPerfilesAsignados()
+        private void MarcarRolesAsignados()
         {
             List<int> asignados = _asignacionBll.ObtenerPerfilesAsignados(_usuario.Id);
-            MarcarNodos(treePerfiles.Nodes, asignados);
+            MarcarNodos(treeRoles.Nodes, asignados);
         }
 
         private void MarcarNodos(TreeNodeCollection nodos, List<int> asignados)
@@ -111,7 +111,7 @@ namespace CAPAS
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             List<int> seleccionados = new List<int>();
-            ObtenerIdsCheckeados(treePerfiles.Nodes, seleccionados);
+            ObtenerIdsCheckeados(treeRoles.Nodes, seleccionados);
             _asignacionBll.GuardarAsignaciones(_usuario.Id, seleccionados);
             MessageBox.Show("Asignaciones guardadas.", "Éxito",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);

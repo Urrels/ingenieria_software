@@ -22,63 +22,36 @@ namespace CAPAS
             this.btnAceptar    = new System.Windows.Forms.Button();
             this.btnCancelar   = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            //
-            // lblNombre
-            //
             this.lblNombre.AutoSize = true;
             this.lblNombre.Location = new System.Drawing.Point(20, 25);
             this.lblNombre.Text     = "Usuario:";
-            //
-            // txtNombre
-            //
             this.txtNombre.Location = new System.Drawing.Point(130, 22);
             this.txtNombre.Size     = new System.Drawing.Size(200, 26);
             this.txtNombre.TabIndex = 0;
-            //
-            // lblContrasena
-            //
             this.lblContrasena.AutoSize = true;
             this.lblContrasena.Location = new System.Drawing.Point(20, 65);
             this.lblContrasena.Text     = "Contraseña:";
-            //
-            // txtContrasena
-            //
             this.txtContrasena.Location     = new System.Drawing.Point(130, 62);
             this.txtContrasena.Size         = new System.Drawing.Size(200, 26);
             this.txtContrasena.PasswordChar = '●';
             this.txtContrasena.TabIndex     = 1;
-            //
-            // lblRol
-            //
             this.lblRol.AutoSize = true;
             this.lblRol.Location = new System.Drawing.Point(20, 105);
             this.lblRol.Text     = "Rol:";
-            //
-            // cboRol
-            //
             this.cboRol.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboRol.Location      = new System.Drawing.Point(130, 102);
             this.cboRol.Size          = new System.Drawing.Size(200, 28);
             this.cboRol.TabIndex      = 2;
-            //
-            // btnAceptar
-            //
             this.btnAceptar.Location = new System.Drawing.Point(70, 155);
             this.btnAceptar.Size     = new System.Drawing.Size(110, 34);
             this.btnAceptar.TabIndex = 3;
             this.btnAceptar.Text     = "Crear";
             this.btnAceptar.Click   += new System.EventHandler(this.btnAceptar_Click);
-            //
-            // btnCancelar
-            //
             this.btnCancelar.Location = new System.Drawing.Point(195, 155);
             this.btnCancelar.Size     = new System.Drawing.Size(110, 34);
             this.btnCancelar.TabIndex = 4;
             this.btnCancelar.Text     = "Cancelar";
             this.btnCancelar.Click   += new System.EventHandler(this.btnCancelar_Click);
-            //
-            // frmNuevoUsuario
-            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor           = System.Drawing.SystemColors.ActiveCaption;

@@ -23,7 +23,6 @@ namespace DAL
                 _acceso.CrearParametro("@tipo_cambio",       h.TipoCambio)
             };
 
-            // VERSION_ORIGEN puede ser NULL
             SqlParameter pOrigen = new SqlParameter("@version_origen",
                 (object)h.VersionOrigen ?? DBNull.Value);
             pOrigen.SqlDbType = SqlDbType.Int;

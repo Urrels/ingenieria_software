@@ -21,8 +21,11 @@ namespace CAPAS
             BE.USUARIO u = SeguridadYServicios.SessionManager.getInstance().getUsuario();
             this.Text = "Menu — " + u.Usuario;
 
-            administracionToolStripMenuItem.Visible = SeguridadYServicios.SessionManager.getInstance().EsAdmin();
-            bitacoraToolStripMenuItem.Visible = SeguridadYServicios.SessionManager.getInstance().TienePermiso("Ver bitácora");
+            var sm = SeguridadYServicios.SessionManager.getInstance();
+            administracionToolStripMenuItem.Visible = sm.TienePermiso("Administrar usuarios")
+                                                   || sm.TienePermiso("Gestión de roles")
+                                                   || sm.TienePermiso("Gestión de idiomas");
+            bitacoraToolStripMenuItem.Visible = sm.TienePermiso("Ver bitácora");
 
             GuardarMenuDefaults(menuStrip1.Items);
             CargarIdiomas();
@@ -34,7 +37,6 @@ namespace CAPAS
             SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
         }
 
-        // ── IObservadorIdioma ──────────────────────────────────────────────
         public void ActualizarIdioma()
         {
             foreach (var kvp in _menuItems)
@@ -45,7 +47,6 @@ namespace CAPAS
             }
         }
 
-        // ── Helpers de idioma ──────────────────────────────────────────────
         private void GuardarMenuDefaults(ToolStripItemCollection items)
         {
             foreach (ToolStripItem item in items)
@@ -77,7 +78,6 @@ namespace CAPAS
 
             var bll = new BLL.IdiomaBLL();
 
-            // Registrar en DB los controles de menú (idempotente)
             foreach (var kvp in _menuDefaults)
                 bll.RegistrarControl(kvp.Key, "[" + kvp.Value + "]");
 
@@ -85,7 +85,6 @@ namespace CAPAS
             SeguridadYServicios.IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);
         }
 
-        // ── Handlers de menú ──────────────────────────────────────────────
         private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmAdminUsuarios().ShowDialog();

@@ -70,6 +70,39 @@ namespace CAPAS
             {
                 case BE.LoginResultado.Exito:
                     BE.USUARIO usuarioActual = SeguridadYServicios.SessionManager.getInstance().getUsuario();
+
+                    if (Program.ResultadoIntegridad != null && !Program.ResultadoIntegridad.EsValido)
+                    {
+                        bool esAdmin = SeguridadYServicios.SessionManager.getInstance().TienePermiso("Administrar usuarios");
+                        bool suDataEstaIntegra = !Program.ResultadoIntegridad.IdsUsuariosAfectados.Contains(usuarioActual.Id);
+
+                        if (esAdmin && suDataEstaIntegra)
+                        {
+                            var frm = new frmRestaurarIntegridad(Program.ResultadoIntegridad);
+                            if (frm.ShowDialog() != DialogResult.OK)
+                            {
+                                SeguridadYServicios.SessionManager.getInstance().cerrarSesion();
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show(
+                                "El sistema no puede iniciarse debido a un problema interno." +
+                                Environment.NewLine + Environment.NewLine +
+                                "Comuníquese con el administrador del sistema.",
+                                "Error del sistema",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                            SeguridadYServicios.SessionManager.getInstance().cerrarSesion();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
+                    }
+
                     MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
                         "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     new frmMenu().Show();
@@ -77,12 +110,16 @@ namespace CAPAS
                     break;
 
                 case BE.LoginResultado.UsuarioBloqueado:
+                    if (Program.ResultadoIntegridad == null || Program.ResultadoIntegridad.EsValido)
+                        new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
                     MessageBox.Show(
                         "Usuario bloqueado por intentos fallidos. Contactate con un administrador.",
                         "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
 
                 default:
+                    if (Program.ResultadoIntegridad == null || Program.ResultadoIntegridad.EsValido)
+                        new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
                     MessageBox.Show("Usuario o contraseña incorrectos.", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
