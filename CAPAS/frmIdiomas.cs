@@ -2,10 +2,12 @@ using BE;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmIdiomas : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmIdiomas : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly BLL.IdiomaBLL _bll = new BLL.IdiomaBLL();
         private IDIOMA _idiomaSeleccionado;
@@ -26,6 +28,8 @@ namespace CAPAS
             CargarIdiomas();
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmIdiomas_FormClosed(object sender, FormClosedEventArgs e)

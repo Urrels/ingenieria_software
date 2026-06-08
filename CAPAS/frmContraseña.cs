@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmContraseña : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmContraseña : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
         private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
@@ -26,6 +28,8 @@ namespace CAPAS
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmContraseña_FormClosed(object sender, FormClosedEventArgs e)

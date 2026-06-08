@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using ReaLTaiizor.Colors;
+using ReaLTaiizor.Manager;
+using ReaLTaiizor.Util;
 
 namespace CAPAS
 {
@@ -14,6 +17,16 @@ namespace CAPAS
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            var skin = MaterialSkinManager.Instance;
+            skin.Theme = MaterialSkinManager.Themes.LIGHT;
+            skin.ColorScheme = new MaterialColorScheme(
+                MaterialPrimary.Blue700,
+                MaterialPrimary.Blue900,
+                MaterialPrimary.Blue200,
+                MaterialAccent.LightBlue200,
+                MaterialTextShade.LIGHT
+            );
 
             InicializarIntegridad();
             Application.Run(new LogIn());

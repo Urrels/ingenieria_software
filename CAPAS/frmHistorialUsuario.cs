@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmHistorialUsuario : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmHistorialUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly BE.USUARIO             _usuario;
         private readonly BLL.UsuarioHistorialBLL _bll = new BLL.UsuarioHistorialBLL();
@@ -30,6 +32,8 @@ namespace CAPAS
             ActualizarIdioma();
             CargarHistorial();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmHistorialUsuario_FormClosed(object sender, FormClosedEventArgs e)

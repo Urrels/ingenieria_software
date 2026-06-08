@@ -1,0 +1,229 @@
+@startuml DiagramaSecuencia_LoginIntegridad_EA
+
+title Diagrama de Secuencia — Login + Verificación de Integridad
+
+' ─────────────────────────────────────────
+' Estética estilo Enterprise Architect
+' ─────────────────────────────────────────
+skinparam shadowing false
+skinparam BackgroundColor #FFFFFF
+skinparam defaultFontName Tahoma
+skinparam defaultFontSize 11
+skinparam roundcorner 4
+hide footbox
+scale 0.7
+
+skinparam sequence {
+  ArrowColor              #000000
+  ArrowThickness          1
+  ArrowFontName           Tahoma
+  ArrowFontSize           10
+
+  ActorBorderColor        #1F3864
+  ActorBackgroundColor    #DAE3F3
+  ActorFontName           Tahoma
+  ActorFontStyle          bold
+
+  ParticipantBorderColor      #1F3864
+  ParticipantBackgroundColor  #CFE2F3-#B4C7E7
+  ParticipantFontName         Tahoma
+  ParticipantFontStyle        bold
+  ParticipantFontColor        #000000
+
+  LifeLineBorderColor     #7F7F7F
+  LifeLineBackgroundColor #FFFFFF
+
+  GroupBorderColor        #1F3864
+  GroupBorderThickness    1
+  GroupBackgroundColor    #F2F2F2
+  GroupHeaderFontColor    #1F3864
+  GroupHeaderFontStyle    bold
+  GroupBodyBackgroundColor transparent
+
+  DividerBackgroundColor  #DAE3F3
+  DividerBorderColor      #1F3864
+  DividerFontColor        #1F3864
+  DividerFontStyle        bold
+}
+
+skinparam note {
+  BackgroundColor #FFF2CC
+  BorderColor     #BF9000
+  FontName        Tahoma
+  FontSize        10
+}
+
+' ─────────────────────────────────────────
+' Participantes en orden de aparición
+' ─────────────────────────────────────────
+actor       "Usuario"                  as U
+participant "Program"                  as P
+participant "IntegridadBLL"            as IB
+participant "IntegridadDAL"            as ID
+participant "LogIn\n(Form)"            as L
+participant "LoginBLL"                 as LB
+participant "UsuarioDAL"               as UD
+participant "Hasher"                   as H
+participant "SessionManager"           as SM
+participant "UsuarioPerfilBLL"         as UP
+participant "BitacoraBLL"              as BB
+participant "UsuarioHistorialBLL"      as UH
+participant "frmRestaurar\nIntegridad" as FR
+participant "frmMenu"                  as FM
+
+' ─────────────────────────────────────────
+' 1. INICIALIZACIÓN DE INTEGRIDAD
+' ─────────────────────────────────────────
+== 1. Inicialización (Program.Main) ==
+
+P -> IB : EstaInicializado()
+activate IB
+IB -> ID : ObtenerDVV("USUARIO")
+ID --> IB : Dictionary<col, int>
+IB --> P : bool
+deactivate IB
+
+opt no inicializado
+  P -> IB : RecalcularIntegridad()
+  activate IB
+  IB -> IB : RecalcularIntegridadUsuarios()
+  deactivate IB
+end
+
+P -> IB : VerificarIntegridad()
+activate IB
+IB -> ID : ListarUsuariosParaIntegridad()
+ID --> IB : DataTable
+loop por cada fila USUARIO
+  IB -> IB : Calcular DVH y comparar
+end
+IB -> ID : ObtenerDVV("USUARIO")
+ID --> IB : DVVs almacenados
+IB --> P : ResultadoIntegridad
+deactivate IB
+
+note right of P
+  Se guarda en
+  **Program.ResultadoIntegridad**
+  (no bloquea — el login siempre abre)
+end note
+
+P -> L : Application.Run(new LogIn())
+
+' ─────────────────────────────────────────
+' 2. AUTENTICACIÓN
+' ─────────────────────────────────────────
+== 2. Autenticación (btnIngresar_Click) ==
+
+U -> L : usuario + contraseña\n+ click Ingresar
+L -> LB : AutenticarUsuario(usuario, contrasena)
+activate LB
+LB -> UD : EstaBloqueado(usuario)
+UD --> LB : bool
+
+alt usuario ya bloqueado en DB
+  LB --> L : LoginResultado.UsuarioBloqueado
+else credenciales por validar
+  LB -> H : Hashear(contrasena)
+  H --> LB : hash
+  LB -> UD : ObtenerPorCredenciales(usuario, hash)
+  UD --> LB : USUARIO u (o null)
+
+  alt u != null  (credenciales válidas)
+    LB -> UD : ResetearIntentos(usuario)
+    LB -> SM : setUsuario(u)
+    LB -> UP : ObtenerPermisos(u.Id)
+    UP --> LB : List<string>
+    LB -> SM : setPermisos(permisos)
+    LB -> BB : RegistrarLogin(usuario)
+    LB --> L : LoginResultado.Exito
+  else u == null  (credenciales inválidas)
+    LB -> UD : IncrementarIntentos(usuario)
+    UD --> LB : quedoBloqueado : bool
+    LB -> BB : RegistrarAccion("LOGIN_FALLIDO")
+    alt quedoBloqueado
+      LB -> BB : RegistrarAccion("USUARIO_BLOQUEADO")
+      LB -> UD : ObtenerIdPorNombre(usuario)
+      UD --> LB : id
+      LB -> UH : RegistrarCambio(id, "BLOQUEO", "sistema")
+      LB --> L : LoginResultado.UsuarioBloqueado
+    else aún con intentos disponibles
+      LB --> L : LoginResultado.CredencialesInvalidas
+    end
+  end
+end
+deactivate LB
+
+' ─────────────────────────────────────────
+' 3. MANEJO DEL RESULTADO EN LogIn
+' ─────────────────────────────────────────
+== 3. Manejo del resultado ==
+
+alt resultado == Exito
+  L -> SM : getUsuario()
+  SM --> L : usuarioActual
+
+  alt ResultadoIntegridad inválido
+    L -> SM : TienePermiso("Administrar usuarios")
+    SM --> L : esAdmin
+
+    note right of L
+      suDataEstaIntegra =
+       !IdsUsuariosAfectados
+         .Contains(usuarioActual.Id)
+    end note
+
+    alt esAdmin && suDataEstaIntegra
+      L -> FR : new frmRestaurarIntegridad\n(ResultadoIntegridad).ShowDialog()
+      activate FR
+      FR -> P : GuardarLogIntegridad(errores)
+      note right of FR : log a integridad_error.log
+
+      alt admin elige "Recalcular y continuar"
+        FR -> IB : RecalcularIntegridadUsuarios()
+        FR --> L : DialogResult.OK
+      else admin elige "Restaurar desde historial"
+        loop por cada id en IdsUsuariosAfectados
+          FR -> UH : ObtenerHistorial(id)
+          UH --> FR : List<UsuarioHistorial>
+          opt tiene historial
+            FR -> FR : frmHistorialUsuario.ShowDialog()
+            note right of FR
+              dentro: Rollback() →
+              recalcula integridad
+            end note
+          end
+        end
+        FR -> IB : RecalcularIntegridadUsuarios()
+        FR --> L : DialogResult.OK
+      else admin cancela
+        FR --> L : DialogResult.Cancel
+        L -> SM : cerrarSesion()
+        L --> U : (vuelve al login)
+      end
+      deactivate FR
+    else no autorizado para restaurar
+      L --> U : MessageBox "Error del sistema"
+      L -> SM : cerrarSesion()
+    end
+
+  else ResultadoIntegridad OK
+    L -> IB : RecalcularIntegridadUsuarios()
+    note right of L
+      actualiza DVH tras
+      ResetearIntentos
+    end note
+  end
+
+  L --> U : MessageBox "Bienvenido"
+  L -> FM : new frmMenu().Show()
+  L -> L : this.Hide()
+
+else resultado == UsuarioBloqueado / CredencialesInvalidas
+  opt integridad OK
+    L -> IB : RecalcularIntegridadUsuarios()
+  end
+  L --> U : MessageBox de error
+end
+
+@enduml

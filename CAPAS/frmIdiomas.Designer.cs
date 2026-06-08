@@ -25,66 +25,111 @@ namespace CAPAS
             ((System.ComponentModel.ISupportInitialize)(this.dgvIdiomas)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTraducciones)).BeginInit();
             this.SuspendLayout();
+            // 
+            // lblIdiomas
+            // 
             this.lblIdiomas.AutoSize = true;
             this.lblIdiomas.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
-            this.lblIdiomas.Location = new System.Drawing.Point(12, 12);
+            this.lblIdiomas.Location = new System.Drawing.Point(22, 105);
             this.lblIdiomas.Name = "lblIdiomas";
+            this.lblIdiomas.Size = new System.Drawing.Size(87, 25);
+            this.lblIdiomas.TabIndex = 0;
             this.lblIdiomas.Text = "Idiomas";
+            // 
+            // dgvIdiomas
+            // 
             this.dgvIdiomas.AllowUserToAddRows = false;
             this.dgvIdiomas.AllowUserToDeleteRows = false;
             this.dgvIdiomas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvIdiomas.Location = new System.Drawing.Point(12, 42);
+            this.dgvIdiomas.Location = new System.Drawing.Point(17, 133);
             this.dgvIdiomas.MultiSelect = false;
             this.dgvIdiomas.Name = "dgvIdiomas";
             this.dgvIdiomas.ReadOnly = true;
+            this.dgvIdiomas.RowHeadersWidth = 62;
             this.dgvIdiomas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvIdiomas.Size = new System.Drawing.Size(270, 400);
+            this.dgvIdiomas.Size = new System.Drawing.Size(433, 400);
             this.dgvIdiomas.TabIndex = 0;
             this.dgvIdiomas.SelectionChanged += new System.EventHandler(this.dgvIdiomas_SelectionChanged);
-            this.btnAgregarIdioma.Location = new System.Drawing.Point(12, 455);
+            // 
+            // btnAgregarIdioma
+            // 
+            this.btnAgregarIdioma.Location = new System.Drawing.Point(59, 546);
             this.btnAgregarIdioma.Name = "btnAgregarIdioma";
-            this.btnAgregarIdioma.Size = new System.Drawing.Size(128, 36);
+            this.btnAgregarIdioma.Size = new System.Drawing.Size(270, 44);
+            this.btnAgregarIdioma.TabIndex = 1;
             this.btnAgregarIdioma.Text = "Agregar idioma";
             this.btnAgregarIdioma.Click += new System.EventHandler(this.btnAgregarIdioma_Click);
-            this.btnEliminarIdioma.Location = new System.Drawing.Point(12, 541);
-            this.btnEliminarIdioma.Name = "btnEliminarIdioma";
-            this.btnEliminarIdioma.Size = new System.Drawing.Size(270, 36);
-            this.btnEliminarIdioma.Text = "Eliminar idioma";
-            this.btnEliminarIdioma.Click += new System.EventHandler(this.btnEliminarIdioma_Click);
-            this.btnRenombrar.Location = new System.Drawing.Point(12, 498);
+            // 
+            // btnRenombrar
+            // 
+            this.btnRenombrar.Location = new System.Drawing.Point(59, 643);
             this.btnRenombrar.Name = "btnRenombrar";
-            this.btnRenombrar.Size = new System.Drawing.Size(270, 36);
+            this.btnRenombrar.Size = new System.Drawing.Size(270, 43);
+            this.btnRenombrar.TabIndex = 2;
             this.btnRenombrar.Text = "Renombrar idioma";
             this.btnRenombrar.Click += new System.EventHandler(this.btnRenombrar_Click);
-            this.btnToggleHabilitado.Location = new System.Drawing.Point(152, 455);
+            // 
+            // btnToggleHabilitado
+            // 
+            this.btnToggleHabilitado.Location = new System.Drawing.Point(59, 596);
             this.btnToggleHabilitado.Name = "btnToggleHabilitado";
-            this.btnToggleHabilitado.Size = new System.Drawing.Size(130, 36);
+            this.btnToggleHabilitado.Size = new System.Drawing.Size(270, 41);
+            this.btnToggleHabilitado.TabIndex = 4;
             this.btnToggleHabilitado.Text = "Habilitar/Deshabilitar";
             this.btnToggleHabilitado.Click += new System.EventHandler(this.btnToggleHabilitado_Click);
+            // 
+            // btnEliminarIdioma
+            // 
+            this.btnEliminarIdioma.Location = new System.Drawing.Point(59, 693);
+            this.btnEliminarIdioma.Name = "btnEliminarIdioma";
+            this.btnEliminarIdioma.Size = new System.Drawing.Size(270, 44);
+            this.btnEliminarIdioma.TabIndex = 3;
+            this.btnEliminarIdioma.Text = "Eliminar idioma";
+            this.btnEliminarIdioma.Click += new System.EventHandler(this.btnEliminarIdioma_Click);
+            // 
+            // lblTraducciones
+            // 
             this.lblTraducciones.AutoSize = true;
             this.lblTraducciones.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
-            this.lblTraducciones.Location = new System.Drawing.Point(300, 12);
+            this.lblTraducciones.Location = new System.Drawing.Point(459, 105);
             this.lblTraducciones.Name = "lblTraducciones";
+            this.lblTraducciones.Size = new System.Drawing.Size(380, 25);
+            this.lblTraducciones.TabIndex = 5;
             this.lblTraducciones.Text = "Traducciones del idioma seleccionado";
+            // 
+            // dgvTraducciones
+            // 
             this.dgvTraducciones.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvTraducciones.Location = new System.Drawing.Point(300, 42);
+            this.dgvTraducciones.Location = new System.Drawing.Point(464, 133);
             this.dgvTraducciones.Name = "dgvTraducciones";
+            this.dgvTraducciones.RowHeadersWidth = 62;
             this.dgvTraducciones.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvTraducciones.Size = new System.Drawing.Size(610, 400);
+            this.dgvTraducciones.Size = new System.Drawing.Size(794, 400);
             this.dgvTraducciones.TabIndex = 1;
-            this.btnGuardarTraducciones.Location = new System.Drawing.Point(300, 455);
+            // 
+            // btnGuardarTraducciones
+            // 
+            this.btnGuardarTraducciones.Location = new System.Drawing.Point(464, 546);
             this.btnGuardarTraducciones.Name = "btnGuardarTraducciones";
-            this.btnGuardarTraducciones.Size = new System.Drawing.Size(200, 36);
+            this.btnGuardarTraducciones.Size = new System.Drawing.Size(200, 44);
+            this.btnGuardarTraducciones.TabIndex = 6;
             this.btnGuardarTraducciones.Text = "Guardar traducciones";
             this.btnGuardarTraducciones.Click += new System.EventHandler(this.btnGuardarTraducciones_Click);
-            this.btnCerrar.Location = new System.Drawing.Point(710, 455);
+            // 
+            // btnCerrar
+            // 
+            this.btnCerrar.Location = new System.Drawing.Point(1058, 546);
             this.btnCerrar.Name = "btnCerrar";
-            this.btnCerrar.Size = new System.Drawing.Size(200, 36);
+            this.btnCerrar.Size = new System.Drawing.Size(200, 44);
+            this.btnCerrar.TabIndex = 7;
             this.btnCerrar.Text = "Cerrar";
             this.btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
+            // 
+            // frmIdiomas
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(930, 592);
+            this.ClientSize = new System.Drawing.Size(1264, 743);
             this.Controls.Add(this.lblIdiomas);
             this.Controls.Add(this.dgvIdiomas);
             this.Controls.Add(this.btnAgregarIdioma);
@@ -98,12 +143,13 @@ namespace CAPAS
             this.Name = "frmIdiomas";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestión de idiomas";
-            this.Load += new System.EventHandler(this.frmIdiomas_Load);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmIdiomas_FormClosed);
+            this.Load += new System.EventHandler(this.frmIdiomas_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvIdiomas)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTraducciones)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private System.Windows.Forms.Label lblIdiomas;

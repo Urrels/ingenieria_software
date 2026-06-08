@@ -2,10 +2,12 @@ using BE;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmPerfiles : Form, SeguridadYServicios.IObservadorIdioma
+    public partial class frmPerfiles : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly BLL.PerfilBLL _bll = new BLL.PerfilBLL();
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
@@ -28,6 +30,8 @@ namespace CAPAS
             ActualizarIdioma();
             CargarArbol();
             IdiomaUIHelper.AgregarSelector(this);
+            MaterialSkinManager.Instance.AddFormToManage(this);
+            AppTheme.AplicarTema(this);
         }
 
         private void frmPerfiles_FormClosed(object sender, FormClosedEventArgs e)
@@ -287,5 +291,7 @@ namespace CAPAS
             public string Nombre { get; set; }
             public override string ToString() => Nombre;
         }
+
+      
     }
 }
