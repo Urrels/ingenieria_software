@@ -27,6 +27,62 @@ namespace CAPAS
                 MaterialAccent.LightBlue200,
                 MaterialTextShade.LIGHT
             );
+            BLL.BackupBLL backupBll = new BLL.BackupBLL();
+
+            try { backupBll.GenerarBackupFabrica(); } catch { }
+
+
+            BLL.ResultadoSistema sistema = backupBll.VerificarSistema();
+
+            if (!sistema.EstaIntegro)
+            {
+                string detalle = string.Join("\n", sistema.Problemas);
+                string ultimoBackup = backupBll.ObtenerUltimoBackup();
+
+                if (ultimoBackup == null)
+                    ultimoBackup = backupBll.ObtenerBackupFabrica();
+
+
+                if (ultimoBackup == null)
+                {
+                    MessageBox.Show(
+                        "Se detectaron problemas críticos y no hay backups disponibles.\n\n" +
+                        "Problemas:\n" + detalle + "\n\n" +
+                        "Contacte al administrador de la base de datos: Jesica Andrea Funes, celular: 1122334455",
+                        "Error crítico del sistema",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Application.Exit();
+                    return;
+                }
+
+                DialogResult r = MessageBox.Show(
+                    "Se detectaron los siguientes problemas:\n\n" +
+                    detalle +
+                    "\n\n¿Desea restaurar desde el último backup?\n" +
+                    "(" + Path.GetFileName(ultimoBackup) + ")",
+                    "Error del sistema",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+
+                if (r == DialogResult.Yes)
+                {
+                    var frm = new frmRestore();
+                    frm.Problemas = sistema.Problemas;
+                    frm.ArchivoBackup = ultimoBackup;
+                    if (frm.ShowDialog() != DialogResult.OK)
+                    {
+                        Application.Exit();
+                        return;
+                    }
+                }
+                else
+                {
+                    Application.Exit();
+                    return;
+                }
+            }
+
+            // backup automático silencioso al iniciar
+            try { backupBll.GenerarBackup(); } catch { }
 
             InicializarIntegridad();
             Application.Run(new LogIn());
@@ -46,7 +102,7 @@ namespace CAPAS
                 ResultadoIntegridad = new BLL.ResultadoIntegridad
                 {
                     EsValido = false,
-                    Errores  = new List<string> { ex.ToString() }
+                    Errores = new List<string> { ex.ToString() }
                 };
             }
         }

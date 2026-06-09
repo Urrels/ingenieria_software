@@ -16,8 +16,8 @@ namespace DAL
         public void Abrir()
         {
             conexion = new SqlConnection();
-            conexion.ConnectionString = "initial catalog=BDCAPAS; Data Source=.; Integrated Security=SSPI";
-            //conexion.ConnectionString = "Server=localhost\\SQLEXPRESS01; Database=BDCAPAS; Trusted_Connection=True";
+            //conexion.ConnectionString = "initial catalog=BDCAPAS; Data Source=.; Integrated Security=SSPI";
+            conexion.ConnectionString = "Server=localhost\\SQLEXPRESS01; Database=BDCAPAS; Trusted_Connection=True";
             conexion.Open();
         }
 
@@ -103,5 +103,22 @@ namespace DAL
             return p;
         }
 
+        public void EjecutarDirecto(string sql)
+        {
+            SqlCommand cmd = new SqlCommand(sql, conexion);
+            cmd.CommandType = System.Data.CommandType.Text;
+            if (transaccion != null) cmd.Transaction = transaccion;
+            cmd.ExecuteNonQuery();
+        }
+        public DataTable LeerTexto(string sql)
+        {
+            SqlCommand cmd = new SqlCommand(sql, conexion);
+            cmd.CommandType = System.Data.CommandType.Text;
+            if (transaccion != null) cmd.Transaction = transaccion;
+            SqlDataAdapter adaptador = new SqlDataAdapter(cmd);
+            DataTable tabla = new DataTable();
+            adaptador.Fill(tabla);
+            return tabla;
+        }
     }
 }

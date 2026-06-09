@@ -29,7 +29,14 @@ namespace DAL
             }
             return permisos;
         }
-
+        public DataTable ListarTodosPerfiles()
+        {
+            Acceso db = new Acceso();
+            db.Abrir();
+            DataTable dt = db.LeerTexto("SELECT USUARIO_ID, PERFIL_ID FROM USUARIO_PERFIL");
+            db.Cerrar();
+            return dt;
+        }
         public List<int> ListarPerfilesPorUsuario(int usuarioId)
         {
             List<int> ids = new List<int>();

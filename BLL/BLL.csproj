@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackupBLL.cs" />
     <Compile Include="BitacoraBLL.cs" />
     <Compile Include="IntegridadBLL.cs" />
+    <Compile Include="ResultadoSistema.cs" />
     <Compile Include="UsuarioHistorialBLL.cs" />
     <Compile Include="IdiomaBLL.cs" />
     <Compile Include="LoginBLL.cs" />

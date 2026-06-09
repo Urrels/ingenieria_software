@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="Acceso.cs" />
     <Compile Include="IntegridadDAL.cs" />
+    <Compile Include="ScriptDAL.cs" />
+    <Compile Include="SistemaDAL.cs" />
     <Compile Include="UsuarioHistorialDAL.cs" />
     <Compile Include="IdiomaDAL.cs" />
     <Compile Include="BitacoraDAL.cs" />
@@ -58,7 +60,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="script.sql" />
+    <Content Include="script.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

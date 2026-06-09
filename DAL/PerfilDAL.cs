@@ -103,7 +103,22 @@ namespace DAL
             }
             finally { _acceso.Cerrar(); }
         }
-
+        public DataTable ListarTodosNodos()
+        {
+            Acceso db = new Acceso();
+            db.Abrir();
+            DataTable dt = db.LeerTexto("SELECT ID, NOMBRE, TIPO, PADRE_ID, PROTEGIDO FROM NODO_PERMISO");
+            db.Cerrar();
+            return dt;
+        }
+        public DataTable ListarTodosRolPermiso()
+        {
+            Acceso db = new Acceso();
+            db.Abrir();
+            DataTable dt = db.LeerTexto("SELECT ROL_ID, PERMISO_ID FROM ROL_PERMISO");
+            db.Cerrar();
+            return dt;
+        }
         public int Insertar(string nombre, string tipo, int? padreId)
         {
             SqlParameter paramPadre = new SqlParameter("@padre_id", DbType.Int32)
