@@ -82,7 +82,9 @@ TP_IS.sln
 ├── CAPAS/                  UI — Windows Forms
 │   └── Program.cs          Punto de entrada
 ├── DER.puml                Diagrama entidad-relación (PlantUML)
-└── DiagramaClases.puml     Diagrama de clases (PlantUML)
+├── DiagramaClases.puml     Diagrama de clases (PlantUML)
+├── DiagramaComponentes.puml  Diagrama de componentes (PlantUML)
+└── DIAGRAMAS/              Diagramas de secuencia por caso de uso (PlantUML)
 ```
 
 Para regenerar los diagramas PNG (requiere Python e internet):
@@ -90,6 +92,14 @@ Para regenerar los diagramas PNG (requiere Python e internet):
 ```powershell
 python generar_png.py DER.puml DER.png
 python generar_png.py DiagramaClases.puml DiagramaClases.png
+python generar_png.py DiagramaComponentes.puml DiagramaComponentes.png
+python generar_png.py DIAGRAMAS\DiagramaSecuencia_CU01_IniciarSesion.puml DIAGRAMAS\DiagramaSecuencia_CU01_IniciarSesion.png
+```
+
+Para regenerar en lote todos los diagramas de secuencia (con reintentos):
+
+```powershell
+python generar_pngs_lote.py
 ```
 
 ---
@@ -194,6 +204,8 @@ El árbol se construye en memoria en `PerfilBLL.ObtenerArbol()`:
 
 `NodoPermiso.ToString()` devuelve `Nombre` (lo usa el `CheckedListBox` en `frmPerfiles`).
 
+Diagrama de clases dedicado (con comentarios explicativos): `DIAGRAMAS/DiagramaClases_Composite.puml` / `.png`.
+
 ### Observer — Multiidioma
 
 `IdiomaManager` es el Subject.  
@@ -207,9 +219,13 @@ Flujo al cambiar idioma:
 
 Cada form tiene su propio selector de idioma agregado dinámicamente por `IdiomaUIHelper.AgregarSelector(form)` (llamado al final del `Load`) porque `ShowDialog()` deshabilita el form padre.
 
+Diagrama de clases dedicado (con comentarios explicativos): `DIAGRAMAS/DiagramaClases_Observer.puml` / `.png`.
+
 ### Singleton — SessionManager e IdiomaManager
 
 Ambos usan double-checked locking. `SessionManager.cerrarSesion()` anula `_instance` para permitir re-autenticación.
+
+Diagrama de clases dedicado (con comentarios explicativos): `DIAGRAMAS/DiagramaClases_Singleton.puml` / `.png`.
 
 ---
 
@@ -326,6 +342,8 @@ La verificación solo ocurre al arrancar. Si la BD se corrompe durante una sesi�
 `UsuarioHistorialBLL.Rollback()` restaura `ROL`, `BLOQUEADO`, `INTENTOS_FALLIDOS` y `PERFILES` desde el snapshot elegido. `PASS` queda intacto. El rollback se registra como nueva entrada `ROLLBACK` con `VERSION_ORIGEN` apuntando al snapshot restaurado.
 
 **Nota:** no hay FK entre `USUARIO_HISTORIAL` y `USUARIO` — intencional, para que el historial sobreviva a la eliminación del usuario.
+
+**Anti-recursividad:** una entrada de tipo `ROLLBACK` no puede volver a restaurarse. La validación se hace en dos capas: `frmHistorialUsuario` rechaza la selección antes de pedir confirmación, y `UsuarioHistorialBLL.Rollback()` lanza `InvalidOperationException` como respaldo si igual se invoca.
 
 ---
 

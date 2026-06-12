@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="CalculadorDVH.cs" />
     <Compile Include="Hasher.cs" />
-    <Compile Include="IEntidadVerificable.cs" />
     <Compile Include="IObservadorIdioma.cs" />
     <Compile Include="IdiomaManager.cs" />
     <Compile Include="SessionManager.cs" />

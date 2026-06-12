@@ -38,11 +38,6 @@ namespace BLL
             return resultado;
         }
 
-        public System.Collections.Generic.List<BE.USUARIO> ListarBloqueados()
-        {
-            return _dal.ListarBloqueados();
-        }
-
         public System.Collections.Generic.List<BE.USUARIO> ListarTodos()
         {
             return _dal.ListarTodos();

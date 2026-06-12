@@ -115,32 +115,6 @@ namespace DAL
             }
         }
 
-        public List<BE.USUARIO> ListarBloqueados()
-        {
-            List<BE.USUARIO> lista = new List<BE.USUARIO>();
-            try
-            {
-                _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("USUARIO_LISTAR_BLOQUEADOS");
-                foreach (DataRow fila in tabla.Rows)
-                {
-                    lista.Add(new BE.USUARIO
-                    {
-                        Id = Convert.ToInt32(fila["ID"]),
-                        Usuario = fila["USUARIO"].ToString(),
-                        Rol = fila["ROL"].ToString(),
-                        IntentosFallidos = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
-                        Bloqueado = true
-                    });
-                }
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-            return lista;
-        }
-
         public List<BE.USUARIO> ListarTodos()
         {
             List<BE.USUARIO> lista = new List<BE.USUARIO>();

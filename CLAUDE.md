@@ -100,7 +100,11 @@ The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_I
 
 `PERFIL_ELIMINAR` cascades via a recursive CTE: it collects the entire subtree of descendant role IDs and deletes their entries from `USUARIO_PERFIL` and `ROL_PERMISO` before removing them from `NODO_PERMISO`. `PerfilDAL.GuardarPermisosDeRol` runs inside a transaction (LIMPIAR + N × INSERTAR).
 
-**Role parent assignment** — `PADRE_ID` on a `TIPO='PERFIL'` row establishes role hierarchy. `PerfilBLL.CambiarPadre` and `AgregarRol` both call `GenerariaCiclo` (walks the parent chain in-memory) before persisting, preventing circular references. The SP `PERFIL_CAMBIAR_PADRE` does a plain `UPDATE NODO_PERMISO SET PADRE_ID`.
+**Role parent assignment** — `PADRE_ID` on a `TIPO='PERFIL'` row establishes role hierarchy. `PerfilBLL.CambiarPadre` calls two in-memory guards before persisting, each throwing `InvalidOperationException`:
+1. `GenerariaCiclo` — walks the parent chain up from the candidate parent; rejects it if `rolId` appears (candidate is a descendant of the role, would create a cycle).
+2. `EsAncestroDelPadreActual` — walks the parent chain up from the role's *current* parent (excluding it); rejects the candidate if it appears there (candidate is an ancestor above the current parent — only "lateral" moves or the no-op current parent are allowed).
+
+`frmPerfiles.PopularComboPadre` mirrors rule 1 by excluding the role's subtree (`RecolectarDescendientes`) from the combo entirely. Rule 2's targets — ancestors above the current parent (`RecolectarAncestrosSuperiores`, stored in `_padresDeshabilitados`) — remain visible in the combo but are rendered grayed-out (`cboPadre_DrawItem`, `OwnerDrawFixed`) and cannot be selected (`cboPadre_SelectedIndexChanged` reverts to `_cboPadreIndiceAnterior`). The SP `PERFIL_CAMBIAR_PADRE` does a plain `UPDATE NODO_PERMISO SET PADRE_ID`.
 
 **Role deletion guards** — `PerfilBLL.Eliminar` enforces two rules before calling the DAL, throwing `InvalidOperationException` for each:
 1. `Rol.Protegido == true` → system role, cannot be deleted. Currently only *Administrador* (`PROTEGIDO=1`); all other roles default to `PROTEGIDO=0`.
@@ -237,9 +241,10 @@ All PlantUML sources are rendered via `generar_png.py` (uses kroki.io, requires 
 |---|---|---|
 | `DER.puml` / `.png` | DER | Modelo entidad-relación de BDCAPAS |
 | `DiagramaClases.puml` / `.png` | Diagrama de clases | Capas BE, BLL, DAL, SeguridadYServicios |
-| `DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
-| `DiagramaSecuencia_LoginIntegridad_EA.puml` / `.png` | Secuencia (EA-style) | Variante con estética Enterprise Architect |
-| `DiagramaSecuencia_CU0X_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por caso de uso documentado |
+| `DiagramaComponentes.puml` / `.png` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
+| `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
+| `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad_EA.puml` / `.png` | Secuencia (EA-style) | Variante con estética Enterprise Architect |
+| `DIAGRAMAS/DiagramaSecuencia_CU0X_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por caso de uso documentado |
 | `CasosDeUso/README.md` | Catálogo | Índice de los 20 CUs + actores + permisos |
 | `CasosDeUso/CU-XX_*.md` | Descripción | Cada CU en formato Cockburn (markdown) |
 | `CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |

@@ -730,6 +730,7 @@ CUS = [
             "El administrador tiene el permiso \"Administrar usuarios\".",
             "El usuario tiene al menos una entrada en USUARIO_HISTORIAL.",
             "La entrada seleccionada no es de tipo BAJA.",
+            "La entrada seleccionada no es de tipo ROLLBACK.",
         ],
         "postcondiciones_exito": [
             "Los campos ROL, BLOQUEADO, INTENTOS_FALLIDOS del usuario quedan iguales al snapshot elegido.",
@@ -740,6 +741,7 @@ CUS = [
         ],
         "postcondiciones_fallo": [
             "Si la entrada seleccionada no se encuentra: se lanza una excepción y no se aplica ningún cambio.",
+            "Si la entrada seleccionada es de tipo ROLLBACK: el sistema rechaza la operación y no se aplica ningún cambio.",
         ],
         "disparador": "El administrador selecciona una entrada del historial y presiona \"Rollback\".",
         "flujo_principal": [
@@ -762,6 +764,13 @@ CUS = [
                 ],
             },
             {
+                "id": "2a", "nombre": "La entrada seleccionada es de tipo ROLLBACK",
+                "pasos": [
+                    "El sistema muestra el mensaje \"No se puede restaurar una versión que ya es un rollback\" (Operación no permitida).",
+                    "El sistema no solicita confirmación ni aplica ningún cambio.",
+                ],
+            },
+            {
                 "id": "4a", "nombre": "El administrador cancela la confirmación",
                 "pasos": [
                     "El sistema no aplica ningún cambio.",
@@ -771,11 +780,14 @@ CUS = [
         "excepciones": [
             {"codigo": "EX-01", "descripcion": "La entrada histórica no existe o no se puede recuperar.",
              "manejo": "Se lanza una excepción InvalidOperationException con el mensaje \"Versión histórica no encontrada\"."},
+            {"codigo": "EX-02", "descripcion": "La entrada seleccionada es de tipo ROLLBACK (validación de respaldo en la capa de negocio).",
+             "manejo": "UsuarioHistorialBLL.Rollback lanza InvalidOperationException con el mensaje \"No se puede restaurar una versión que ya es un rollback\"; la UI la captura y la muestra en un MessageBox de error."},
         ],
         "reglas_negocio": [
             {"codigo": "RN-01", "regla": "Las entradas de tipo BAJA no son restaurables — el usuario ya no existe."},
             {"codigo": "RN-02", "regla": "La contraseña nunca se restaura en un rollback, porque no se almacena en el historial."},
             {"codigo": "RN-03", "regla": "Cada rollback genera una entrada nueva en el historial; los snapshots anteriores nunca se borran."},
+            {"codigo": "RN-04", "regla": "Las entradas de tipo ROLLBACK no son restaurables, para evitar cadenas de rollbacks recursivos. La validación se aplica tanto en la UI (antes de pedir confirmación) como en la capa de negocio (defensa en profundidad)."},
         ],
         "relaciones": [
             {"tipo": "«include» en", "destino": "CU-02 Restaurar Integridad",
@@ -922,6 +934,7 @@ CUS = [
             "El administrador tiene el permiso \"Gestión de roles\".",
             "El rol a mover existe.",
             "El padre candidato no es el propio rol ni ninguno de sus descendientes.",
+            "El padre candidato no es un ancestro por encima del padre actual del rol.",
         ],
         "postcondiciones_exito": [
             "El rol queda con su nuevo PADRE_ID en NODO_PERMISO.",
@@ -929,14 +942,16 @@ CUS = [
         ],
         "postcondiciones_fallo": [
             "Si el padre elegido generaría un ciclo: no se actualiza y se muestra el error.",
+            "Si el padre elegido es un ancestro por encima del padre actual: no se actualiza y se muestra el error.",
         ],
         "disparador": "El administrador selecciona un rol, elige un nuevo padre en el combo y presiona \"Asignar padre\".",
         "flujo_principal": [
             "El administrador selecciona un rol en el árbol.",
-            "El sistema muestra el combo de padres con candidatos que excluyen el propio rol y su subárbol.",
+            "El sistema muestra el combo de padres con candidatos que excluyen el propio rol y su subárbol; los ancestros por encima de su padre actual se muestran pero deshabilitados.",
             "El administrador elige un padre (o \"(ninguno)\" para dejarlo como raíz).",
             "El administrador presiona \"Asignar padre\".",
             "El sistema verifica que la nueva relación no genere un ciclo.",
+            "El sistema verifica que el nuevo padre no sea un ancestro por encima del padre actual del rol.",
             "El sistema actualiza el campo PADRE_ID del rol.",
             "El sistema refresca el árbol y mantiene la selección sobre el rol movido.",
         ],
@@ -948,12 +963,20 @@ CUS = [
                     "El caso de uso termina sin modificar la jerarquía.",
                 ],
             },
+            {
+                "id": "5b", "nombre": "El nuevo padre es un ancestro por encima del padre actual del rol",
+                "pasos": [
+                    "El sistema muestra \"No se puede asignar como padre a un ancestro del padre actual del rol\".",
+                    "El caso de uso termina sin modificar la jerarquía.",
+                ],
+            },
         ],
         "excepciones": [],
         "reglas_negocio": [
             {"codigo": "RN-01", "regla": "El combo de padres excluye al propio rol y a todos sus descendientes."},
             {"codigo": "RN-02", "regla": "La validación de ciclos se hace en memoria recorriendo la cadena de padres hacia arriba."},
             {"codigo": "RN-03", "regla": "Asignar (ninguno) como padre hace al rol raíz del árbol."},
+            {"codigo": "RN-04", "regla": "No se puede asignar como nuevo padre a un ancestro ubicado por encima del padre actual del rol; el padre actual sigue siendo una opción válida. El combo muestra esos ancestros pero deshabilitados (no seleccionables)."},
         ],
         "relaciones": [],
         "observaciones": None,
