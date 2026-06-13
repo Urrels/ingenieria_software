@@ -38,6 +38,30 @@ namespace DAL
             return lista;
         }
 
+        public IDIOMA ObtenerPorId(int id)
+        {
+            var p = new List<SqlParameter> { _acceso.CrearParametro("@id", id) };
+            try
+            {
+                _acceso.Abrir();
+                DataTable t = _acceso.Leer("IDIOMA_OBTENER_POR_ID", p);
+                return t.Rows.Count > 0 ? MapearIdioma(t.Rows[0]) : null;
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public bool EstaEnUso(int id)
+        {
+            var p = new List<SqlParameter> { _acceso.CrearParametro("@id", id) };
+            try
+            {
+                _acceso.Abrir();
+                DataTable t = _acceso.Leer("IDIOMA_ESTA_EN_USO", p);
+                return Convert.ToInt32(t.Rows[0]["TOTAL"]) > 0;
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
         public int Insertar(string nombre, bool habilitado)
         {
             var p = new List<SqlParameter>
@@ -163,9 +187,10 @@ namespace DAL
 
         private IDIOMA MapearIdioma(DataRow f) => new IDIOMA
         {
-            Id         = Convert.ToInt32(f["ID"]),
-            Nombre     = f["NOMBRE"].ToString(),
-            Habilitado = Convert.ToBoolean(f["HABILITADO"])
+            Id             = Convert.ToInt32(f["ID"]),
+            Nombre         = f["NOMBRE"].ToString(),
+            Habilitado     = Convert.ToBoolean(f["HABILITADO"]),
+            Predeterminado = Convert.ToBoolean(f["PREDETERMINADO"])
         };
     }
 }

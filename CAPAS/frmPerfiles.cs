@@ -232,7 +232,7 @@ namespace CAPAS
             chkPermisos.Items.Clear();
             foreach (Permiso p in _permisosDisponibles)
             {
-                bool marcado = asignados.Contains(p.Id) || _permisosHeredados.Contains(p.Id);
+                bool marcado = asignados.Contains(p.Id) && !_permisosHeredados.Contains(p.Id);
                 chkPermisos.Items.Add(p, marcado);
             }
         }
@@ -241,7 +241,7 @@ namespace CAPAS
         {
             if (e.Index < 0 || e.Index >= chkPermisos.Items.Count) return;
             if (chkPermisos.Items[e.Index] is Permiso p && _permisosHeredados.Contains(p.Id))
-                e.NewValue = CheckState.Checked;
+                e.NewValue = CheckState.Unchecked;
         }
 
         private void chkPermisos_DrawItem(object sender, DrawItemEventArgs e)

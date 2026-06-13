@@ -6,32 +6,26 @@ using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmNuevoUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmEditarUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
-        public string NombreUsuario => txtNombre.Text.Trim();
-        public string Contrasena    => txtContrasena.Text;
-        public string Rol           => (string)cboRol.SelectedValue;
-        public string Nombre        => txtNombrePersona.Text.Trim();
-        public string Apellido      => txtApellido.Text.Trim();
+        private readonly BE.USUARIO _usuario;
+
+        public string Nombre   => txtNombrePersona.Text.Trim();
+        public string Apellido => txtApellido.Text.Trim();
 
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
         private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
 
-        public frmNuevoUsuario()
+        public frmEditarUsuario(BE.USUARIO usuario)
         {
+            _usuario = usuario;
             InitializeComponent();
         }
 
-        private void frmNuevoUsuario_Load(object sender, EventArgs e)
+        private void frmEditarUsuario_Load(object sender, EventArgs e)
         {
-            cboRol.DataSource = new[]
-            {
-                new { Texto = "Administrador", Valor = "admin"   },
-                new { Texto = "Usuario común",  Valor = "usuario" }
-            };
-            cboRol.DisplayMember = "Texto";
-            cboRol.ValueMember   = "Valor";
-            cboRol.SelectedIndex = 1;
+            txtNombrePersona.Text = _usuario.Nombre;
+            txtApellido.Text      = _usuario.Apellido;
 
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
@@ -43,7 +37,7 @@ namespace CAPAS
             AppTheme.AplicarTema(this);
         }
 
-        private void frmNuevoUsuario_FormClosed(object sender, FormClosedEventArgs e)
+        private void frmEditarUsuario_FormClosed(object sender, FormClosedEventArgs e)
         {
             SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
         }
@@ -73,18 +67,6 @@ namespace CAPAS
 
         private void btnAceptar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(NombreUsuario))
-            {
-                MessageBox.Show("Ingresá un nombre de usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            if (string.IsNullOrWhiteSpace(Contrasena))
-            {
-                MessageBox.Show("Ingresá una contraseña.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

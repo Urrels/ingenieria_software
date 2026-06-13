@@ -19,6 +19,8 @@ namespace DAL
                 _acceso.CrearParametro("@bloqueado",         h.Bloqueado ? 1 : 0),
                 _acceso.CrearParametro("@intentos_fallidos", h.IntentosFallidos),
                 _acceso.CrearParametro("@perfiles",          h.Perfiles ?? ""),
+                _acceso.CrearParametro("@nombre",            h.Nombre ?? ""),
+                _acceso.CrearParametro("@apellido",          h.Apellido ?? ""),
                 _acceso.CrearParametro("@realizado_por",     h.RealizadoPor),
                 _acceso.CrearParametro("@tipo_cambio",       h.TipoCambio)
             };
@@ -80,6 +82,8 @@ namespace DAL
                 Bloqueado        = Convert.ToBoolean(fila["BLOQUEADO"]),
                 IntentosFallidos = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
                 Perfiles         = fila["PERFILES"].ToString(),
+                Nombre           = fila["NOMBRE"].ToString(),
+                Apellido         = fila["APELLIDO"].ToString(),
                 FechaCambio      = Convert.ToDateTime(fila["FECHA_CAMBIO"]),
                 RealizadoPor     = fila["REALIZADO_POR"].ToString(),
                 TipoCambio       = fila["TIPO_CAMBIO"].ToString(),

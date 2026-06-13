@@ -21,6 +21,7 @@ namespace CAPAS
             this.btnDesbloquear = new System.Windows.Forms.Button();
             this.btnRefrescar = new System.Windows.Forms.Button();
             this.btnHistorial = new System.Windows.Forms.Button();
+            this.btnEditarDatos = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).BeginInit();
             this.SuspendLayout();
@@ -108,7 +109,17 @@ namespace CAPAS
             this.btnHistorial.Text = "Ver historial";
             this.btnHistorial.UseVisualStyleBackColor = true;
             this.btnHistorial.Click += new System.EventHandler(this.btnHistorial_Click);
-            // 
+            //
+            // btnEditarDatos
+            //
+            this.btnEditarDatos.Location = new System.Drawing.Point(335, 552);
+            this.btnEditarDatos.Name = "btnEditarDatos";
+            this.btnEditarDatos.Size = new System.Drawing.Size(155, 56);
+            this.btnEditarDatos.TabIndex = 9;
+            this.btnEditarDatos.Text = "Editar datos";
+            this.btnEditarDatos.UseVisualStyleBackColor = true;
+            this.btnEditarDatos.Click += new System.EventHandler(this.btnEditarDatos_Click);
+            //
             // btnCerrar
             // 
             this.btnCerrar.Location = new System.Drawing.Point(648, 582);
@@ -125,6 +136,7 @@ namespace CAPAS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(786, 656);
             this.Controls.Add(this.btnCerrar);
+            this.Controls.Add(this.btnEditarDatos);
             this.Controls.Add(this.btnHistorial);
             this.Controls.Add(this.btnRefrescar);
             this.Controls.Add(this.btnDesbloquear);
@@ -152,6 +164,7 @@ namespace CAPAS
         private System.Windows.Forms.Button btnDesbloquear;
         private System.Windows.Forms.Button btnRefrescar;
         private System.Windows.Forms.Button btnHistorial;
+        private System.Windows.Forms.Button btnEditarDatos;
         private System.Windows.Forms.Button btnCerrar;
     }
 }

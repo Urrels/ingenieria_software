@@ -58,6 +58,10 @@ namespace CAPAS
                 dgvUsuarios.Columns["Id"].HeaderText      = mgr.Traducir("colhdr_Id")       ?? "ID";
             if (dgvUsuarios.Columns["Usuario"] != null)
                 dgvUsuarios.Columns["Usuario"].HeaderText = mgr.Traducir("colhdr_Usuario")   ?? "Usuario";
+            if (dgvUsuarios.Columns["Nombre"] != null)
+                dgvUsuarios.Columns["Nombre"].HeaderText  = mgr.Traducir("colhdr_NombrePersona") ?? "Nombre";
+            if (dgvUsuarios.Columns["Apellido"] != null)
+                dgvUsuarios.Columns["Apellido"].HeaderText = mgr.Traducir("colhdr_Apellido") ?? "Apellido";
             if (dgvUsuarios.Columns["Rol"] != null)
                 dgvUsuarios.Columns["Rol"].HeaderText     = mgr.Traducir("colhdr_Rol")       ?? "Rol";
             if (dgvUsuarios.Columns["Bloqueado"] != null)
@@ -85,6 +89,7 @@ namespace CAPAS
             {
                 if (dgvUsuarios.Columns["Contrasena"] != null)       dgvUsuarios.Columns["Contrasena"].Visible       = false;
                 if (dgvUsuarios.Columns["IntentosFallidos"] != null) dgvUsuarios.Columns["IntentosFallidos"].Visible = false;
+                if (dgvUsuarios.Columns["IdiomaId"] != null)         dgvUsuarios.Columns["IdiomaId"].Visible         = false;
                 ActualizarEncabezados();
             }
         }
@@ -95,7 +100,7 @@ namespace CAPAS
             {
                 if (frm.ShowDialog() != DialogResult.OK) return;
 
-                bool creado = _bll.Crear(frm.NombreUsuario, frm.Contrasena, frm.Rol);
+                bool creado = _bll.Crear(frm.NombreUsuario, frm.Contrasena, frm.Rol, frm.Nombre, frm.Apellido);
 
                 if (creado)
                 {
@@ -176,6 +181,25 @@ namespace CAPAS
 
             _bll.Eliminar(seleccionado.Id);
             CargarUsuarios();
+        }
+
+        private void btnEditarDatos_Click(object sender, EventArgs e)
+        {
+            BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
+            if (seleccionado == null)
+            {
+                MessageBox.Show("Seleccioná un usuario.", "Atención",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (frmEditarUsuario frm = new frmEditarUsuario(seleccionado))
+            {
+                if (frm.ShowDialog() != DialogResult.OK) return;
+
+                _bll.ActualizarDatos(seleccionado.Id, frm.Nombre, frm.Apellido);
+                CargarUsuarios();
+            }
         }
 
         private void btnHistorial_Click(object sender, EventArgs e)

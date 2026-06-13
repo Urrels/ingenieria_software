@@ -68,6 +68,10 @@ namespace CAPAS
                 dgvHistorial.Columns["IntentosFallidos"].HeaderText = mgr.Traducir("colhdr_IntentosFallidos") ?? "Intentos";
             if (dgvHistorial.Columns["Perfiles"] != null)
                 dgvHistorial.Columns["Perfiles"].HeaderText         = mgr.Traducir("colhdr_Perfiles")         ?? "Perfiles";
+            if (dgvHistorial.Columns["Nombre"] != null)
+                dgvHistorial.Columns["Nombre"].HeaderText           = mgr.Traducir("colhdr_NombrePersona")    ?? "Nombre";
+            if (dgvHistorial.Columns["Apellido"] != null)
+                dgvHistorial.Columns["Apellido"].HeaderText         = mgr.Traducir("colhdr_Apellido")         ?? "Apellido";
             if (dgvHistorial.Columns["RealizadoPor"] != null)
                 dgvHistorial.Columns["RealizadoPor"].HeaderText     = mgr.Traducir("colhdr_RealizadoPor")     ?? "Realizado por";
             if (dgvHistorial.Columns["VersionOrigen"] != null)
@@ -102,6 +106,8 @@ namespace CAPAS
                 if (dgvHistorial.Columns["Bloqueado"] != null)        dgvHistorial.Columns["Bloqueado"].Width         = 80;
                 if (dgvHistorial.Columns["IntentosFallidos"] != null) dgvHistorial.Columns["IntentosFallidos"].Width  = 90;
                 if (dgvHistorial.Columns["Perfiles"] != null)         dgvHistorial.Columns["Perfiles"].Width          = 90;
+                if (dgvHistorial.Columns["Nombre"] != null)           dgvHistorial.Columns["Nombre"].Width            = 100;
+                if (dgvHistorial.Columns["Apellido"] != null)         dgvHistorial.Columns["Apellido"].Width          = 100;
                 if (dgvHistorial.Columns["RealizadoPor"] != null)     dgvHistorial.Columns["RealizadoPor"].Width      = 130;
                 if (dgvHistorial.Columns["VersionOrigen"] != null)    dgvHistorial.Columns["VersionOrigen"].Width     = 100;
                 ActualizarEncabezados();

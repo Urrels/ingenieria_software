@@ -11,6 +11,8 @@ namespace BE
         public bool     Bloqueado         { get; set; }
         public int      IntentosFallidos  { get; set; }
         public string   Perfiles          { get; set; }
+        public string   Nombre            { get; set; }
+        public string   Apellido          { get; set; }
         public DateTime FechaCambio       { get; set; }
         public string   RealizadoPor      { get; set; }
         public string   TipoCambio        { get; set; }

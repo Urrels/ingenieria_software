@@ -32,7 +32,7 @@ On next startup `EstaInicializado()` returns false → `RecalcularIntegridad()` 
 
 ## Architecture
 
-Eight projects in the solution. Six are active; two are **legacy predecessors** that must not be confused with the active ones:
+Five projects in the solution:
 
 ```
 CAPAS (UI/WinForms)
@@ -42,12 +42,9 @@ CAPAS (UI/WinForms)
   │     └── BE
   └── SeguridadYServicios
               └── BE
-
-Seguridad/   ← LEGACY: superseded by SeguridadYServicios
-Servicio/    ← LEGACY: superseded by SeguridadYServicios
 ```
 
-**BE** — Plain entity classes (`USUARIO`, `BITACORA`, `IDIOMA`, `CONTROL_IDIOMA`, `NodoPermiso`, `Rol`, `Permiso`, `DigitoVerificadorVertical`, `UsuarioHistorial`, etc.) plus the `LoginResultado` enum. No logic. `USUARIO` has a `DVH int` property (the only integrity-protected entity). `NodoPermiso.ToString()` returns `Nombre` (used by `CheckedListBox` in `frmPerfiles`).
+**BE** — Plain entity classes (`USUARIO`, `BITACORA`, `IDIOMA`, `CONTROL_IDIOMA`, `NodoPermiso`, `Rol`, `Permiso`, `UsuarioHistorial`, etc.) plus the `LoginResultado` enum. No logic. `USUARIO` has a `DVH int` property (the only integrity-protected entity). `NodoPermiso.ToString()` returns `Nombre` (used by `CheckedListBox` in `frmPerfiles`).
 
 **DAL** — All DB access goes through `Acceso` (internal), which uses stored procedures exclusively — never inline SQL. `SqlParameter` objects are mandatory to prevent SQL injection. Connection string is in `Acceso.cs` targeting `BDCAPAS` on the local SQL Server instance.
 
@@ -106,15 +103,23 @@ The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_I
 
 `frmPerfiles.PopularComboPadre` mirrors rule 1 by excluding the role's subtree (`RecolectarDescendientes`) from the combo entirely. Rule 2's targets — ancestors above the current parent (`RecolectarAncestrosSuperiores`, stored in `_padresDeshabilitados`) — remain visible in the combo but are rendered grayed-out (`cboPadre_DrawItem`, `OwnerDrawFixed`) and cannot be selected (`cboPadre_SelectedIndexChanged` reverts to `_cboPadreIndiceAnterior`). The SP `PERFIL_CAMBIAR_PADRE` does a plain `UPDATE NODO_PERMISO SET PADRE_ID`.
 
+**Inherited permissions (CU-15)** — `PerfilBLL.ObtenerPermisosHeredados(rolId)` walks the parent chain upward (via `ListarRoles()`/`PadreId`) and collects every `Permiso.Id` already granted (in `ROL_PERMISO`, via `ListarRolPermisos()`) to any ancestor role. In `frmPerfiles.PopularCheckPermisos`, those IDs are stored in `_permisosHeredados` and the corresponding item is added unchecked; `chkPermisos_DrawItem` (owner-draw, `CheckBoxState.*Disabled`) then renders it as unchecked-and-disabled, since it's already implicitly granted via inheritance and shouldn't be toggled for the child role. `chkPermisos_ItemCheck` forces `NewValue = Unchecked` for heredados so the user cannot check them, and `Guardar` skips any heredado ID when collecting `seleccionados` as an extra safeguard, so they are never written as a duplicate `ROL_PERMISO` row for the child role.
+
 **Role deletion guards** — `PerfilBLL.Eliminar` enforces two rules before calling the DAL, throwing `InvalidOperationException` for each:
 1. `Rol.Protegido == true` → system role, cannot be deleted. Currently only *Administrador* (`PROTEGIDO=1`); all other roles default to `PROTEGIDO=0`.
 2. `PerfilDAL.TieneUsuariosAsignados(id)` → the SP `PERFIL_TIENE_USUARIOS` uses a recursive CTE to check whether any role in the subtree has entries in `USUARIO_PERFIL`. Blocks deletion if so.
 
 `frmPerfiles` shows three context-sensitive panels when a `Rol` node is selected: `panelPadre` (ComboBox to reassign parent, excludes the role's own subtree from candidates) and `panelPermisos` (CheckedListBox of catalog permissions). The Eliminar button is disabled in the UI when `rol.Protegido` is true.
 
-**Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → joins `USUARIO_PERFIL → ROL_PERMISO → NODO_PERMISO` to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`.
+**Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → joins `USUARIO_PERFIL → ROL_PERMISO → NODO_PERMISO` to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`. **Never use `SessionManager.EsAdmin()` to control visibility** — it only compares `USUARIO.ROL` and is not aligned with the permission system; it exists but should stay unused.
 
 **Observer (multi-language)** — `IdiomaManager` is the Subject. Forms are Observers. Each form has its own language selector added dynamically by `IdiomaUIHelper.AgregarSelector(form)` (called at the end of every form's `Load`), because `ShowDialog()` disables the parent form. On change: CAPAS calls `BLL.IdiomaBLL.CargarTraducciones(idiomaId)`, then passes the dictionary to `IdiomaManager.CambiarIdioma()`, which calls `Notificar()` → `ActualizarIdioma()` on every registered form. Forms fall back to their design-time text when a key has no translation.
+
+**`IDIOMA.PREDETERMINADO`** — `BIT` column marking the system's default language (`Español`, seeded via `UPDATE IDIOMA SET PREDETERMINADO = 1 WHERE NOMBRE = 'Español'`). `frmIdiomas.btnEliminarIdioma_Click` blocks deletion in two cases, each with its own warning message:
+1. `_idiomaSeleccionado.Predeterminado == true` — the default language can never be deleted.
+2. `IdiomaBLL.EstaEnUso(id)` (SP `IDIOMA_ESTA_EN_USO`, `SELECT COUNT(*) FROM USUARIO WHERE IDIOMA_ID = @id`) — a language assigned to *any* user (not just the current session's) cannot be deleted.
+
+**Per-user language preference (`USUARIO.IDIOMA_ID`)** — nullable FK to `IDIOMA(ID)` (`FK_USUARIO_IDIOMA`); `NULL` means "no preference saved yet". Three write sites call `UsuarioBLL.ActualizarIdioma(usuarioId, idiomaId)` (SP `USUARIO_ACTUALIZAR_IDIOMA`) whenever a logged-in user changes language: `IdiomaUIHelper.AgregarSelector`'s combo handler and `frmMenu.cboIdiomaStatus_SelectedIndexChanged` (both guarded by `SessionManager.getInstance().getUsuario() != null` — the pre-login `LogIn` selector does not persist). On successful login, `LoginBLL.AutenticarUsuario` reads `u.IdiomaId` (now returned by `USUARIO_LOGIN`); if set, it loads the `IDIOMA` (`IdiomaBLL.ObtenerPorId`, SP `IDIOMA_OBTENER_POR_ID`) and its translations and calls `IdiomaManager.CambiarIdioma(...)` directly — this happens *before* `frmMenu` is constructed, so the menu loads already translated. `BE.USUARIO.IdiomaId` (`int?`) is hidden from `dgvUsuarios` in `frmAdminUsuarios` (not user-relevant in that grid).
 
 Two categories of UI text are **not** captured by `GuardarDefaults(this.Controls)` and need explicit handling:
 - **Form title bar**: register with `_controles[this.Name] = this; _defaults[this.Name] = this.Text;` after `GuardarDefaults`.
@@ -194,11 +199,15 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 
 `USUARIO_HISTORIAL` is an append-only audit table: no UPDATEs, no DELETEs. Each row is a full snapshot of a user's state at a point in time. `PASS` is never stored.
 
-**Change types**: `ALTA`, `BAJA`, `BLOQUEO`, `DESBLOQUEO`, `CAMBIO_CLAVE`, `ASIGNACION_PERFIL`, `ROLLBACK`.
+**Change types**: `ALTA`, `BAJA`, `BLOQUEO`, `DESBLOQUEO`, `CAMBIO_CLAVE`, `ASIGNACION_PERFIL`, `ROLLBACK`, `EDICION_DATOS`.
 
 **Snapshot timing** — `RegistrarCambio` must be called **after** the change, with one exception: `BAJA` is recorded **before** `_dal.Eliminar()` so the last known state is captured while the row still exists.
 
-**Rollback** (`UsuarioHistorialBLL.Rollback`) — applies `ROL`, `BLOQUEADO`, `INTENTOS_FALLIDOS`, and `PERFILES` from the chosen snapshot. `PASS` is untouched. The rollback itself is recorded as a new `ROLLBACK` entry with `VERSION_ORIGEN` pointing to the restored snapshot ID. Calls `RecalcularIntegridadUsuarios()` internally.
+**Rollback** (`UsuarioHistorialBLL.Rollback`) — applies `ROL`, `BLOQUEADO`, `INTENTOS_FALLIDOS`, `PERFILES`, `NOMBRE`, and `APELLIDO` from the chosen snapshot. `PASS` is untouched. The rollback itself is recorded as a new `ROLLBACK` entry with `VERSION_ORIGEN` pointing to the restored snapshot ID. Calls `RecalcularIntegridadUsuarios()` internally.
+
+**`NOMBRE`/`APELLIDO` (non-critical fields)** — `USUARIO.NOMBRE` and `USUARIO.APELLIDO` are free-text personal data, optional and not part of any business rule. They are deliberately **excluded from the DVH/DVV canonical attribute array** (`IntegridadBLL.ColumnasUsuario`) — editing them never affects integrity digests. They ARE snapshotted in `USUARIO_HISTORIAL` and restored on rollback (see above), so history/rollback stays a faithful point-in-time copy, but `UsuarioBLL.ActualizarDatos` does **not** call `RecalcularIntegridadUsuarios()`. Edited via `frmEditarUsuario` ("Editar datos" button in `frmAdminUsuarios`), which records an `EDICION_DATOS` entry.
+
+**Anti-recursion** — a `ROLLBACK` entry cannot itself be the target of another rollback. Enforced in two places: `frmHistorialUsuario` rejects the selection before asking for confirmation, and `UsuarioHistorialBLL.Rollback()` throws `InvalidOperationException` as a backstop if called anyway.
 
 **No FK to USUARIO** — intentional: the historial row survives the deletion of the user it describes.
 
@@ -235,25 +244,33 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 
 ## Documentation artifacts
 
-All PlantUML sources are rendered via `generar_png.py` (uses kroki.io, requires internet).
+All diagram sources, generated images, and doc-generation scripts live under `DIAGRAMAS/`. PlantUML sources are rendered via `DIAGRAMAS/generar_png.py` (uses kroki.io, requires internet).
 
 | File | Type | Purpose |
 |---|---|---|
-| `DER.puml` / `.png` | DER | Modelo entidad-relación de BDCAPAS |
-| `DiagramaClases.puml` / `.png` | Diagrama de clases | Capas BE, BLL, DAL, SeguridadYServicios |
-| `DiagramaComponentes.puml` / `.png` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
+| `DIAGRAMAS/DER.puml` / `.png` | DER | Modelo entidad-relación de BDCAPAS |
+| `DIAGRAMAS/DiagramaClases.puml` / `.png` | Diagrama de clases | Capas BE, BLL, DAL, SeguridadYServicios |
+| `DIAGRAMAS/DiagramaClases_Composite.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Composite — árbol de roles/permisos (`NodoPermiso`/`Rol`/`Permiso`), con comentarios |
+| `DIAGRAMAS/DiagramaClases_Observer.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Observer — multiidioma (`IdiomaManager`/`IObservadorIdioma`), con comentarios |
+| `DIAGRAMAS/DiagramaClases_Singleton.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Singleton — `SessionManager`/`IdiomaManager`, con comentarios |
+| `DIAGRAMAS/DiagramaComponentes.puml` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
+| `DIAGRAMAS/DiagramaComponentes/DiagramaComponentes - TP_IS.png` | Diagrama de componentes (render) | PNG renderizado del anterior |
 | `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
-| `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad_EA.puml` / `.png` | Secuencia (EA-style) | Variante con estética Enterprise Architect |
-| `DIAGRAMAS/DiagramaSecuencia_CU0X_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por caso de uso documentado |
-| `CasosDeUso/README.md` | Catálogo | Índice de los 20 CUs + actores + permisos |
-| `CasosDeUso/CU-XX_*.md` | Descripción | Cada CU en formato Cockburn (markdown) |
-| `CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |
-| `generar_casos_uso_docx.py` | Generador | Regenera el `.docx` desde el dict `CUS` definido en el script |
+| `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad_EA.puml` | Secuencia (EA-style) | Variante con estética Enterprise Architect |
+| `DIAGRAMAS/DiagramaSecuencia_CU01..CU20_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por cada uno de los 20 casos de uso |
+| `DIAGRAMAS/CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |
+| `DIAGRAMAS/generar_casos_uso_docx.py` | Generador | Regenera `CasosDeUso.docx` desde el dict `CUS` definido en el script |
 
-Regenerar PNGs:
+Regenerar un PNG individual (desde `DIAGRAMAS/`):
 
 ```powershell
 python generar_png.py <archivo.puml> <archivo.png>
+```
+
+Regenerar en lote todos los diagramas de secuencia (con reintentos):
+
+```powershell
+python generar_pngs_lote.py
 ```
 
 Regenerar el `.docx` de casos de uso (tras editar `CUS` en el script):

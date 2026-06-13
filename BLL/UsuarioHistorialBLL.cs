@@ -29,6 +29,8 @@ namespace BLL
                 Bloqueado        = u.Bloqueado,
                 IntentosFallidos = u.IntentosFallidos,
                 Perfiles         = perfilesStr,
+                Nombre           = u.Nombre,
+                Apellido         = u.Apellido,
                 RealizadoPor     = realizadoPor,
                 TipoCambio       = tipoCambio,
                 VersionOrigen    = versionOrigen
@@ -60,6 +62,8 @@ namespace BLL
             _perfilDal.BorrarTodos(snapshot.UsuarioId);
             foreach (int pid in ParsearPerfiles(snapshot.Perfiles))
                 _perfilDal.Asignar(snapshot.UsuarioId, pid);
+
+            _usuarioDal.ActualizarDatos(snapshot.UsuarioId, snapshot.Nombre, snapshot.Apellido);
 
             RegistrarCambio(snapshot.UsuarioId, "ROLLBACK", realizadoPor, historialId);
             new IntegridadBLL().RecalcularIntegridadUsuarios();

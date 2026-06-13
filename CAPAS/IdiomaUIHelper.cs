@@ -34,6 +34,10 @@ namespace CAPAS
                 var bll = new BLL.IdiomaBLL();
                 var traducciones = bll.CargarTraducciones(idioma.Id);
                 SeguridadYServicios.IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);
+
+                BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
+                if (usuario != null)
+                    new BLL.UsuarioBLL().ActualizarIdioma(usuario.Id, idioma.Id);
             };
         }
     }

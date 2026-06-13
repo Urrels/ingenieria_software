@@ -87,6 +87,10 @@ namespace CAPAS
 
             var traducciones = bll.CargarTraducciones(idioma.Id);
             SeguridadYServicios.IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);
+
+            BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
+            if (usuario != null)
+                new BLL.UsuarioBLL().ActualizarIdioma(usuario.Id, idioma.Id);
         }
 
         private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
