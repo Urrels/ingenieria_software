@@ -29,7 +29,8 @@ namespace DAL
                     {
                         Id = Convert.ToInt32(fila["ID"]),
                         Usuario = fila["USUARIO"].ToString(),
-                        Rol = fila["ROL"].ToString()
+                        Rol = fila["ROL"].ToString(),
+                        IdiomaId = fila["IDIOMA_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["IDIOMA_ID"])
                     };
                 }
             }
@@ -115,32 +116,6 @@ namespace DAL
             }
         }
 
-        public List<BE.USUARIO> ListarBloqueados()
-        {
-            List<BE.USUARIO> lista = new List<BE.USUARIO>();
-            try
-            {
-                _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("USUARIO_LISTAR_BLOQUEADOS");
-                foreach (DataRow fila in tabla.Rows)
-                {
-                    lista.Add(new BE.USUARIO
-                    {
-                        Id = Convert.ToInt32(fila["ID"]),
-                        Usuario = fila["USUARIO"].ToString(),
-                        Rol = fila["ROL"].ToString(),
-                        IntentosFallidos = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
-                        Bloqueado = true
-                    });
-                }
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-            return lista;
-        }
-
         public List<BE.USUARIO> ListarTodos()
         {
             List<BE.USUARIO> lista = new List<BE.USUARIO>();
@@ -155,7 +130,9 @@ namespace DAL
                         Id       = Convert.ToInt32(fila["ID"]),
                         Usuario  = fila["USUARIO"].ToString(),
                         Rol      = fila["ROL"].ToString(),
-                        Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"])
+                        Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"]),
+                        Nombre   = fila["NOMBRE"].ToString(),
+                        Apellido = fila["APELLIDO"].ToString()
                     });
                 }
             }
@@ -183,13 +160,15 @@ namespace DAL
             }
         }
 
-        public bool Crear(string usuario, string passHash, string rol)
+        public bool Crear(string usuario, string passHash, string rol, string nombre, string apellido)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
             {
-                _acceso.CrearParametro("@usuario", usuario),
-                _acceso.CrearParametro("@pass",    passHash),
-                _acceso.CrearParametro("@rol",     rol)
+                _acceso.CrearParametro("@usuario",  usuario),
+                _acceso.CrearParametro("@pass",     passHash),
+                _acceso.CrearParametro("@rol",      rol),
+                _acceso.CrearParametro("@nombre",   nombre ?? ""),
+                _acceso.CrearParametro("@apellido", apellido ?? "")
             };
             try
             {
@@ -221,7 +200,9 @@ namespace DAL
                     Usuario           = fila["USUARIO"].ToString(),
                     Rol               = fila["ROL"].ToString(),
                     IntentosFallidos  = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
-                    Bloqueado         = Convert.ToBoolean(fila["BLOQUEADO"])
+                    Bloqueado         = Convert.ToBoolean(fila["BLOQUEADO"]),
+                    Nombre            = fila["NOMBRE"].ToString(),
+                    Apellido          = fila["APELLIDO"].ToString()
                 };
             }
             finally { _acceso.Cerrar(); }
@@ -258,6 +239,43 @@ namespace DAL
                 _acceso.Escribir("USUARIO_APLICAR_ESTADO", parametros);
             }
             finally { _acceso.Cerrar(); }
+        }
+
+        public void ActualizarDatos(int id, string nombre, string apellido)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@id",       id),
+                _acceso.CrearParametro("@nombre",   nombre ?? ""),
+                _acceso.CrearParametro("@apellido", apellido ?? "")
+            };
+            try
+            {
+                _acceso.Abrir();
+                _acceso.Escribir("USUARIO_ACTUALIZAR_DATOS", parametros);
+            }
+            finally
+            {
+                _acceso.Cerrar();
+            }
+        }
+
+        public void ActualizarIdioma(int id, int idiomaId)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@id",        id),
+                _acceso.CrearParametro("@idioma_id", idiomaId)
+            };
+            try
+            {
+                _acceso.Abrir();
+                _acceso.Escribir("USUARIO_ACTUALIZAR_IDIOMA", parametros);
+            }
+            finally
+            {
+                _acceso.Cerrar();
+            }
         }
 
         public void Desbloquear(string usuario)

@@ -26,6 +26,9 @@
         public int IntentosFallidos { get; set; }
         public bool Bloqueado { get; set; }
         public string Rol { get; set; }
+        public string Nombre { get; set; }
+        public string Apellido { get; set; }
         public int DVH { get; set; }
+        public int? IdiomaId { get; set; }
     }
 }

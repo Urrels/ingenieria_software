@@ -6,11 +6,6 @@ namespace SeguridadYServicios
     {
         public const int LargoMinimo = 6;
 
-        public static bool EsValida(string contrasena)
-        {
-            return ObtenerError(contrasena) == null;
-        }
-
         public static string ObtenerError(string contrasena)
         {
             if (string.IsNullOrWhiteSpace(contrasena))

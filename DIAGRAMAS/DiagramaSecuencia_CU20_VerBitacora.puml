@@ -1,0 +1,99 @@
+@startuml DiagramaSecuencia_CU20_VerBitacora
+
+title CU-20 — Ver Bitácora — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 14
+skinparam sequenceMessageAlign center
+hide footbox
+scale 0.85
+
+' ─────────────────────────────────────────
+' Participantes en orden de aparición
+' ─────────────────────────────────────────
+actor       ":Administrador" as A
+participant ":frmMenu"       as FM #FEFECE
+participant ":frmBitacora"   as FB #FEFECE
+participant ":BitacoraBLL"   as BB #E8F4E8
+database    ":DB"            as DB #E8E8F4
+
+note over FM
+  Precondición: sesión activa,
+  permiso "Ver bitácora".
+end note
+
+' ─────────────────────────────────────────
+' APERTURA
+' ─────────────────────────────────────────
+== 1. Apertura ==
+
+A -> FM : seleccionar "Bitácora" en\nel menú principal
+FM -> FB : new frmBitacora().Show()
+activate FB
+
+' ─────────────────────────────────────────
+' CARGA INICIAL
+' ─────────────────────────────────────────
+== 2. Carga inicial ==
+
+FB -> BB : Listar()
+BB -> DB : SELECT * FROM BITACORA
+DB --> BB : filas
+BB --> FB : List<BITACORA> (_todas)
+
+FB -> FB : PoblarFiltros()
+note right of FB
+  cmbUsuario y cmbAccion se
+  pueblan con los valores
+  distintos de _todas, más la
+  opción "(Todos)" (seleccionada
+  por defecto). dtpDesde/dtpHasta
+  quedan sin marcar.
+end note
+
+FB -> FB : Refrescar()\n(sin filtros activos → q = _todas)
+FB -> FB : dataGridView1.DataSource = q.ToList()
+FB --> A : grilla con todas\nlas entradas
+
+' ─────────────────────────────────────────
+' APLICAR FILTROS
+' ─────────────────────────────────────────
+== 3. Aplicar filtros ==
+
+A -> FB : ajustar combos (Usuario / Acción)\ny/o fechas Desde / Hasta
+A -> FB : click "Filtrar"
+
+FB -> FB : Refrescar()
+note right of FB
+  RN-03: filtros de Usuario y
+  Acción por valor exacto (no
+  por subcadena).
+  RN-02: rango de fechas
+  inclusivo en "Desde" y
+  exclusivo a partir del día
+  siguiente a "Hasta"
+  (Fecha < Hasta + 1 día).
+end note
+FB -> FB : dataGridView1.DataSource = q.ToList()
+FB --> A : grilla filtrada
+
+' ─────────────────────────────────────────
+' LIMPIAR FILTROS
+' ─────────────────────────────────────────
+opt 5a. el administrador presiona "Limpiar filtros"
+  A -> FB : click "Limpiar filtros"
+  FB -> FB : cmbUsuario / cmbAccion → "(Todos)"\ndtpDesde.Checked = dtpHasta.Checked = false
+  FB -> FB : Refrescar()
+  FB --> A : grilla con todas\nlas entradas
+end
+
+note over BB, DB
+  RN-01: la bitácora es de solo
+  lectura desde la UI — no se
+  pueden editar ni eliminar
+  entradas.
+end note
+
+@enduml

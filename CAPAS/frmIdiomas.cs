@@ -145,15 +145,25 @@ namespace CAPAS
                 return;
             }
 
+            if (_idiomaSeleccionado.Predeterminado)
+            {
+                MessageBox.Show("No se puede eliminar el idioma predeterminado del sistema.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (_bll.EstaEnUso(_idiomaSeleccionado.Id))
+            {
+                MessageBox.Show("No se puede eliminar un idioma que está en uso por algún usuario.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (MessageBox.Show(
                     $"¿Eliminar el idioma '{_idiomaSeleccionado.Nombre}'? Se borrarán todas sus traducciones.",
                     "Confirmar eliminación",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
-
-            var mgr = SeguridadYServicios.IdiomaManager.getInstance();
-            if (mgr.IdiomaActivo != null && mgr.IdiomaActivo.Id == _idiomaSeleccionado.Id)
-                mgr.CambiarIdioma(null, null);
 
             _bll.Eliminar(_idiomaSeleccionado.Id);
             _idiomaSeleccionado = null;

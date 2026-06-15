@@ -1,7 +1,9 @@
 using BE;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using ReaLTaiizor.Forms;
 using ReaLTaiizor.Manager;
 
@@ -14,6 +16,9 @@ namespace CAPAS
         private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
 
         private List<Permiso> _permisosDisponibles = new List<Permiso>();
+        private readonly HashSet<int> _padresDeshabilitados = new HashSet<int>();
+        private readonly HashSet<int> _permisosHeredados = new HashSet<int>();
+        private int _cboPadreIndiceAnterior;
 
         public frmPerfiles()
         {
@@ -27,6 +32,13 @@ namespace CAPAS
             _defaults[this.Name]  = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             _permisosDisponibles = _bll.ObtenerPermisosDisponibles();
+            cboPadre.DrawMode = DrawMode.OwnerDrawFixed;
+            cboPadre.ItemHeight = 20;
+            cboPadre.DrawItem += cboPadre_DrawItem;
+            cboPadre.SelectedIndexChanged += cboPadre_SelectedIndexChanged;
+            chkPermisos.DrawMode = DrawMode.OwnerDrawFixed;
+            chkPermisos.DrawItem += chkPermisos_DrawItem;
+            chkPermisos.ItemCheck += chkPermisos_ItemCheck;
             ActualizarIdioma();
             CargarArbol();
             IdiomaUIHelper.AgregarSelector(this);
@@ -123,8 +135,10 @@ namespace CAPAS
             List<int> seleccionados = new List<int>();
             for (int i = 0; i < chkPermisos.Items.Count; i++)
             {
-                if (chkPermisos.GetItemChecked(i))
-                    seleccionados.Add(((Permiso)chkPermisos.Items[i]).Id);
+                if (!chkPermisos.GetItemChecked(i)) continue;
+                int permisoId = ((Permiso)chkPermisos.Items[i]).Id;
+                if (_permisosHeredados.Contains(permisoId)) continue;
+                seleccionados.Add(permisoId);
             }
 
             _bll.ActualizarPermisosDeRol(rol.Id, seleccionados);
@@ -211,15 +225,57 @@ namespace CAPAS
                 if (hijo.EsHoja()) asignados.Add(hijo.Id);
             }
 
+            _permisosHeredados.Clear();
+            foreach (int id in _bll.ObtenerPermisosHeredados(rol.Id))
+                _permisosHeredados.Add(id);
+
             chkPermisos.Items.Clear();
             foreach (Permiso p in _permisosDisponibles)
-                chkPermisos.Items.Add(p, asignados.Contains(p.Id));
+            {
+                bool marcado = asignados.Contains(p.Id) && !_permisosHeredados.Contains(p.Id);
+                chkPermisos.Items.Add(p, marcado);
+            }
+        }
+
+        private void chkPermisos_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= chkPermisos.Items.Count) return;
+            if (chkPermisos.Items[e.Index] is Permiso p && _permisosHeredados.Contains(p.Id))
+                e.NewValue = CheckState.Unchecked;
+        }
+
+        private void chkPermisos_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= chkPermisos.Items.Count) return;
+
+            bool heredado = chkPermisos.Items[e.Index] is Permiso p && _permisosHeredados.Contains(p.Id);
+            Color colorTexto = heredado ? SystemColors.GrayText : chkPermisos.ForeColor;
+
+            e.DrawBackground();
+
+            CheckBoxState estadoCheck = chkPermisos.GetItemChecked(e.Index)
+                ? (heredado ? CheckBoxState.CheckedDisabled : CheckBoxState.CheckedNormal)
+                : (heredado ? CheckBoxState.UncheckedDisabled : CheckBoxState.UncheckedNormal);
+
+            Size tamanioCheck = CheckBoxRenderer.GetGlyphSize(e.Graphics, estadoCheck);
+            Point puntoCheck = new Point(e.Bounds.X + 2, e.Bounds.Y + (e.Bounds.Height - tamanioCheck.Height) / 2);
+            CheckBoxRenderer.DrawCheckBox(e.Graphics, puntoCheck, estadoCheck);
+
+            Rectangle rectTexto = new Rectangle(e.Bounds.X + tamanioCheck.Width + 4, e.Bounds.Y,
+                e.Bounds.Width - tamanioCheck.Width - 4, e.Bounds.Height);
+            using (Brush brush = new SolidBrush(colorTexto))
+                e.Graphics.DrawString(chkPermisos.Items[e.Index].ToString(), e.Font, brush, rectTexto);
+
+            e.DrawFocusRectangle();
         }
 
         private void PopularComboPadre(Rol rol, TreeNode nodoActual)
         {
             HashSet<int> excluidos = new HashSet<int> { rol.Id };
             RecolectarDescendientes(nodoActual, excluidos);
+
+            _padresDeshabilitados.Clear();
+            RecolectarAncestrosSuperiores(nodoActual, _padresDeshabilitados);
 
             var candidatos = new List<ItemRol> { new ItemRol { Id = null, Nombre = "(ninguno)" } };
             foreach (TreeNode raiz in treePermisos.Nodes)
@@ -240,6 +296,32 @@ namespace CAPAS
                     }
                 }
             }
+            _cboPadreIndiceAnterior = cboPadre.SelectedIndex;
+            cboPadre.Invalidate();
+        }
+
+        private void cboPadre_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0 || !(cboPadre.Items[e.Index] is ItemRol item)) return;
+
+            bool deshabilitado = item.Id.HasValue && _padresDeshabilitados.Contains(item.Id.Value);
+            Color colorTexto = deshabilitado ? SystemColors.GrayText : e.ForeColor;
+
+            e.DrawBackground();
+            using (Brush brush = new SolidBrush(colorTexto))
+                e.Graphics.DrawString(item.Nombre, e.Font, brush, e.Bounds);
+            e.DrawFocusRectangle();
+        }
+
+        private void cboPadre_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboPadre.SelectedItem is ItemRol item &&
+                item.Id.HasValue && _padresDeshabilitados.Contains(item.Id.Value))
+            {
+                cboPadre.SelectedIndex = _cboPadreIndiceAnterior;
+                return;
+            }
+            _cboPadreIndiceAnterior = cboPadre.SelectedIndex;
         }
 
         private void RecolectarDescendientes(TreeNode nodo, HashSet<int> ids)
@@ -254,10 +336,21 @@ namespace CAPAS
             }
         }
 
+        private void RecolectarAncestrosSuperiores(TreeNode nodoActual, HashSet<int> ids)
+        {
+            TreeNode actual = nodoActual.Parent?.Parent;
+            while (actual != null)
+            {
+                if (actual.Tag is Rol r) ids.Add(r.Id);
+                actual = actual.Parent;
+            }
+        }
+
         private void RecolectarRolesCandidatos(TreeNode nodo, HashSet<int> excluidos, List<ItemRol> lista)
         {
-            if (!(nodo.Tag is Rol r) || excluidos.Contains(r.Id)) return;
-            lista.Add(new ItemRol { Id = r.Id, Nombre = r.Nombre });
+            if (!(nodo.Tag is Rol r)) return;
+            if (!excluidos.Contains(r.Id))
+                lista.Add(new ItemRol { Id = r.Id, Nombre = r.Nombre });
             foreach (TreeNode hijo in nodo.Nodes)
                 RecolectarRolesCandidatos(hijo, excluidos, lista);
         }
@@ -291,7 +384,5 @@ namespace CAPAS
             public string Nombre { get; set; }
             public override string ToString() => Nombre;
         }
-
-      
     }
 }

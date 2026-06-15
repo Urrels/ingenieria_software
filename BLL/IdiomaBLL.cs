@@ -11,6 +11,10 @@ namespace BLL
 
         public List<IDIOMA> ListarHabilitados() => _dal.ListarHabilitados();
 
+        public IDIOMA ObtenerPorId(int id) => _dal.ObtenerPorId(id);
+
+        public bool EstaEnUso(int id) => _dal.EstaEnUso(id);
+
         public IDIOMA Crear(string nombre, bool habilitado)
         {
             int id = _dal.Insertar(nombre, habilitado);

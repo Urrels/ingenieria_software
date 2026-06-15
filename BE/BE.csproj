@@ -49,7 +49,6 @@
     <Compile Include="PerfilPermiso.cs" />
     <Compile Include="Permiso.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DigitoVerificadorVertical.cs" />
     <Compile Include="USUARIO.cs" />
     <Compile Include="UsuarioHistorial.cs" />
   </ItemGroup>

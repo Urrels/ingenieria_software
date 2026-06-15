@@ -81,7 +81,7 @@ namespace CAPAS
             this.panelPadre.Size = new System.Drawing.Size(251, 154);
             this.panelPadre.TabIndex = 2;
             this.panelPadre.Visible = false;
-            // 
+            //
             // lblPadre
             // 
             this.lblPadre.Location = new System.Drawing.Point(3, 16);

@@ -38,11 +38,6 @@ namespace BLL
             return resultado;
         }
 
-        public System.Collections.Generic.List<BE.USUARIO> ListarBloqueados()
-        {
-            return _dal.ListarBloqueados();
-        }
-
         public System.Collections.Generic.List<BE.USUARIO> ListarTodos()
         {
             return _dal.ListarTodos();
@@ -56,10 +51,10 @@ namespace BLL
             _integridad.RecalcularIntegridadUsuarios();
         }
 
-        public bool Crear(string usuario, string contrasena, string rol)
+        public bool Crear(string usuario, string contrasena, string rol, string nombre, string apellido)
         {
             string hash = Hasher.Hashear(contrasena);
-            bool resultado = _dal.Crear(usuario, hash, rol);
+            bool resultado = _dal.Crear(usuario, hash, rol, nombre, apellido);
             if (resultado)
             {
                 _integridad.RecalcularIntegridadUsuarios();
@@ -69,6 +64,16 @@ namespace BLL
             }
             return resultado;
         }
+
+        public void ActualizarDatos(int id, string nombre, string apellido)
+        {
+            _dal.ActualizarDatos(id, nombre, apellido);
+            string admin = SessionManager.getInstance().getUsuario().Usuario;
+            _historial.RegistrarCambio(id, "EDICION_DATOS", admin);
+        }
+
+        public void ActualizarIdioma(int id, int idiomaId) =>
+            _dal.ActualizarIdioma(id, idiomaId);
 
         public void Desbloquear(string usuario)
         {

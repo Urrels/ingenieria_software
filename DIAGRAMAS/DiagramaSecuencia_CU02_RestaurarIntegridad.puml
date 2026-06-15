@@ -65,12 +65,17 @@ else 4a. admin elige "Restaurar desde historial"
       FR -> FH : new frmHistorialUsuario(usuario)\n.ShowDialog()
       activate FH
       A -> FH : seleccionar versión\n+ click Rollback
-      FH --> A : solicitar confirmación
-      A --> FH : confirmar
-      FH -> UH : Rollback(historialId, admin)
-      UH -> DB : aplicar estado del snapshot\n+ reasignar perfiles\n+ registrar ROLLBACK
-      UH -> IB : RecalcularIntegridadUsuarios()
-      IB -> DB : actualizar DVH / DVV
+
+      alt 2a. entrada seleccionada es de tipo ROLLBACK
+        FH --> A : "No se puede restaurar una versión\nque ya es un rollback"\n(Operación no permitida)
+      else entrada restaurable
+        FH --> A : solicitar confirmación
+        A --> FH : confirmar
+        FH -> UH : Rollback(historialId, admin)
+        UH -> DB : aplicar estado del snapshot\n+ reasignar perfiles\n+ registrar ROLLBACK
+        UH -> IB : RecalcularIntegridadUsuarios()
+        IB -> DB : actualizar DVH / DVV
+      end
       FH --> FR : (form cerrado)
       deactivate FH
 

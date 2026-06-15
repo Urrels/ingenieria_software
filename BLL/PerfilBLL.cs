@@ -43,15 +43,24 @@ namespace BLL
             _dal.GuardarPermisosDeRol(rolId, permisoIds);
         }
 
+        public HashSet<int> ObtenerPermisosHeredados(int rolId)
+        {
+            List<NodoPermiso> roles = _dal.ListarRoles();
+            List<Permiso> rolPermisos = _dal.ListarRolPermisos();
+
+            HashSet<int> heredados = new HashSet<int>();
+            int? actual = roles.FirstOrDefault(n => n.Id == rolId)?.PadreId;
+            while (actual.HasValue)
+            {
+                foreach (Permiso p in rolPermisos.Where(rp => rp.PadreId == actual.Value))
+                    heredados.Add(p.Id);
+                actual = roles.FirstOrDefault(n => n.Id == actual.Value)?.PadreId;
+            }
+            return heredados;
+        }
+
         public NodoPermiso AgregarRol(string nombre, int? padreId)
         {
-            if (padreId.HasValue)
-            {
-                List<NodoPermiso> todos = _dal.ListarRoles();
-                if (GenerariaCiclo(padreId.Value, padreId.Value, todos))
-                    throw new InvalidOperationException(
-                        "No se puede asignar ese padre: generaría una referencia circular.");
-            }
             int id = _dal.Insertar(nombre, "PERFIL", padreId);
             return new Rol { Id = id, Nombre = nombre, PadreId = padreId };
         }
@@ -64,6 +73,11 @@ namespace BLL
                 if (GenerariaCiclo(rolId, nuevoPadreId.Value, todos))
                     throw new InvalidOperationException(
                         "No se puede asignar ese padre: generaría una referencia circular.");
+
+                int? padreActual = todos.FirstOrDefault(n => n.Id == rolId)?.PadreId;
+                if (EsAncestroDelPadreActual(padreActual, nuevoPadreId.Value, todos))
+                    throw new InvalidOperationException(
+                        "No se puede asignar como padre a un ancestro del padre actual del rol.");
             }
             _dal.CambiarPadre(rolId, nuevoPadreId);
         }
@@ -86,6 +100,19 @@ namespace BLL
             while (actual.HasValue)
             {
                 if (actual.Value == rolId) return true;
+                actual = todos.FirstOrDefault(n => n.Id == actual.Value)?.PadreId;
+            }
+            return false;
+        }
+
+        private bool EsAncestroDelPadreActual(int? padreActualId, int candidatoPadreId, List<NodoPermiso> todos)
+        {
+            int? actual = padreActualId.HasValue
+                ? todos.FirstOrDefault(n => n.Id == padreActualId.Value)?.PadreId
+                : null;
+            while (actual.HasValue)
+            {
+                if (actual.Value == candidatoPadreId) return true;
                 actual = todos.FirstOrDefault(n => n.Id == actual.Value)?.PadreId;
             }
             return false;

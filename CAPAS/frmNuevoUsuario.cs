@@ -11,6 +11,8 @@ namespace CAPAS
         public string NombreUsuario => txtNombre.Text.Trim();
         public string Contrasena    => txtContrasena.Text;
         public string Rol           => (string)cboRol.SelectedValue;
+        public string Nombre        => txtNombrePersona.Text.Trim();
+        public string Apellido      => txtApellido.Text.Trim();
 
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
         private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
