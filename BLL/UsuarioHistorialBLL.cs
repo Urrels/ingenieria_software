@@ -72,6 +72,19 @@ namespace BLL
 
             RegistrarCambio(snapshot.UsuarioId, "ROLLBACK", realizadoPor, historialId);
             new IntegridadBLL().RecalcularIntegridadUsuarios();
+
+            // Si el rollback afectó al usuario de la sesión activa (el propio
+            // admin logueado), refrescamos su USUARIO y sus permisos en caliente
+            // para que no haga falta desloguearse y volver a entrar.
+            BE.USUARIO usuarioSesion = SessionManager.getInstance().getUsuario();
+            if (usuarioSesion != null && usuarioSesion.Id == snapshot.UsuarioId)
+            {
+                BE.USUARIO usuarioActualizado = _usuarioDal.ObtenerPorId(snapshot.UsuarioId);
+                SessionManager.getInstance().setUsuario(usuarioActualizado);
+
+                List<string> permisosActualizados = _perfilDal.ListarPermisosDeUsuario(snapshot.UsuarioId);
+                SessionManager.getInstance().setPermisos(permisosActualizados);
+            }
         }
         private List<int> ParsearPerfiles(string perfilesStr)
         {
