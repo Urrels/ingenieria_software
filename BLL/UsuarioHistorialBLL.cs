@@ -6,9 +6,9 @@ namespace BLL
 {
     public class UsuarioHistorialBLL
     {
-        private readonly DAL.UsuarioHistorialDAL _dal       = new DAL.UsuarioHistorialDAL();
-        private readonly DAL.UsuarioDAL          _usuarioDal = new DAL.UsuarioDAL();
-        private readonly DAL.UsuarioPerfilDAL    _perfilDal  = new DAL.UsuarioPerfilDAL();
+        private readonly DAL.UsuarioHistorialDAL _dal = new DAL.UsuarioHistorialDAL();
+        private readonly DAL.UsuarioDAL _usuarioDal = new DAL.UsuarioDAL();
+        private readonly DAL.UsuarioPerfilDAL _perfilDal = new DAL.UsuarioPerfilDAL();
 
 
         public void RegistrarCambio(int usuarioId, string tipoCambio, string realizadoPor,
@@ -23,17 +23,20 @@ namespace BLL
 
             _dal.Insertar(new BE.UsuarioHistorial
             {
-                UsuarioId        = usuarioId,
-                UsuarioLogin     = u.Usuario,
-                Rol              = u.Rol,
-                Bloqueado        = u.Bloqueado,
+                UsuarioId = usuarioId,
+                UsuarioLogin = u.Usuario,
+                Rol = u.Rol,
+                RolId = u.RolId,
+                Bloqueado = u.Bloqueado,
                 IntentosFallidos = u.IntentosFallidos,
-                Perfiles         = perfilesStr,
-                Nombre           = u.Nombre,
-                Apellido         = u.Apellido,
-                RealizadoPor     = realizadoPor,
-                TipoCambio       = tipoCambio,
-                VersionOrigen    = versionOrigen
+                Perfiles = perfilesStr,
+                Nombre = u.Nombre,
+                Apellido = u.Apellido,
+                Telefono = u.Telefono,
+                Email = u.Email,
+                RealizadoPor = realizadoPor,
+                TipoCambio = tipoCambio,
+                VersionOrigen = versionOrigen
             });
         }
 
@@ -57,13 +60,15 @@ namespace BLL
                 snapshot.UsuarioId,
                 snapshot.Rol,
                 snapshot.Bloqueado,
-                snapshot.IntentosFallidos);
+                snapshot.IntentosFallidos,
+                snapshot.RolId);
 
             _perfilDal.BorrarTodos(snapshot.UsuarioId);
             foreach (int pid in ParsearPerfiles(snapshot.Perfiles))
                 _perfilDal.Asignar(snapshot.UsuarioId, pid);
 
-            _usuarioDal.ActualizarDatos(snapshot.UsuarioId, snapshot.Nombre, snapshot.Apellido);
+            _usuarioDal.ActualizarDatos(snapshot.UsuarioId, snapshot.Nombre, snapshot.Apellido,
+                snapshot.Telefono, snapshot.Email);
 
             RegistrarCambio(snapshot.UsuarioId, "ROLLBACK", realizadoPor, historialId);
             new IntegridadBLL().RecalcularIntegridadUsuarios();

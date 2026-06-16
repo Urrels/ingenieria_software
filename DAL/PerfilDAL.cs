@@ -16,14 +16,14 @@ namespace DAL
             try
             {
                 _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("PERFIL_LISTAR_TODOS");
+                DataTable tabla = _acceso.Leer("ROL_LISTAR_TODOS");
                 foreach (DataRow fila in tabla.Rows)
                 {
                     lista.Add(new Rol
                     {
-                        Id        = Convert.ToInt32(fila["ID"]),
-                        Nombre    = fila["NOMBRE"].ToString(),
-                        PadreId   = fila["PADRE_ID"] == DBNull.Value
+                        Id = Convert.ToInt32(fila["ID"]),
+                        Nombre = fila["NOMBRE"].ToString(),
+                        PadreId = fila["PADRE_ID"] == DBNull.Value
                                       ? (int?)null
                                       : Convert.ToInt32(fila["PADRE_ID"]),
                         Protegido = Convert.ToBoolean(fila["PROTEGIDO"])
@@ -45,7 +45,7 @@ namespace DAL
                 {
                     lista.Add(new Permiso
                     {
-                        Id     = Convert.ToInt32(fila["ID"]),
+                        Id = Convert.ToInt32(fila["ID"]),
                         Nombre = fila["NOMBRE"].ToString()
                     });
                 }
@@ -65,8 +65,8 @@ namespace DAL
                 {
                     lista.Add(new Permiso
                     {
-                        Id      = Convert.ToInt32(fila["PERMISO_ID"]),
-                        Nombre  = fila["NOMBRE"].ToString(),
+                        Id = Convert.ToInt32(fila["PERMISO_ID"]),
+                        Nombre = fila["NOMBRE"].ToString(),
                         PadreId = Convert.ToInt32(fila["ROL_ID"])
                     });
                 }
@@ -104,7 +104,7 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        public int Insertar(string nombre, string tipo, int? padreId)
+        public int Insertar(string nombre, int? padreId)
         {
             SqlParameter paramPadre = new SqlParameter("@padre_id", DbType.Int32)
             {
@@ -113,13 +113,12 @@ namespace DAL
             List<SqlParameter> parametros = new List<SqlParameter>
             {
                 _acceso.CrearParametro("@nombre", nombre),
-                _acceso.CrearParametro("@tipo",   tipo),
                 paramPadre
             };
             try
             {
                 _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("PERFIL_INSERTAR", parametros);
+                DataTable tabla = _acceso.Leer("ROL_INSERTAR", parametros);
                 return Convert.ToInt32(tabla.Rows[0]["ID"]);
             }
             finally { _acceso.Cerrar(); }
@@ -130,7 +129,7 @@ namespace DAL
             try
             {
                 _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("PERFIL_TIENE_USUARIOS",
+                DataTable tabla = _acceso.Leer("ROL_TIENE_USUARIOS",
                     new List<SqlParameter> { _acceso.CrearParametro("@rol_id", rolId) });
                 return Convert.ToInt32(tabla.Rows[0]["TOTAL"]) > 0;
             }
@@ -151,7 +150,7 @@ namespace DAL
             try
             {
                 _acceso.Abrir();
-                _acceso.Escribir("PERFIL_CAMBIAR_PADRE", parametros);
+                _acceso.Escribir("ROL_CAMBIAR_PADRE", parametros);
             }
             finally { _acceso.Cerrar(); }
         }
@@ -161,10 +160,30 @@ namespace DAL
             try
             {
                 _acceso.Abrir();
-                _acceso.Escribir("PERFIL_ELIMINAR",
+                _acceso.Escribir("ROL_ELIMINAR",
                     new List<SqlParameter> { _acceso.CrearParametro("@id", id) });
             }
             finally { _acceso.Cerrar(); }
+        }
+
+        public List<Rol> ListarParaCombo()
+        {
+            List<Rol> lista = new List<Rol>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("ROL_LISTAR_PARA_COMBO");
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new Rol
+                    {
+                        Id = Convert.ToInt32(fila["ID"]),
+                        Nombre = fila["NOMBRE"].ToString()
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
         }
     }
 }

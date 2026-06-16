@@ -9,8 +9,8 @@ namespace CAPAS
     public partial class frmAdminUsuarios : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly BLL.UsuarioBLL _bll = new BLL.UsuarioBLL();
-        private readonly Dictionary<string, Control> _controles  = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults   = new Dictionary<string, string>();
+        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmAdminUsuarios()
         {
@@ -23,9 +23,9 @@ namespace CAPAS
             _controles.Remove("lblTitulo");
             _defaults.Remove("lblTitulo");
             _controles["lblTitulo_AdminUsuarios"] = lblTitulo;
-            _defaults["lblTitulo_AdminUsuarios"]  = lblTitulo.Text;
+            _defaults["lblTitulo_AdminUsuarios"] = lblTitulo.Text;
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             CargarUsuarios();
@@ -55,17 +55,21 @@ namespace CAPAS
             if (dgvUsuarios.Columns.Count == 0) return;
             var mgr = SeguridadYServicios.IdiomaManager.getInstance();
             if (dgvUsuarios.Columns["Id"] != null)
-                dgvUsuarios.Columns["Id"].HeaderText      = mgr.Traducir("colhdr_Id")       ?? "ID";
+                dgvUsuarios.Columns["Id"].HeaderText = mgr.Traducir("colhdr_Id") ?? "ID";
             if (dgvUsuarios.Columns["Usuario"] != null)
-                dgvUsuarios.Columns["Usuario"].HeaderText = mgr.Traducir("colhdr_Usuario")   ?? "Usuario";
+                dgvUsuarios.Columns["Usuario"].HeaderText = mgr.Traducir("colhdr_Usuario") ?? "Usuario";
             if (dgvUsuarios.Columns["Nombre"] != null)
-                dgvUsuarios.Columns["Nombre"].HeaderText  = mgr.Traducir("colhdr_NombrePersona") ?? "Nombre";
+                dgvUsuarios.Columns["Nombre"].HeaderText = mgr.Traducir("colhdr_NombrePersona") ?? "Nombre";
             if (dgvUsuarios.Columns["Apellido"] != null)
                 dgvUsuarios.Columns["Apellido"].HeaderText = mgr.Traducir("colhdr_Apellido") ?? "Apellido";
-            if (dgvUsuarios.Columns["Rol"] != null)
-                dgvUsuarios.Columns["Rol"].HeaderText     = mgr.Traducir("colhdr_Rol")       ?? "Rol";
+            if (dgvUsuarios.Columns["RolNombre"] != null)
+                dgvUsuarios.Columns["RolNombre"].HeaderText = mgr.Traducir("colhdr_Rol") ?? "Rol";
             if (dgvUsuarios.Columns["Bloqueado"] != null)
                 dgvUsuarios.Columns["Bloqueado"].HeaderText = mgr.Traducir("colhdr_Bloqueado") ?? "Bloqueado";
+            if (dgvUsuarios.Columns["Telefono"] != null)
+                dgvUsuarios.Columns["Telefono"].HeaderText = mgr.Traducir("colhdr_Telefono") ?? "Teléfono";
+            if (dgvUsuarios.Columns["Email"] != null)
+                dgvUsuarios.Columns["Email"].HeaderText = mgr.Traducir("colhdr_Email") ?? "Email";
         }
 
         private void GuardarDefaults(Control.ControlCollection controles)
@@ -75,7 +79,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -87,9 +91,11 @@ namespace CAPAS
 
             if (dgvUsuarios.Columns.Count > 0)
             {
-                if (dgvUsuarios.Columns["Contrasena"] != null)       dgvUsuarios.Columns["Contrasena"].Visible       = false;
+                if (dgvUsuarios.Columns["Contrasena"] != null) dgvUsuarios.Columns["Contrasena"].Visible = false;
                 if (dgvUsuarios.Columns["IntentosFallidos"] != null) dgvUsuarios.Columns["IntentosFallidos"].Visible = false;
-                if (dgvUsuarios.Columns["IdiomaId"] != null)         dgvUsuarios.Columns["IdiomaId"].Visible         = false;
+                if (dgvUsuarios.Columns["IdiomaId"] != null) dgvUsuarios.Columns["IdiomaId"].Visible = false;
+                if (dgvUsuarios.Columns["Rol"] != null) dgvUsuarios.Columns["Rol"].Visible = false;
+                if (dgvUsuarios.Columns["RolId"] != null) dgvUsuarios.Columns["RolId"].Visible = false;
                 ActualizarEncabezados();
             }
         }
@@ -100,7 +106,8 @@ namespace CAPAS
             {
                 if (frm.ShowDialog() != DialogResult.OK) return;
 
-                bool creado = _bll.Crear(frm.NombreUsuario, frm.Contrasena, frm.Rol, frm.Nombre, frm.Apellido);
+                bool creado = _bll.Crear(frm.NombreUsuario, frm.Contrasena, frm.RolId,
+                    frm.Nombre, frm.Apellido, frm.Telefono, frm.Email);
 
                 if (creado)
                 {
@@ -197,7 +204,7 @@ namespace CAPAS
             {
                 if (frm.ShowDialog() != DialogResult.OK) return;
 
-                _bll.ActualizarDatos(seleccionado.Id, frm.Nombre, frm.Apellido);
+                _bll.ActualizarDatos(seleccionado.Id, frm.Nombre, frm.Apellido, frm.Telefono, frm.Email);
                 CargarUsuarios();
             }
         }

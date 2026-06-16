@@ -21,6 +21,8 @@ namespace DAL
                 _acceso.CrearParametro("@perfiles",          h.Perfiles ?? ""),
                 _acceso.CrearParametro("@nombre",            h.Nombre ?? ""),
                 _acceso.CrearParametro("@apellido",          h.Apellido ?? ""),
+                _acceso.CrearParametro("@telefono",          h.Telefono ?? ""),
+                _acceso.CrearParametro("@email",             h.Email ?? ""),
                 _acceso.CrearParametro("@realizado_por",     h.RealizadoPor),
                 _acceso.CrearParametro("@tipo_cambio",       h.TipoCambio)
             };
@@ -29,6 +31,11 @@ namespace DAL
                 (object)h.VersionOrigen ?? DBNull.Value);
             pOrigen.SqlDbType = SqlDbType.Int;
             parametros.Add(pOrigen);
+
+            SqlParameter pRolId = new SqlParameter("@rol_id",
+                (object)h.RolId ?? DBNull.Value);
+            pRolId.SqlDbType = SqlDbType.Int;
+            parametros.Add(pRolId);
 
             try
             {
@@ -75,19 +82,22 @@ namespace DAL
         {
             return new BE.UsuarioHistorial
             {
-                Id               = Convert.ToInt32(fila["ID"]),
-                UsuarioId        = Convert.ToInt32(fila["USUARIO_ID"]),
-                UsuarioLogin     = fila["USUARIO_LOGIN"].ToString(),
-                Rol              = fila["ROL"].ToString(),
-                Bloqueado        = Convert.ToBoolean(fila["BLOQUEADO"]),
+                Id = Convert.ToInt32(fila["ID"]),
+                UsuarioId = Convert.ToInt32(fila["USUARIO_ID"]),
+                UsuarioLogin = fila["USUARIO_LOGIN"].ToString(),
+                Rol = fila["ROL"].ToString(),
+                RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
+                Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"]),
                 IntentosFallidos = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
-                Perfiles         = fila["PERFILES"].ToString(),
-                Nombre           = fila["NOMBRE"].ToString(),
-                Apellido         = fila["APELLIDO"].ToString(),
-                FechaCambio      = Convert.ToDateTime(fila["FECHA_CAMBIO"]),
-                RealizadoPor     = fila["REALIZADO_POR"].ToString(),
-                TipoCambio       = fila["TIPO_CAMBIO"].ToString(),
-                VersionOrigen    = fila["VERSION_ORIGEN"] == DBNull.Value
+                Perfiles = fila["PERFILES"].ToString(),
+                Nombre = fila["NOMBRE"].ToString(),
+                Apellido = fila["APELLIDO"].ToString(),
+                Telefono = fila["TELEFONO"] == DBNull.Value ? null : fila["TELEFONO"].ToString(),
+                Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString(),
+                FechaCambio = Convert.ToDateTime(fila["FECHA_CAMBIO"]),
+                RealizadoPor = fila["REALIZADO_POR"].ToString(),
+                TipoCambio = fila["TIPO_CAMBIO"].ToString(),
+                VersionOrigen = fila["VERSION_ORIGEN"] == DBNull.Value
                                    ? (int?)null
                                    : Convert.ToInt32(fila["VERSION_ORIGEN"])
             };

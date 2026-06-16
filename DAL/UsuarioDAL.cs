@@ -30,6 +30,7 @@ namespace DAL
                         Id = Convert.ToInt32(fila["ID"]),
                         Usuario = fila["USUARIO"].ToString(),
                         Rol = fila["ROL"].ToString(),
+                        RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
                         IdiomaId = fila["IDIOMA_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["IDIOMA_ID"])
                     };
                 }
@@ -127,12 +128,16 @@ namespace DAL
                 {
                     lista.Add(new BE.USUARIO
                     {
-                        Id       = Convert.ToInt32(fila["ID"]),
-                        Usuario  = fila["USUARIO"].ToString(),
-                        Rol      = fila["ROL"].ToString(),
+                        Id = Convert.ToInt32(fila["ID"]),
+                        Usuario = fila["USUARIO"].ToString(),
+                        Rol = fila["ROL"].ToString(),
+                        RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
+                        RolNombre = fila["ROL_NOMBRE"] == DBNull.Value ? null : fila["ROL_NOMBRE"].ToString(),
                         Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"]),
-                        Nombre   = fila["NOMBRE"].ToString(),
-                        Apellido = fila["APELLIDO"].ToString()
+                        Nombre = fila["NOMBRE"].ToString(),
+                        Apellido = fila["APELLIDO"].ToString(),
+                        Telefono = fila["TELEFONO"] == DBNull.Value ? null : fila["TELEFONO"].ToString(),
+                        Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString()
                     });
                 }
             }
@@ -160,15 +165,18 @@ namespace DAL
             }
         }
 
-        public bool Crear(string usuario, string passHash, string rol, string nombre, string apellido)
+        public bool Crear(string usuario, string passHash, int rolId, string nombre, string apellido,
+                           string telefono = null, string email = null)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
             {
                 _acceso.CrearParametro("@usuario",  usuario),
                 _acceso.CrearParametro("@pass",     passHash),
-                _acceso.CrearParametro("@rol",      rol),
+                _acceso.CrearParametro("@rol_id",   rolId),
                 _acceso.CrearParametro("@nombre",   nombre ?? ""),
-                _acceso.CrearParametro("@apellido", apellido ?? "")
+                _acceso.CrearParametro("@apellido", apellido ?? ""),
+                _acceso.CrearParametro("@telefono", telefono ?? ""),
+                _acceso.CrearParametro("@email",    email ?? "")
             };
             try
             {
@@ -196,13 +204,16 @@ namespace DAL
                 DataRow fila = tabla.Rows[0];
                 return new BE.USUARIO
                 {
-                    Id                = Convert.ToInt32(fila["ID"]),
-                    Usuario           = fila["USUARIO"].ToString(),
-                    Rol               = fila["ROL"].ToString(),
-                    IntentosFallidos  = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
-                    Bloqueado         = Convert.ToBoolean(fila["BLOQUEADO"]),
-                    Nombre            = fila["NOMBRE"].ToString(),
-                    Apellido          = fila["APELLIDO"].ToString()
+                    Id = Convert.ToInt32(fila["ID"]),
+                    Usuario = fila["USUARIO"].ToString(),
+                    Rol = fila["ROL"].ToString(),
+                    RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
+                    IntentosFallidos = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
+                    Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"]),
+                    Nombre = fila["NOMBRE"].ToString(),
+                    Apellido = fila["APELLIDO"].ToString(),
+                    Telefono = fila["TELEFONO"] == DBNull.Value ? null : fila["TELEFONO"].ToString(),
+                    Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString()
                 };
             }
             finally { _acceso.Cerrar(); }
@@ -224,14 +235,19 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        public void AplicarEstado(int id, string rol, bool bloqueado, int intentosFallidos)
+        public void AplicarEstado(int id, string rol, bool bloqueado, int intentosFallidos, int? rolId = null)
         {
+            SqlParameter paramRolId = new SqlParameter("@rol_id", DbType.Int32)
+            {
+                Value = rolId.HasValue ? (object)rolId.Value : DBNull.Value
+            };
             List<SqlParameter> parametros = new List<SqlParameter>
             {
                 _acceso.CrearParametro("@id",                id),
                 _acceso.CrearParametro("@rol",               rol),
                 _acceso.CrearParametro("@bloqueado",         bloqueado ? 1 : 0),
-                _acceso.CrearParametro("@intentos_fallidos", intentosFallidos)
+                _acceso.CrearParametro("@intentos_fallidos", intentosFallidos),
+                paramRolId
             };
             try
             {
@@ -241,13 +257,15 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        public void ActualizarDatos(int id, string nombre, string apellido)
+        public void ActualizarDatos(int id, string nombre, string apellido, string telefono = null, string email = null)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
             {
                 _acceso.CrearParametro("@id",       id),
                 _acceso.CrearParametro("@nombre",   nombre ?? ""),
-                _acceso.CrearParametro("@apellido", apellido ?? "")
+                _acceso.CrearParametro("@apellido", apellido ?? ""),
+                _acceso.CrearParametro("@telefono", telefono ?? ""),
+                _acceso.CrearParametro("@email",    email ?? "")
             };
             try
             {

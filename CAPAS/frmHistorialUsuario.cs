@@ -8,10 +8,10 @@ namespace CAPAS
 {
     public partial class frmHistorialUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
-        private readonly BE.USUARIO             _usuario;
+        private readonly BE.USUARIO _usuario;
         private readonly BLL.UsuarioHistorialBLL _bll = new BLL.UsuarioHistorialBLL();
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmHistorialUsuario(BE.USUARIO usuario)
         {
@@ -25,9 +25,9 @@ namespace CAPAS
             _controles.Remove("lblTitulo");
             _defaults.Remove("lblTitulo");
             _controles["lblTitulo_HistorialUsuarios"] = lblTitulo;
-            _defaults["lblTitulo_HistorialUsuarios"]  = lblTitulo.Text;
+            _defaults["lblTitulo_HistorialUsuarios"] = lblTitulo.Text;
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             CargarHistorial();
@@ -57,25 +57,29 @@ namespace CAPAS
             if (dgvHistorial.Columns.Count == 0) return;
             var mgr = SeguridadYServicios.IdiomaManager.getInstance();
             if (dgvHistorial.Columns["FechaCambio"] != null)
-                dgvHistorial.Columns["FechaCambio"].HeaderText      = mgr.Traducir("colhdr_FechaCambio")      ?? "Fecha";
+                dgvHistorial.Columns["FechaCambio"].HeaderText = mgr.Traducir("colhdr_FechaCambio") ?? "Fecha";
             if (dgvHistorial.Columns["TipoCambio"] != null)
-                dgvHistorial.Columns["TipoCambio"].HeaderText       = mgr.Traducir("colhdr_TipoCambio")       ?? "Tipo";
+                dgvHistorial.Columns["TipoCambio"].HeaderText = mgr.Traducir("colhdr_TipoCambio") ?? "Tipo";
             if (dgvHistorial.Columns["Rol"] != null)
-                dgvHistorial.Columns["Rol"].HeaderText              = mgr.Traducir("colhdr_Rol")              ?? "Rol";
+                dgvHistorial.Columns["Rol"].HeaderText = mgr.Traducir("colhdr_Rol") ?? "Rol";
             if (dgvHistorial.Columns["Bloqueado"] != null)
-                dgvHistorial.Columns["Bloqueado"].HeaderText        = mgr.Traducir("colhdr_Bloqueado")        ?? "Bloqueado";
+                dgvHistorial.Columns["Bloqueado"].HeaderText = mgr.Traducir("colhdr_Bloqueado") ?? "Bloqueado";
             if (dgvHistorial.Columns["IntentosFallidos"] != null)
                 dgvHistorial.Columns["IntentosFallidos"].HeaderText = mgr.Traducir("colhdr_IntentosFallidos") ?? "Intentos";
             if (dgvHistorial.Columns["Perfiles"] != null)
-                dgvHistorial.Columns["Perfiles"].HeaderText         = mgr.Traducir("colhdr_Perfiles")         ?? "Perfiles";
+                dgvHistorial.Columns["Perfiles"].HeaderText = mgr.Traducir("colhdr_Perfiles") ?? "Perfiles";
             if (dgvHistorial.Columns["Nombre"] != null)
-                dgvHistorial.Columns["Nombre"].HeaderText           = mgr.Traducir("colhdr_NombrePersona")    ?? "Nombre";
+                dgvHistorial.Columns["Nombre"].HeaderText = mgr.Traducir("colhdr_NombrePersona") ?? "Nombre";
             if (dgvHistorial.Columns["Apellido"] != null)
-                dgvHistorial.Columns["Apellido"].HeaderText         = mgr.Traducir("colhdr_Apellido")         ?? "Apellido";
+                dgvHistorial.Columns["Apellido"].HeaderText = mgr.Traducir("colhdr_Apellido") ?? "Apellido";
             if (dgvHistorial.Columns["RealizadoPor"] != null)
-                dgvHistorial.Columns["RealizadoPor"].HeaderText     = mgr.Traducir("colhdr_RealizadoPor")     ?? "Realizado por";
+                dgvHistorial.Columns["RealizadoPor"].HeaderText = mgr.Traducir("colhdr_RealizadoPor") ?? "Realizado por";
             if (dgvHistorial.Columns["VersionOrigen"] != null)
-                dgvHistorial.Columns["VersionOrigen"].HeaderText    = mgr.Traducir("colhdr_VersionOrigen")    ?? "Versión origen";
+                dgvHistorial.Columns["VersionOrigen"].HeaderText = mgr.Traducir("colhdr_VersionOrigen") ?? "Versión origen";
+            if (dgvHistorial.Columns["Telefono"] != null)
+                dgvHistorial.Columns["Telefono"].HeaderText = mgr.Traducir("colhdr_Telefono") ?? "Teléfono";
+            if (dgvHistorial.Columns["Email"] != null)
+                dgvHistorial.Columns["Email"].HeaderText = mgr.Traducir("colhdr_Email") ?? "Email";
         }
 
         private void GuardarDefaults(Control.ControlCollection controles)
@@ -85,7 +89,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -97,19 +101,20 @@ namespace CAPAS
 
             if (dgvHistorial.Columns.Count > 0)
             {
-                if (dgvHistorial.Columns["Id"] != null)               dgvHistorial.Columns["Id"].Visible              = false;
-                if (dgvHistorial.Columns["UsuarioId"] != null)        dgvHistorial.Columns["UsuarioId"].Visible       = false;
-                if (dgvHistorial.Columns["UsuarioLogin"] != null)     dgvHistorial.Columns["UsuarioLogin"].Visible    = false;
-                if (dgvHistorial.Columns["FechaCambio"] != null)      dgvHistorial.Columns["FechaCambio"].Width       = 145;
-                if (dgvHistorial.Columns["TipoCambio"] != null)       dgvHistorial.Columns["TipoCambio"].Width        = 130;
-                if (dgvHistorial.Columns["Rol"] != null)              dgvHistorial.Columns["Rol"].Width               = 80;
-                if (dgvHistorial.Columns["Bloqueado"] != null)        dgvHistorial.Columns["Bloqueado"].Width         = 80;
-                if (dgvHistorial.Columns["IntentosFallidos"] != null) dgvHistorial.Columns["IntentosFallidos"].Width  = 90;
-                if (dgvHistorial.Columns["Perfiles"] != null)         dgvHistorial.Columns["Perfiles"].Width          = 90;
-                if (dgvHistorial.Columns["Nombre"] != null)           dgvHistorial.Columns["Nombre"].Width            = 100;
-                if (dgvHistorial.Columns["Apellido"] != null)         dgvHistorial.Columns["Apellido"].Width          = 100;
-                if (dgvHistorial.Columns["RealizadoPor"] != null)     dgvHistorial.Columns["RealizadoPor"].Width      = 130;
-                if (dgvHistorial.Columns["VersionOrigen"] != null)    dgvHistorial.Columns["VersionOrigen"].Width     = 100;
+                if (dgvHistorial.Columns["Id"] != null) dgvHistorial.Columns["Id"].Visible = false;
+                if (dgvHistorial.Columns["UsuarioId"] != null) dgvHistorial.Columns["UsuarioId"].Visible = false;
+                if (dgvHistorial.Columns["UsuarioLogin"] != null) dgvHistorial.Columns["UsuarioLogin"].Visible = false;
+                if (dgvHistorial.Columns["RolId"] != null) dgvHistorial.Columns["RolId"].Visible = false;
+                if (dgvHistorial.Columns["FechaCambio"] != null) dgvHistorial.Columns["FechaCambio"].Width = 145;
+                if (dgvHistorial.Columns["TipoCambio"] != null) dgvHistorial.Columns["TipoCambio"].Width = 130;
+                if (dgvHistorial.Columns["Rol"] != null) dgvHistorial.Columns["Rol"].Width = 80;
+                if (dgvHistorial.Columns["Bloqueado"] != null) dgvHistorial.Columns["Bloqueado"].Width = 80;
+                if (dgvHistorial.Columns["IntentosFallidos"] != null) dgvHistorial.Columns["IntentosFallidos"].Width = 90;
+                if (dgvHistorial.Columns["Perfiles"] != null) dgvHistorial.Columns["Perfiles"].Width = 90;
+                if (dgvHistorial.Columns["Nombre"] != null) dgvHistorial.Columns["Nombre"].Width = 100;
+                if (dgvHistorial.Columns["Apellido"] != null) dgvHistorial.Columns["Apellido"].Width = 100;
+                if (dgvHistorial.Columns["RealizadoPor"] != null) dgvHistorial.Columns["RealizadoPor"].Width = 130;
+                if (dgvHistorial.Columns["VersionOrigen"] != null) dgvHistorial.Columns["VersionOrigen"].Width = 100;
                 ActualizarEncabezados();
             }
 

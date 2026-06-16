@@ -10,11 +10,13 @@ namespace CAPAS
     {
         private readonly BE.USUARIO _usuario;
 
-        public string Nombre   => txtNombrePersona.Text.Trim();
+        public string Nombre => txtNombrePersona.Text.Trim();
         public string Apellido => txtApellido.Text.Trim();
+        public string Telefono => txtTelefono.Text.Trim();
+        public string Email => txtEmail.Text.Trim();
 
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmEditarUsuario(BE.USUARIO usuario)
         {
@@ -25,11 +27,13 @@ namespace CAPAS
         private void frmEditarUsuario_Load(object sender, EventArgs e)
         {
             txtNombrePersona.Text = _usuario.Nombre;
-            txtApellido.Text      = _usuario.Apellido;
+            txtApellido.Text = _usuario.Apellido;
+            txtTelefono.Text = _usuario.Telefono;
+            txtEmail.Text = _usuario.Email;
 
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
@@ -59,7 +63,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
