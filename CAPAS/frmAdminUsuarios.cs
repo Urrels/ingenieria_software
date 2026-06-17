@@ -204,14 +204,14 @@ namespace CAPAS
 
                 if (creado)
                 {
-                    MessageBox.Show("Usuario creado correctamente.", "Éxito",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MsgBox.Show("Usuario creado correctamente.", "Éxito",
+                        MsgBox.Botones.OK, MsgBox.Icono.Exito);
                     CargarUsuarios();
                 }
                 else
                 {
-                    MessageBox.Show("El nombre de usuario ya existe.", "Atención",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MsgBox.Show("El nombre de usuario ya existe.", "Atención",
+                        MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 }
             }
         }
@@ -221,8 +221,8 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MessageBox.Show("Seleccioná un usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -235,25 +235,25 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MessageBox.Show("Seleccioná un usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (!seleccionado.Bloqueado)
             {
-                MessageBox.Show("El usuario no está bloqueado.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("El usuario no está bloqueado.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            if (MessageBox.Show("¿Desbloquear al usuario '" + seleccionado.Usuario + "'?",
-                "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (MsgBox.Show("¿Desbloquear al usuario '" + seleccionado.Usuario + "'?",
+                "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
             _bll.Desbloquear(seleccionado.Usuario);
-            MessageBox.Show("Usuario desbloqueado.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MsgBox.Show("Usuario desbloqueado.", "Éxito",
+                MsgBox.Botones.OK, MsgBox.Icono.Exito);
             CargarUsuarios();
         }
 
@@ -262,21 +262,21 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MessageBox.Show("Seleccioná un usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             string usuarioActual = SeguridadYServicios.SessionManager.getInstance().getUsuario().Usuario;
             if (seleccionado.Usuario == usuarioActual)
             {
-                MessageBox.Show("No podés eliminar tu propio usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("No podés eliminar tu propio usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            if (MessageBox.Show($"¿Eliminar al usuario '{seleccionado.Usuario}'? Esta acción no se puede deshacer.",
-                "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            if (MsgBox.Show($"¿Eliminar al usuario '{seleccionado.Usuario}'? Esta acción no se puede deshacer.",
+                "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
 
             _bll.Eliminar(seleccionado.Id);
@@ -288,8 +288,8 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MessageBox.Show("Seleccioná un usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -307,8 +307,8 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MessageBox.Show("Seleccioná un usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 

@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="AppTheme.cs" />
     <Compile Include="IdiomaUIHelper.cs" />
+    <Compile Include="MsgBox.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmAdminUsuarios.resx">

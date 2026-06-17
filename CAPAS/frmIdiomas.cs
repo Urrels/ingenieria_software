@@ -12,7 +12,7 @@ namespace CAPAS
         private readonly BLL.IdiomaBLL _bll = new BLL.IdiomaBLL();
         private IDIOMA _idiomaSeleccionado;
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmIdiomas()
         {
@@ -23,7 +23,7 @@ namespace CAPAS
         {
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             CargarIdiomas();
             ActualizarIdioma();
@@ -55,7 +55,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -140,29 +140,29 @@ namespace CAPAS
         {
             if (_idiomaSeleccionado == null)
             {
-                MessageBox.Show("Seleccioná un idioma.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un idioma.", "Aviso",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (_idiomaSeleccionado.Predeterminado)
             {
-                MessageBox.Show("No se puede eliminar el idioma predeterminado del sistema.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("No se puede eliminar el idioma predeterminado del sistema.", "Aviso",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (_bll.EstaEnUso(_idiomaSeleccionado.Id))
             {
-                MessageBox.Show("No se puede eliminar un idioma que está en uso por algún usuario.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("No se puede eliminar un idioma que está en uso por algún usuario.", "Aviso",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            if (MessageBox.Show(
+            if (MsgBox.Show(
                     $"¿Eliminar el idioma '{_idiomaSeleccionado.Nombre}'? Se borrarán todas sus traducciones.",
                     "Confirmar eliminación",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                    MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
 
             _bll.Eliminar(_idiomaSeleccionado.Id);
@@ -175,8 +175,8 @@ namespace CAPAS
         {
             if (_idiomaSeleccionado == null)
             {
-                MessageBox.Show("Seleccioná un idioma.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un idioma.", "Aviso",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -194,8 +194,8 @@ namespace CAPAS
         {
             if (_idiomaSeleccionado == null)
             {
-                MessageBox.Show("Seleccioná un idioma.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un idioma.", "Aviso",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             _bll.ActualizarEstado(_idiomaSeleccionado.Id, !_idiomaSeleccionado.Habilitado);
@@ -215,8 +215,8 @@ namespace CAPAS
                 _bll.GuardarTraduccion(_idiomaSeleccionado.Id, control.Id, control.TextoTraduccion);
             }
 
-            MessageBox.Show("Traducciones guardadas.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MsgBox.Show("Traducciones guardadas.", "Éxito",
+                MsgBox.Botones.OK, MsgBox.Icono.Exito);
 
             var mgr = SeguridadYServicios.IdiomaManager.getInstance();
             if (mgr.IdiomaActivo != null && mgr.IdiomaActivo.Id == _idiomaSeleccionado.Id)

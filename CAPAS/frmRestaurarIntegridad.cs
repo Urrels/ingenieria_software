@@ -7,9 +7,9 @@ namespace CAPAS
 {
     public partial class frmRestaurarIntegridad : MaterialForm
     {
-        private readonly BLL.ResultadoIntegridad  _resultado;
-        private readonly BLL.UsuarioBLL           _usuarioBll    = new BLL.UsuarioBLL();
-        private readonly BLL.UsuarioHistorialBLL  _historialBll  = new BLL.UsuarioHistorialBLL();
+        private readonly BLL.ResultadoIntegridad _resultado;
+        private readonly BLL.UsuarioBLL _usuarioBll = new BLL.UsuarioBLL();
+        private readonly BLL.UsuarioHistorialBLL _historialBll = new BLL.UsuarioHistorialBLL();
 
         public frmRestaurarIntegridad(BLL.ResultadoIntegridad resultado)
         {
@@ -45,12 +45,11 @@ namespace CAPAS
                 var historial = _historialBll.ObtenerHistorial(id);
                 if (historial.Count == 0)
                 {
-                    MessageBox.Show(
+                    MsgBox.Show(
                         $"El usuario '{usuario.Usuario}' no tiene historial de cambios registrado.\n\n" +
                         "No es posible restaurarlo desde historial. Use 'Recalcular y continuar'.",
                         "Sin historial",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
+                        MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                     continue;
                 }
 

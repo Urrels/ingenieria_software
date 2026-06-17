@@ -75,20 +75,20 @@ namespace CAPAS
         {
             if (string.IsNullOrWhiteSpace(NombreUsuario))
             {
-                MessageBox.Show("Ingresá un nombre de usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Ingresá un nombre de usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             if (string.IsNullOrWhiteSpace(Contrasena))
             {
-                MessageBox.Show("Ingresá una contraseña.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Ingresá una contraseña.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             if (cboRol.SelectedItem == null)
             {
-                MessageBox.Show("Seleccioná un rol.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Seleccioná un rol.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             this.DialogResult = DialogResult.OK;

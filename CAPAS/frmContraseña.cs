@@ -9,7 +9,7 @@ namespace CAPAS
     public partial class frmContraseña : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmContraseña()
         {
@@ -19,12 +19,12 @@ namespace CAPAS
         private void frmContraseña_Load(object sender, EventArgs e)
         {
             txtPassActual.PasswordChar = '*';
-            txtNuevaPass.PasswordChar  = '*';
-            txtConfPass.PasswordChar   = '*';
+            txtNuevaPass.PasswordChar = '*';
+            txtConfPass.PasswordChar = '*';
 
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
@@ -54,7 +54,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -63,28 +63,28 @@ namespace CAPAS
         private void btnContinuar_Click(object sender, EventArgs e)
         {
             string passActual = txtPassActual.Text.Trim();
-            string nuevaPass  = txtNuevaPass.Text.Trim();
-            string confPass   = txtConfPass.Text.Trim();
+            string nuevaPass = txtNuevaPass.Text.Trim();
+            string confPass = txtConfPass.Text.Trim();
 
             if (string.IsNullOrEmpty(passActual) || string.IsNullOrEmpty(nuevaPass) || string.IsNullOrEmpty(confPass))
             {
-                MessageBox.Show("Completá todos los campos.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Completá todos los campos.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (nuevaPass != confPass)
             {
-                MessageBox.Show("Las contraseñas no coinciden.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgBox.Show("Las contraseñas no coinciden.", "Error",
+                    MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
 
             string errorValidacion = SeguridadYServicios.ValidadorContrasena.ObtenerError(nuevaPass);
             if (errorValidacion != null)
             {
-                MessageBox.Show(errorValidacion, "Contraseña inválida",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show(errorValidacion, "Contraseña inválida",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -93,21 +93,21 @@ namespace CAPAS
 
             if (!bll.VerificarContrasena(usuario, passActual))
             {
-                MessageBox.Show("La contraseña actual es incorrecta.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgBox.Show("La contraseña actual es incorrecta.", "Error",
+                    MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
 
             if (bll.CambiarContrasena(usuario, nuevaPass))
             {
-                MessageBox.Show("Contraseña cambiada exitosamente.", "Éxito",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MsgBox.Show("Contraseña cambiada exitosamente.", "Éxito",
+                    MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 this.Close();
             }
             else
             {
-                MessageBox.Show("Error al cambiar la contraseña.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgBox.Show("Error al cambiar la contraseña.", "Error",
+                    MsgBox.Botones.OK, MsgBox.Icono.Error);
             }
         }
 

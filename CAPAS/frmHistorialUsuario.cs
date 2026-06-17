@@ -204,8 +204,8 @@ namespace CAPAS
             // FIX: no permitir rollback de un rollback
             if (sel.TipoCambio == "ROLLBACK")
             {
-                MessageBox.Show("No se puede restaurar una versión que ya es un rollback.",
-                    "Operación no permitida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("No se puede restaurar una versión que ya es un rollback.",
+                    "Operación no permitida", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -215,22 +215,22 @@ namespace CAPAS
                 "Nota: la contraseña NO se restaurará (se mantendrá la actual).",
                 _usuario.Usuario, sel.FechaCambio, sel.TipoCambio);
 
-            if (MessageBox.Show(msg, "Confirmar rollback",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            if (MsgBox.Show(msg, "Confirmar rollback",
+                    MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
 
             try
             {
                 string admin = SeguridadYServicios.SessionManager.getInstance().getUsuario().Usuario;
                 _bll.Rollback(sel.Id, admin);
-                MessageBox.Show("Estado restaurado correctamente.", "Éxito",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MsgBox.Show("Estado restaurado correctamente.", "Éxito",
+                    MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 CargarHistorial();
             }
             catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgBox.Show(ex.Message, "Error",
+                    MsgBox.Botones.OK, MsgBox.Icono.Error);
             }
         }
 
