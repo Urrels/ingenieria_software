@@ -43,6 +43,11 @@ namespace BLL
             return _dal.ListarTodos();
         }
 
+        public BE.PaginaResultado<BE.USUARIO> ListarPaginado(string busqueda, int pagina, int tamanio)
+        {
+            return _dal.ListarPaginado(busqueda, pagina, tamanio);
+        }
+
         public void Eliminar(int id)
         {
             string admin = SessionManager.getInstance().getUsuario().Usuario;

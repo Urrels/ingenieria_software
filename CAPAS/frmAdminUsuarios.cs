@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using ReaLTaiizor.Forms;
 using ReaLTaiizor.Manager;
@@ -8,13 +9,22 @@ namespace CAPAS
 {
     public partial class frmAdminUsuarios : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
+        private const int TAMANIO_PAGINA = 15;
+
         private readonly BLL.UsuarioBLL _bll = new BLL.UsuarioBLL();
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
         private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
+        private int _paginaActual = 1;
+        private int _totalPaginas = 1;
+        private string _busquedaActual = null;
+
         public frmAdminUsuarios()
         {
             InitializeComponent();
+            this.Resize += (s, e) => ReposicionarLayout();
+            this.Shown += (s, e) => ReposicionarLayout();
+            panelInferior.Layout += (s, e) => ReposicionarBotonesPanel();
         }
 
         private void frmAdminUsuarios_Load(object sender, EventArgs e)
@@ -22,6 +32,8 @@ namespace CAPAS
             GuardarDefaults(this.Controls);
             _controles.Remove("lblTitulo");
             _defaults.Remove("lblTitulo");
+            _controles.Remove("lblPagina");
+            _defaults.Remove("lblPagina");
             _controles["lblTitulo_AdminUsuarios"] = lblTitulo;
             _defaults["lblTitulo_AdminUsuarios"] = lblTitulo.Text;
             _controles[this.Name] = this;
@@ -32,6 +44,43 @@ namespace CAPAS
             IdiomaUIHelper.AgregarSelector(this);
             MaterialSkinManager.Instance.AddFormToManage(this);
             AppTheme.AplicarTema(this);
+            ReposicionarLayout();
+        }
+
+        private void ReposicionarLayout()
+        {
+            if (panelInferior == null || dgvUsuarios == null) return;
+
+            Rectangle area = this.ClientRectangle;
+            foreach (Control c in this.Controls)
+            {
+                if (c.Dock == DockStyle.Bottom && c.Visible)
+                    area.Height -= c.Height;
+            }
+
+            int altoGrilla = area.Height - dgvUsuarios.Top - 10;
+            if (altoGrilla < 80) altoGrilla = 80;
+            dgvUsuarios.Height = altoGrilla;
+            dgvUsuarios.Width = this.ClientSize.Width - dgvUsuarios.Left - 40;
+
+            // Buscador: bloque compacto alineado a la derecha
+            int margenDer = 40;
+            btnBuscar.Left = this.ClientSize.Width - btnBuscar.Width - margenDer;
+            int anchoBuscar = 230;
+            txtBuscar.Width = anchoBuscar;
+            txtBuscar.Left = btnBuscar.Left - anchoBuscar - 8;
+
+            ReposicionarBotonesPanel();
+        }
+
+        private void ReposicionarBotonesPanel()
+        {
+            if (panelInferior == null) return;
+            int w = panelInferior.ClientSize.Width;
+            if (w < 50) return;
+            btnPaginaSiguiente.Left = w - btnPaginaSiguiente.Width - 40;
+            btnPaginaAnterior.Left = btnPaginaSiguiente.Left - btnPaginaAnterior.Width - 12;
+            btnCerrar.Left = w - btnCerrar.Width - 40;
         }
 
         private void frmAdminUsuarios_FormClosed(object sender, FormClosedEventArgs e)
@@ -87,7 +136,12 @@ namespace CAPAS
 
         private void CargarUsuarios()
         {
-            dgvUsuarios.DataSource = _bll.ListarTodos();
+            BE.PaginaResultado<BE.USUARIO> resultado = _bll.ListarPaginado(_busquedaActual, _paginaActual, TAMANIO_PAGINA);
+
+            _totalPaginas = resultado.TotalPaginas == 0 ? 1 : resultado.TotalPaginas;
+            if (_paginaActual > _totalPaginas) _paginaActual = _totalPaginas;
+
+            dgvUsuarios.DataSource = resultado.Items;
 
             if (dgvUsuarios.Columns.Count > 0)
             {
@@ -98,6 +152,45 @@ namespace CAPAS
                 if (dgvUsuarios.Columns["RolId"] != null) dgvUsuarios.Columns["RolId"].Visible = false;
                 ActualizarEncabezados();
             }
+
+            ActualizarControlesPaginacion();
+        }
+
+        private void ActualizarControlesPaginacion()
+        {
+            lblPagina.Text = string.Format("Página {0} de {1}", _paginaActual, _totalPaginas);
+            btnPaginaAnterior.Enabled = _paginaActual > 1;
+            btnPaginaSiguiente.Enabled = _paginaActual < _totalPaginas;
+        }
+
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+            _busquedaActual = string.IsNullOrWhiteSpace(txtBuscar.Text) ? null : txtBuscar.Text.Trim();
+            _paginaActual = 1;
+            CargarUsuarios();
+        }
+
+        private void txtBuscar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                btnBuscar_Click(sender, e);
+            }
+        }
+
+        private void btnPaginaAnterior_Click(object sender, EventArgs e)
+        {
+            if (_paginaActual <= 1) return;
+            _paginaActual--;
+            CargarUsuarios();
+        }
+
+        private void btnPaginaSiguiente_Click(object sender, EventArgs e)
+        {
+            if (_paginaActual >= _totalPaginas) return;
+            _paginaActual++;
+            CargarUsuarios();
         }
 
         private void btnNuevo_Click(object sender, EventArgs e)

@@ -46,6 +46,11 @@ namespace BLL
             return _dal.ListarPorUsuario(usuarioId);
         }
 
+        public BE.PaginaResultado<BE.UsuarioHistorial> ObtenerHistorialPaginado(int usuarioId, int pagina, int tamanio)
+        {
+            return _dal.ListarPorUsuarioPaginado(usuarioId, pagina, tamanio);
+        }
+
 
         public void Rollback(int historialId, string realizadoPor)
         {

@@ -63,6 +63,35 @@ namespace DAL
             return lista;
         }
 
+        public BE.PaginaResultado<BE.UsuarioHistorial> ListarPorUsuarioPaginado(int usuarioId, int pagina, int tamanio)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@usuario_id", usuarioId),
+                _acceso.CrearParametro("@pagina", pagina),
+                _acceso.CrearParametro("@tamanio", tamanio)
+            };
+
+            BE.PaginaResultado<BE.UsuarioHistorial> resultado = new BE.PaginaResultado<BE.UsuarioHistorial>
+            {
+                Pagina = pagina,
+                Tamanio = tamanio
+            };
+
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("USUARIO_HISTORIAL_LISTAR_PAGINADO", parametros);
+                foreach (DataRow fila in tabla.Rows)
+                    resultado.Items.Add(MapearFila(fila));
+                resultado.TotalFilas = tabla.Rows.Count > 0
+                    ? Convert.ToInt32(tabla.Rows[0]["TOTAL_FILAS"])
+                    : 0;
+            }
+            finally { _acceso.Cerrar(); }
+            return resultado;
+        }
+
         public BE.UsuarioHistorial ObtenerPorId(int id)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
