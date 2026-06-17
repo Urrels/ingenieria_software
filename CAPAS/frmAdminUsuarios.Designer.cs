@@ -29,6 +29,7 @@ namespace CAPAS
             // lblTitulo
             // 
             this.lblTitulo.AutoSize = true;
+            this.lblTitulo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTitulo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.lblTitulo.Location = new System.Drawing.Point(22, 124);
             this.lblTitulo.Name = "lblTitulo";
@@ -40,6 +41,9 @@ namespace CAPAS
             // 
             this.dgvUsuarios.AllowUserToAddRows = false;
             this.dgvUsuarios.AllowUserToDeleteRows = false;
+            this.dgvUsuarios.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvUsuarios.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvUsuarios.Location = new System.Drawing.Point(18, 153);
             this.dgvUsuarios.MultiSelect = false;
@@ -52,6 +56,7 @@ namespace CAPAS
             // 
             // btnNuevo
             // 
+            this.btnNuevo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnNuevo.Location = new System.Drawing.Point(18, 465);
             this.btnNuevo.Name = "btnNuevo";
             this.btnNuevo.Size = new System.Drawing.Size(140, 57);
@@ -62,6 +67,7 @@ namespace CAPAS
             // 
             // btnModificarPerfiles
             // 
+            this.btnModificarPerfiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnModificarPerfiles.Location = new System.Drawing.Point(170, 465);
             this.btnModificarPerfiles.Name = "btnModificarPerfiles";
             this.btnModificarPerfiles.Size = new System.Drawing.Size(155, 57);
@@ -72,6 +78,7 @@ namespace CAPAS
             // 
             // btnEliminar
             // 
+            this.btnEliminar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnEliminar.Location = new System.Drawing.Point(339, 465);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(140, 57);
@@ -82,6 +89,7 @@ namespace CAPAS
             // 
             // btnDesbloquear
             // 
+            this.btnDesbloquear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnDesbloquear.Location = new System.Drawing.Point(492, 465);
             this.btnDesbloquear.Name = "btnDesbloquear";
             this.btnDesbloquear.Size = new System.Drawing.Size(189, 57);
@@ -92,6 +100,7 @@ namespace CAPAS
             // 
             // btnRefrescar
             // 
+            this.btnRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnRefrescar.Location = new System.Drawing.Point(18, 552);
             this.btnRefrescar.Name = "btnRefrescar";
             this.btnRefrescar.Size = new System.Drawing.Size(140, 56);
@@ -102,6 +111,7 @@ namespace CAPAS
             // 
             // btnHistorial
             // 
+            this.btnHistorial.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnHistorial.Location = new System.Drawing.Point(170, 552);
             this.btnHistorial.Name = "btnHistorial";
             this.btnHistorial.Size = new System.Drawing.Size(155, 56);
@@ -112,6 +122,7 @@ namespace CAPAS
             //
             // btnEditarDatos
             //
+            this.btnEditarDatos.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnEditarDatos.Location = new System.Drawing.Point(335, 552);
             this.btnEditarDatos.Name = "btnEditarDatos";
             this.btnEditarDatos.Size = new System.Drawing.Size(155, 56);
@@ -122,6 +133,7 @@ namespace CAPAS
             //
             // btnCerrar
             // 
+            this.btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCerrar.Location = new System.Drawing.Point(648, 582);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(120, 36);
@@ -135,6 +147,7 @@ namespace CAPAS
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(786, 656);
+            this.MinimumSize = new System.Drawing.Size(620, 420);
             this.Controls.Add(this.btnCerrar);
             this.Controls.Add(this.btnEditarDatos);
             this.Controls.Add(this.btnHistorial);

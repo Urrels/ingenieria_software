@@ -23,6 +23,7 @@ namespace CAPAS
             // lblTitulo
             //
             this.lblTitulo.AutoSize = true;
+            this.lblTitulo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTitulo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.lblTitulo.Location = new System.Drawing.Point(18, 79);
             this.lblTitulo.Name = "lblTitulo";
@@ -34,6 +35,9 @@ namespace CAPAS
             //
             this.dgvHistorial.AllowUserToAddRows = false;
             this.dgvHistorial.AllowUserToDeleteRows = false;
+            this.dgvHistorial.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvHistorial.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvHistorial.Location = new System.Drawing.Point(18, 124);
             this.dgvHistorial.MultiSelect = false;
@@ -47,6 +51,7 @@ namespace CAPAS
             //
             // btnRollback
             //
+            this.btnRollback.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnRollback.Enabled = false;
             this.btnRollback.Location = new System.Drawing.Point(23, 535);
             this.btnRollback.Name = "btnRollback";
@@ -58,6 +63,7 @@ namespace CAPAS
             //
             // btnCerrar
             //
+            this.btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCerrar.Location = new System.Drawing.Point(828, 535);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(120, 51);
@@ -71,6 +77,7 @@ namespace CAPAS
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(966, 594);
+            this.MinimumSize = new System.Drawing.Size(700, 420);
             this.Controls.Add(this.btnCerrar);
             this.Controls.Add(this.btnRollback);
             this.Controls.Add(this.dgvHistorial);

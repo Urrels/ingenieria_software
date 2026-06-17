@@ -32,6 +32,9 @@ namespace CAPAS
             //
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(18, 209);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -44,6 +47,7 @@ namespace CAPAS
             // lblTitulo
             //
             this.lblTitulo.AutoSize = true;
+            this.lblTitulo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTitulo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold);
             this.lblTitulo.Location = new System.Drawing.Point(18, 79);
             this.lblTitulo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -55,6 +59,7 @@ namespace CAPAS
             // lblUsuario
             //
             this.lblUsuario.AutoSize = true;
+            this.lblUsuario.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblUsuario.Location = new System.Drawing.Point(18, 124);
             this.lblUsuario.Name = "lblUsuario";
             this.lblUsuario.Size = new System.Drawing.Size(68, 20);
@@ -63,6 +68,7 @@ namespace CAPAS
             //
             // cmbUsuario
             //
+            this.cmbUsuario.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.cmbUsuario.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbUsuario.FormattingEnabled = true;
             this.cmbUsuario.Location = new System.Drawing.Point(110, 119);
@@ -73,6 +79,7 @@ namespace CAPAS
             // lblAccion
             //
             this.lblAccion.AutoSize = true;
+            this.lblAccion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblAccion.Location = new System.Drawing.Point(310, 124);
             this.lblAccion.Name = "lblAccion";
             this.lblAccion.Size = new System.Drawing.Size(61, 20);
@@ -81,6 +88,7 @@ namespace CAPAS
             //
             // cmbAccion
             //
+            this.cmbAccion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.cmbAccion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbAccion.FormattingEnabled = true;
             this.cmbAccion.Location = new System.Drawing.Point(380, 119);
@@ -91,6 +99,7 @@ namespace CAPAS
             // lblDesde
             //
             this.lblDesde.AutoSize = true;
+            this.lblDesde.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblDesde.Location = new System.Drawing.Point(18, 164);
             this.lblDesde.Name = "lblDesde";
             this.lblDesde.Size = new System.Drawing.Size(60, 20);
@@ -99,6 +108,7 @@ namespace CAPAS
             //
             // dtpDesde
             //
+            this.dtpDesde.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.dtpDesde.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpDesde.Location = new System.Drawing.Point(110, 159);
             this.dtpDesde.Name = "dtpDesde";
@@ -109,6 +119,7 @@ namespace CAPAS
             // lblHasta
             //
             this.lblHasta.AutoSize = true;
+            this.lblHasta.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblHasta.Location = new System.Drawing.Point(310, 164);
             this.lblHasta.Name = "lblHasta";
             this.lblHasta.Size = new System.Drawing.Size(56, 20);
@@ -117,6 +128,7 @@ namespace CAPAS
             //
             // dtpHasta
             //
+            this.dtpHasta.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.dtpHasta.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpHasta.Location = new System.Drawing.Point(380, 159);
             this.dtpHasta.Name = "dtpHasta";
@@ -126,6 +138,7 @@ namespace CAPAS
             //
             // btnFiltrar
             //
+            this.btnFiltrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnFiltrar.Location = new System.Drawing.Point(590, 140);
             this.btnFiltrar.Name = "btnFiltrar";
             this.btnFiltrar.Size = new System.Drawing.Size(110, 48);
@@ -136,6 +149,7 @@ namespace CAPAS
             //
             // btnLimpiar
             //
+            this.btnLimpiar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnLimpiar.Location = new System.Drawing.Point(710, 140);
             this.btnLimpiar.Name = "btnLimpiar";
             this.btnLimpiar.Size = new System.Drawing.Size(110, 48);
@@ -149,6 +163,7 @@ namespace CAPAS
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1176, 919);
+            this.MinimumSize = new System.Drawing.Size(860, 500);
             this.Controls.Add(this.btnLimpiar);
             this.Controls.Add(this.btnFiltrar);
             this.Controls.Add(this.dtpHasta);

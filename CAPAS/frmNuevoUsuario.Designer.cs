@@ -34,6 +34,7 @@ namespace CAPAS
             // lblNombrePersona
             //
             this.lblNombrePersona.AutoSize = true;
+            this.lblNombrePersona.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblNombrePersona.Location = new System.Drawing.Point(20, 107);
             this.lblNombrePersona.Name = "lblNombrePersona";
             this.lblNombrePersona.Size = new System.Drawing.Size(68, 20);
@@ -42,6 +43,8 @@ namespace CAPAS
             //
             // txtNombrePersona
             //
+            this.txtNombrePersona.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNombrePersona.Location = new System.Drawing.Point(130, 104);
             this.txtNombrePersona.Name = "txtNombrePersona";
             this.txtNombrePersona.Size = new System.Drawing.Size(200, 26);
@@ -50,6 +53,7 @@ namespace CAPAS
             // lblApellido
             //
             this.lblApellido.AutoSize = true;
+            this.lblApellido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblApellido.Location = new System.Drawing.Point(20, 147);
             this.lblApellido.Name = "lblApellido";
             this.lblApellido.Size = new System.Drawing.Size(68, 20);
@@ -58,6 +62,8 @@ namespace CAPAS
             //
             // txtApellido
             //
+            this.txtApellido.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtApellido.Location = new System.Drawing.Point(130, 144);
             this.txtApellido.Name = "txtApellido";
             this.txtApellido.Size = new System.Drawing.Size(200, 26);
@@ -66,6 +72,7 @@ namespace CAPAS
             // lblTelefono
             //
             this.lblTelefono.AutoSize = true;
+            this.lblTelefono.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTelefono.Location = new System.Drawing.Point(20, 187);
             this.lblTelefono.Name = "lblTelefono";
             this.lblTelefono.Size = new System.Drawing.Size(68, 20);
@@ -74,6 +81,8 @@ namespace CAPAS
             //
             // txtTelefono
             //
+            this.txtTelefono.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTelefono.Location = new System.Drawing.Point(130, 184);
             this.txtTelefono.Name = "txtTelefono";
             this.txtTelefono.Size = new System.Drawing.Size(200, 26);
@@ -82,6 +91,7 @@ namespace CAPAS
             // lblEmail
             //
             this.lblEmail.AutoSize = true;
+            this.lblEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblEmail.Location = new System.Drawing.Point(20, 227);
             this.lblEmail.Name = "lblEmail";
             this.lblEmail.Size = new System.Drawing.Size(68, 20);
@@ -90,6 +100,8 @@ namespace CAPAS
             //
             // txtEmail
             //
+            this.txtEmail.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtEmail.Location = new System.Drawing.Point(130, 224);
             this.txtEmail.Name = "txtEmail";
             this.txtEmail.Size = new System.Drawing.Size(200, 26);
@@ -98,6 +110,7 @@ namespace CAPAS
             // lblNombre
             //
             this.lblNombre.AutoSize = true;
+            this.lblNombre.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblNombre.Location = new System.Drawing.Point(20, 267);
             this.lblNombre.Name = "lblNombre";
             this.lblNombre.Size = new System.Drawing.Size(68, 20);
@@ -106,6 +119,8 @@ namespace CAPAS
             //
             // txtNombre
             //
+            this.txtNombre.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtNombre.Location = new System.Drawing.Point(130, 264);
             this.txtNombre.Name = "txtNombre";
             this.txtNombre.Size = new System.Drawing.Size(200, 26);
@@ -114,6 +129,7 @@ namespace CAPAS
             // lblContrasena
             //
             this.lblContrasena.AutoSize = true;
+            this.lblContrasena.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblContrasena.Location = new System.Drawing.Point(20, 307);
             this.lblContrasena.Name = "lblContrasena";
             this.lblContrasena.Size = new System.Drawing.Size(96, 20);
@@ -122,6 +138,8 @@ namespace CAPAS
             //
             // txtContrasena
             //
+            this.txtContrasena.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtContrasena.Location = new System.Drawing.Point(130, 304);
             this.txtContrasena.Name = "txtContrasena";
             this.txtContrasena.PasswordChar = '●';
@@ -131,6 +149,7 @@ namespace CAPAS
             // lblRol
             //
             this.lblRol.AutoSize = true;
+            this.lblRol.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblRol.Location = new System.Drawing.Point(20, 347);
             this.lblRol.Name = "lblRol";
             this.lblRol.Size = new System.Drawing.Size(37, 20);
@@ -139,6 +158,8 @@ namespace CAPAS
             //
             // cboRol
             //
+            this.cboRol.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cboRol.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboRol.Location = new System.Drawing.Point(130, 344);
             this.cboRol.Name = "cboRol";
@@ -147,6 +168,7 @@ namespace CAPAS
             //
             // btnAceptar
             //
+            this.btnAceptar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAceptar.Location = new System.Drawing.Point(67, 402);
             this.btnAceptar.Name = "btnAceptar";
             this.btnAceptar.Size = new System.Drawing.Size(110, 48);
@@ -156,6 +178,7 @@ namespace CAPAS
             //
             // btnCancelar
             //
+            this.btnCancelar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnCancelar.Location = new System.Drawing.Point(195, 402);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(110, 48);
@@ -169,6 +192,7 @@ namespace CAPAS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(392, 495);
+            this.MinimumSize = new System.Drawing.Size(360, 495);
             this.Controls.Add(this.lblNombrePersona);
             this.Controls.Add(this.txtNombrePersona);
             this.Controls.Add(this.lblApellido);
@@ -185,9 +209,6 @@ namespace CAPAS
             this.Controls.Add(this.cboRol);
             this.Controls.Add(this.btnAceptar);
             this.Controls.Add(this.btnCancelar);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
             this.Name = "frmNuevoUsuario";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Nuevo usuario";
