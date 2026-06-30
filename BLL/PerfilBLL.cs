@@ -38,6 +38,11 @@ namespace BLL
             return _dal.ListarPermisosDisponibles();
         }
 
+        public List<Rol> ListarRolesParaCombo()
+        {
+            return _dal.ListarParaCombo();
+        }
+
         public void ActualizarPermisosDeRol(int rolId, List<int> permisoIds)
         {
             _dal.GuardarPermisosDeRol(rolId, permisoIds);
@@ -61,7 +66,7 @@ namespace BLL
 
         public NodoPermiso AgregarRol(string nombre, int? padreId)
         {
-            int id = _dal.Insertar(nombre, "PERFIL", padreId);
+            int id = _dal.Insertar(nombre, padreId);
             return new Rol { Id = id, Nombre = nombre, PadreId = padreId };
         }
 

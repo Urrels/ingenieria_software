@@ -46,6 +46,7 @@
     <Compile Include="IDIOMA.cs" />
     <Compile Include="LoginResultado.cs" />
     <Compile Include="NodoPermiso.cs" />
+    <Compile Include="PaginaResultado.cs" />
     <Compile Include="PerfilPermiso.cs" />
     <Compile Include="Permiso.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

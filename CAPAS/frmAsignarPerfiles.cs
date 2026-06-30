@@ -15,7 +15,7 @@ namespace CAPAS
         private readonly USUARIO _usuario;
         private List<NodoPermiso> _arbol;
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmAsignarPerfiles(USUARIO usuario)
         {
@@ -28,7 +28,7 @@ namespace CAPAS
             lblUsuario.Text = "Usuario: " + _usuario.Usuario;
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
@@ -62,7 +62,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -117,8 +117,8 @@ namespace CAPAS
             List<int> seleccionados = new List<int>();
             ObtenerIdsCheckeados(treeRoles.Nodes, seleccionados);
             _asignacionBll.GuardarAsignaciones(_usuario.Id, seleccionados);
-            MessageBox.Show("Asignaciones guardadas.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MsgBox.Show("Asignaciones guardadas.", "Éxito",
+                MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
 
         private void ObtenerIdsCheckeados(TreeNodeCollection nodos, List<int> ids)

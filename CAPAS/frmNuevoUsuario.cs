@@ -8,14 +8,18 @@ namespace CAPAS
 {
     public partial class frmNuevoUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
+        private readonly BLL.PerfilBLL _perfilBll = new BLL.PerfilBLL();
+
         public string NombreUsuario => txtNombre.Text.Trim();
-        public string Contrasena    => txtContrasena.Text;
-        public string Rol           => (string)cboRol.SelectedValue;
-        public string Nombre        => txtNombrePersona.Text.Trim();
-        public string Apellido      => txtApellido.Text.Trim();
+        public string Contrasena => txtContrasena.Text;
+        public int RolId => ((BE.Rol)cboRol.SelectedItem).Id;
+        public string Nombre => txtNombrePersona.Text.Trim();
+        public string Apellido => txtApellido.Text.Trim();
+        public string Telefono => txtTelefono.Text.Trim();
+        public string Email => txtEmail.Text.Trim();
 
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmNuevoUsuario()
         {
@@ -24,18 +28,14 @@ namespace CAPAS
 
         private void frmNuevoUsuario_Load(object sender, EventArgs e)
         {
-            cboRol.DataSource = new[]
-            {
-                new { Texto = "Administrador", Valor = "admin"   },
-                new { Texto = "Usuario común",  Valor = "usuario" }
-            };
-            cboRol.DisplayMember = "Texto";
-            cboRol.ValueMember   = "Valor";
-            cboRol.SelectedIndex = 1;
+            cboRol.DataSource = _perfilBll.ListarRolesParaCombo();
+            cboRol.DisplayMember = "Nombre";
+            cboRol.ValueMember = "Id";
+            if (cboRol.Items.Count > 0) cboRol.SelectedIndex = 0;
 
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
@@ -65,7 +65,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -75,14 +75,20 @@ namespace CAPAS
         {
             if (string.IsNullOrWhiteSpace(NombreUsuario))
             {
-                MessageBox.Show("Ingresá un nombre de usuario.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Ingresá un nombre de usuario.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             if (string.IsNullOrWhiteSpace(Contrasena))
             {
-                MessageBox.Show("Ingresá una contraseña.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Ingresá una contraseña.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
+            if (cboRol.SelectedItem == null)
+            {
+                MsgBox.Show("Seleccioná un rol.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             this.DialogResult = DialogResult.OK;

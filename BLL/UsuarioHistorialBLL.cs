@@ -6,9 +6,9 @@ namespace BLL
 {
     public class UsuarioHistorialBLL
     {
-        private readonly DAL.UsuarioHistorialDAL _dal       = new DAL.UsuarioHistorialDAL();
-        private readonly DAL.UsuarioDAL          _usuarioDal = new DAL.UsuarioDAL();
-        private readonly DAL.UsuarioPerfilDAL    _perfilDal  = new DAL.UsuarioPerfilDAL();
+        private readonly DAL.UsuarioHistorialDAL _dal = new DAL.UsuarioHistorialDAL();
+        private readonly DAL.UsuarioDAL _usuarioDal = new DAL.UsuarioDAL();
+        private readonly DAL.UsuarioPerfilDAL _perfilDal = new DAL.UsuarioPerfilDAL();
 
 
         public void RegistrarCambio(int usuarioId, string tipoCambio, string realizadoPor,
@@ -23,17 +23,20 @@ namespace BLL
 
             _dal.Insertar(new BE.UsuarioHistorial
             {
-                UsuarioId        = usuarioId,
-                UsuarioLogin     = u.Usuario,
-                Rol              = u.Rol,
-                Bloqueado        = u.Bloqueado,
+                UsuarioId = usuarioId,
+                UsuarioLogin = u.Usuario,
+                Rol = u.Rol,
+                RolId = u.RolId,
+                Bloqueado = u.Bloqueado,
                 IntentosFallidos = u.IntentosFallidos,
-                Perfiles         = perfilesStr,
-                Nombre           = u.Nombre,
-                Apellido         = u.Apellido,
-                RealizadoPor     = realizadoPor,
-                TipoCambio       = tipoCambio,
-                VersionOrigen    = versionOrigen
+                Perfiles = perfilesStr,
+                Nombre = u.Nombre,
+                Apellido = u.Apellido,
+                Telefono = u.Telefono,
+                Email = u.Email,
+                RealizadoPor = realizadoPor,
+                TipoCambio = tipoCambio,
+                VersionOrigen = versionOrigen
             });
         }
 
@@ -41,6 +44,11 @@ namespace BLL
         public List<BE.UsuarioHistorial> ObtenerHistorial(int usuarioId)
         {
             return _dal.ListarPorUsuario(usuarioId);
+        }
+
+        public BE.PaginaResultado<BE.UsuarioHistorial> ObtenerHistorialPaginado(int usuarioId, int pagina, int tamanio)
+        {
+            return _dal.ListarPorUsuarioPaginado(usuarioId, pagina, tamanio);
         }
 
 
@@ -57,16 +65,31 @@ namespace BLL
                 snapshot.UsuarioId,
                 snapshot.Rol,
                 snapshot.Bloqueado,
-                snapshot.IntentosFallidos);
+                snapshot.IntentosFallidos,
+                snapshot.RolId);
 
             _perfilDal.BorrarTodos(snapshot.UsuarioId);
             foreach (int pid in ParsearPerfiles(snapshot.Perfiles))
                 _perfilDal.Asignar(snapshot.UsuarioId, pid);
 
-            _usuarioDal.ActualizarDatos(snapshot.UsuarioId, snapshot.Nombre, snapshot.Apellido);
+            _usuarioDal.ActualizarDatos(snapshot.UsuarioId, snapshot.Nombre, snapshot.Apellido,
+                snapshot.Telefono, snapshot.Email);
 
             RegistrarCambio(snapshot.UsuarioId, "ROLLBACK", realizadoPor, historialId);
             new IntegridadBLL().RecalcularIntegridadUsuarios();
+
+            // Si el rollback afectó al usuario de la sesión activa (el propio
+            // admin logueado), refrescamos su USUARIO y sus permisos en caliente
+            // para que no haga falta desloguearse y volver a entrar.
+            BE.USUARIO usuarioSesion = SessionManager.getInstance().getUsuario();
+            if (usuarioSesion != null && usuarioSesion.Id == snapshot.UsuarioId)
+            {
+                BE.USUARIO usuarioActualizado = _usuarioDal.ObtenerPorId(snapshot.UsuarioId);
+                SessionManager.getInstance().setUsuario(usuarioActualizado);
+
+                List<string> permisosActualizados = _perfilDal.ListarPermisosDeUsuario(snapshot.UsuarioId);
+                SessionManager.getInstance().setPermisos(permisosActualizados);
+            }
         }
         private List<int> ParsearPerfiles(string perfilesStr)
         {

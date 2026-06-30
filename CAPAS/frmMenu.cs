@@ -9,8 +9,8 @@ namespace CAPAS
 {
     public partial class frmMenu : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
-        private readonly Dictionary<string, ToolStripItem> _menuItems  = new Dictionary<string, ToolStripItem>();
-        private readonly Dictionary<string, string>        _menuDefaults = new Dictionary<string, string>();
+        private readonly Dictionary<string, ToolStripItem> _menuItems = new Dictionary<string, ToolStripItem>();
+        private readonly Dictionary<string, string> _menuDefaults = new Dictionary<string, string>();
         private bool _cargandoIdiomas;
 
         public frmMenu()
@@ -23,17 +23,22 @@ namespace CAPAS
             BE.USUARIO u = SeguridadYServicios.SessionManager.getInstance().getUsuario();
             this.Text = "Menu — " + u.Usuario;
 
-            var sm = SeguridadYServicios.SessionManager.getInstance();
-            administracionToolStripMenuItem.Visible = sm.TienePermiso("Administrar usuarios")
-                                                   || sm.TienePermiso("Gestión de roles")
-                                                   || sm.TienePermiso("Gestión de idiomas");
-            bitacoraToolStripMenuItem.Visible = sm.TienePermiso("Ver bitácora");
+            ActualizarVisibilidadMenu();
 
             GuardarMenuDefaults(menuStrip1.Items);
             CargarIdiomas();
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             MaterialSkinManager.Instance.AddFormToManage(this);
             AppTheme.AplicarTema(this);
+        }
+
+        public void ActualizarVisibilidadMenu()
+        {
+            var sm = SeguridadYServicios.SessionManager.getInstance();
+            administracionToolStripMenuItem.Visible = sm.TienePermiso("Administrar usuarios")
+                                                   || sm.TienePermiso("Gestión de roles")
+                                                   || sm.TienePermiso("Gestión de idiomas");
+            bitacoraToolStripMenuItem.Visible = sm.TienePermiso("Ver bitácora");
         }
 
         private void frmMenu_FormClosed(object sender, FormClosedEventArgs e)
@@ -57,7 +62,7 @@ namespace CAPAS
             {
                 if (!string.IsNullOrEmpty(item.Name) && !string.IsNullOrEmpty(item.Text))
                 {
-                    _menuItems[item.Name]    = item;
+                    _menuItems[item.Name] = item;
                     _menuDefaults[item.Name] = item.Text;
                 }
                 if (item is ToolStripMenuItem mi && mi.HasDropDownItems)
@@ -96,6 +101,7 @@ namespace CAPAS
         private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmAdminUsuarios().ShowDialog();
+            ActualizarVisibilidadMenu();
         }
 
         private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)

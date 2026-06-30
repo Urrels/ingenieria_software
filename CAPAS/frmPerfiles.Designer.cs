@@ -34,6 +34,9 @@ namespace CAPAS
             // 
             // treePermisos
             // 
+            this.treePermisos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.treePermisos.Location = new System.Drawing.Point(6, 105);
             this.treePermisos.Name = "treePermisos";
             this.treePermisos.Size = new System.Drawing.Size(360, 462);
@@ -42,6 +45,8 @@ namespace CAPAS
             // 
             // panelDerecho
             // 
+            this.panelDerecho.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panelDerecho.Controls.Add(this.lblSeleccionado);
             this.panelDerecho.Controls.Add(this.btnAgregarRol);
             this.panelDerecho.Controls.Add(this.panelPadre);
@@ -168,6 +173,7 @@ namespace CAPAS
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(697, 823);
+            this.MinimumSize = new System.Drawing.Size(560, 500);
             this.Controls.Add(this.treePermisos);
             this.Controls.Add(this.panelDerecho);
             this.Name = "frmPerfiles";

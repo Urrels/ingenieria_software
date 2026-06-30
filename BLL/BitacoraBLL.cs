@@ -1,4 +1,5 @@
 ﻿using BE;
+using System;
 using System.Collections.Generic;
 
 namespace BLL
@@ -25,6 +26,22 @@ namespace BLL
         public List<BE.BITACORA> Listar()
         {
             return _dal.Listar();
+        }
+
+        public BE.PaginaResultado<BE.BITACORA> ListarPaginado(string usuario, string accion,
+            DateTime? fechaDesde, DateTime? fechaHasta, int pagina, int tamanio)
+        {
+            return _dal.ListarPaginado(usuario, accion, fechaDesde, fechaHasta, pagina, tamanio);
+        }
+
+        public List<string> ListarUsuariosDistinct()
+        {
+            return _dal.ListarUsuariosDistinct();
+        }
+
+        public List<string> ListarAccionesDistinct()
+        {
+            return _dal.ListarAccionesDistinct();
         }
     }
 }

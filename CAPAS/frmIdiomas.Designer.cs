@@ -29,6 +29,7 @@ namespace CAPAS
             // lblIdiomas
             // 
             this.lblIdiomas.AutoSize = true;
+            this.lblIdiomas.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblIdiomas.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.lblIdiomas.Location = new System.Drawing.Point(22, 105);
             this.lblIdiomas.Name = "lblIdiomas";
@@ -40,6 +41,8 @@ namespace CAPAS
             // 
             this.dgvIdiomas.AllowUserToAddRows = false;
             this.dgvIdiomas.AllowUserToDeleteRows = false;
+            this.dgvIdiomas.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.dgvIdiomas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvIdiomas.Location = new System.Drawing.Point(17, 133);
             this.dgvIdiomas.MultiSelect = false;
@@ -53,6 +56,7 @@ namespace CAPAS
             // 
             // btnAgregarIdioma
             // 
+            this.btnAgregarIdioma.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAgregarIdioma.Location = new System.Drawing.Point(59, 546);
             this.btnAgregarIdioma.Name = "btnAgregarIdioma";
             this.btnAgregarIdioma.Size = new System.Drawing.Size(270, 44);
@@ -62,6 +66,7 @@ namespace CAPAS
             // 
             // btnRenombrar
             // 
+            this.btnRenombrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnRenombrar.Location = new System.Drawing.Point(59, 643);
             this.btnRenombrar.Name = "btnRenombrar";
             this.btnRenombrar.Size = new System.Drawing.Size(270, 43);
@@ -71,6 +76,7 @@ namespace CAPAS
             // 
             // btnToggleHabilitado
             // 
+            this.btnToggleHabilitado.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnToggleHabilitado.Location = new System.Drawing.Point(59, 596);
             this.btnToggleHabilitado.Name = "btnToggleHabilitado";
             this.btnToggleHabilitado.Size = new System.Drawing.Size(270, 41);
@@ -80,6 +86,7 @@ namespace CAPAS
             // 
             // btnEliminarIdioma
             // 
+            this.btnEliminarIdioma.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnEliminarIdioma.Location = new System.Drawing.Point(59, 693);
             this.btnEliminarIdioma.Name = "btnEliminarIdioma";
             this.btnEliminarIdioma.Size = new System.Drawing.Size(270, 44);
@@ -90,6 +97,7 @@ namespace CAPAS
             // lblTraducciones
             // 
             this.lblTraducciones.AutoSize = true;
+            this.lblTraducciones.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTraducciones.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.lblTraducciones.Location = new System.Drawing.Point(459, 105);
             this.lblTraducciones.Name = "lblTraducciones";
@@ -99,6 +107,9 @@ namespace CAPAS
             // 
             // dgvTraducciones
             // 
+            this.dgvTraducciones.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvTraducciones.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvTraducciones.Location = new System.Drawing.Point(464, 133);
             this.dgvTraducciones.Name = "dgvTraducciones";
@@ -109,6 +120,7 @@ namespace CAPAS
             // 
             // btnGuardarTraducciones
             // 
+            this.btnGuardarTraducciones.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnGuardarTraducciones.Location = new System.Drawing.Point(464, 546);
             this.btnGuardarTraducciones.Name = "btnGuardarTraducciones";
             this.btnGuardarTraducciones.Size = new System.Drawing.Size(200, 44);
@@ -118,6 +130,7 @@ namespace CAPAS
             // 
             // btnCerrar
             // 
+            this.btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCerrar.Location = new System.Drawing.Point(1058, 546);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(200, 44);
@@ -130,6 +143,7 @@ namespace CAPAS
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1264, 743);
+            this.MinimumSize = new System.Drawing.Size(900, 480);
             this.Controls.Add(this.lblIdiomas);
             this.Controls.Add(this.dgvIdiomas);
             this.Controls.Add(this.btnAgregarIdioma);

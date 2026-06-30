@@ -13,7 +13,7 @@ namespace CAPAS
     {
         private readonly BLL.PerfilBLL _bll = new BLL.PerfilBLL();
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private List<Permiso> _permisosDisponibles = new List<Permiso>();
         private readonly HashSet<int> _padresDeshabilitados = new HashSet<int>();
@@ -29,7 +29,7 @@ namespace CAPAS
         {
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             _permisosDisponibles = _bll.ObtenerPermisosDisponibles();
             cboPadre.DrawMode = DrawMode.OwnerDrawFixed;
@@ -69,7 +69,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -102,7 +102,7 @@ namespace CAPAS
             var mgr = SeguridadYServicios.IdiomaManager.getInstance();
             string prefijo = nodo.EsHoja()
                 ? (mgr.Traducir("prefijo_Permiso") ?? "[Permiso] ")
-                : (mgr.Traducir("prefijo_Rol")     ?? "[Rol] ");
+                : (mgr.Traducir("prefijo_Rol") ?? "[Rol] ");
             return new TreeNode(prefijo + nodo.Nombre) { Tag = nodo };
         }
 
@@ -122,7 +122,7 @@ namespace CAPAS
             }
             catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
             CargarArbol();
@@ -168,13 +168,13 @@ namespace CAPAS
 
             if (nodo.EsHoja())
             {
-                MessageBox.Show("Los permisos del catálogo no se pueden eliminar.\nDesasignalo usando los checkboxes.",
-                    "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MsgBox.Show("Los permisos del catálogo no se pueden eliminar.\nDesasignalo usando los checkboxes.",
+                    "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 return;
             }
 
-            if (MessageBox.Show($"¿Eliminar el rol '{nodo.Nombre}' y todos sus sub-roles?",
-                "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MsgBox.Show($"¿Eliminar el rol '{nodo.Nombre}' y todos sus sub-roles?",
+                "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) == DialogResult.Yes)
             {
                 try
                 {
@@ -182,7 +182,7 @@ namespace CAPAS
                 }
                 catch (InvalidOperationException ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
                     return;
                 }
                 panelPermisos.Visible = false;
@@ -201,19 +201,19 @@ namespace CAPAS
 
             if (nodo is Rol rol)
             {
-                lblSeleccionado.Text  = $"Rol: {rol.Nombre}";
-                btnEliminar.Enabled   = !rol.Protegido;
+                lblSeleccionado.Text = $"Rol: {rol.Nombre}";
+                btnEliminar.Enabled = !rol.Protegido;
                 panelPermisos.Visible = true;
-                panelPadre.Visible    = true;
+                panelPadre.Visible = true;
                 PopularCheckPermisos(rol);
                 PopularComboPadre(rol, e.Node);
             }
             else
             {
-                lblSeleccionado.Text  = $"Permiso: {nodo.Nombre}";
-                btnEliminar.Enabled   = false;
+                lblSeleccionado.Text = $"Permiso: {nodo.Nombre}";
+                btnEliminar.Enabled = false;
                 panelPermisos.Visible = false;
-                panelPadre.Visible    = false;
+                panelPadre.Visible = false;
             }
         }
 
@@ -366,7 +366,7 @@ namespace CAPAS
             }
             catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
 

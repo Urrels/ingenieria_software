@@ -5,10 +5,10 @@ namespace BLL
 {
     public class UsuarioBLL
     {
-        private readonly DAL.UsuarioDAL      _dal        = new DAL.UsuarioDAL();
-        private readonly BitacoraBLL         _bitacora   = new BitacoraBLL();
-        private readonly IntegridadBLL       _integridad = new IntegridadBLL();
-        private readonly UsuarioHistorialBLL _historial  = new UsuarioHistorialBLL();
+        private readonly DAL.UsuarioDAL _dal = new DAL.UsuarioDAL();
+        private readonly BitacoraBLL _bitacora = new BitacoraBLL();
+        private readonly IntegridadBLL _integridad = new IntegridadBLL();
+        private readonly UsuarioHistorialBLL _historial = new UsuarioHistorialBLL();
 
         public BE.USUARIO ObtenerPorId(int id)
         {
@@ -43,6 +43,11 @@ namespace BLL
             return _dal.ListarTodos();
         }
 
+        public BE.PaginaResultado<BE.USUARIO> ListarPaginado(string busqueda, int pagina, int tamanio)
+        {
+            return _dal.ListarPaginado(busqueda, pagina, tamanio);
+        }
+
         public void Eliminar(int id)
         {
             string admin = SessionManager.getInstance().getUsuario().Usuario;
@@ -51,10 +56,11 @@ namespace BLL
             _integridad.RecalcularIntegridadUsuarios();
         }
 
-        public bool Crear(string usuario, string contrasena, string rol, string nombre, string apellido)
+        public bool Crear(string usuario, string contrasena, int rolId, string nombre, string apellido,
+                           string telefono = null, string email = null)
         {
             string hash = Hasher.Hashear(contrasena);
-            bool resultado = _dal.Crear(usuario, hash, rol, nombre, apellido);
+            bool resultado = _dal.Crear(usuario, hash, rolId, nombre, apellido, telefono, email);
             if (resultado)
             {
                 _integridad.RecalcularIntegridadUsuarios();
@@ -65,9 +71,9 @@ namespace BLL
             return resultado;
         }
 
-        public void ActualizarDatos(int id, string nombre, string apellido)
+        public void ActualizarDatos(int id, string nombre, string apellido, string telefono = null, string email = null)
         {
-            _dal.ActualizarDatos(id, nombre, apellido);
+            _dal.ActualizarDatos(id, nombre, apellido, telefono, email);
             string admin = SessionManager.getInstance().getUsuario().Usuario;
             _historial.RegistrarCambio(id, "EDICION_DATOS", admin);
         }

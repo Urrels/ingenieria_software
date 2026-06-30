@@ -9,7 +9,7 @@ namespace CAPAS
     public partial class LogIn : MaterialForm, SeguridadYServicios.IObservadorIdioma
     {
         private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string>  _defaults  = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public LogIn()
         {
@@ -20,7 +20,7 @@ namespace CAPAS
         {
             GuardarDefaults(this.Controls);
             _controles[this.Name] = this;
-            _defaults[this.Name]  = this.Text;
+            _defaults[this.Name] = this.Text;
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             ActualizarIdioma();
             IdiomaUIHelper.AgregarSelector(this);
@@ -50,7 +50,7 @@ namespace CAPAS
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
                     _controles[c.Name] = c;
-                    _defaults[c.Name]  = c.Text;
+                    _defaults[c.Name] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }
@@ -61,8 +61,8 @@ namespace CAPAS
             if (string.IsNullOrWhiteSpace(txtUsuario.Text) ||
                 string.IsNullOrWhiteSpace(txtContrasena.Text))
             {
-                MessageBox.Show("Completá usuario y contraseña.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MsgBox.Show("Completá usuario y contraseña.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -91,13 +91,12 @@ namespace CAPAS
                         }
                         else
                         {
-                            MessageBox.Show(
+                            MsgBox.Show(
                                 "El sistema no puede iniciarse debido a un problema interno." +
                                 Environment.NewLine + Environment.NewLine +
                                 "Comuníquese con el administrador del sistema.",
                                 "Error del sistema",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                                MsgBox.Botones.OK, MsgBox.Icono.Error);
                             SeguridadYServicios.SessionManager.getInstance().cerrarSesion();
                             return;
                         }
@@ -107,8 +106,8 @@ namespace CAPAS
                         new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
                     }
 
-                    MessageBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
-                        "Login exitoso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MsgBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
+                        "Login exitoso", MsgBox.Botones.OK, MsgBox.Icono.Exito);
                     new frmMenu().Show();
                     this.Hide();
                     break;
@@ -116,16 +115,16 @@ namespace CAPAS
                 case BE.LoginResultado.UsuarioBloqueado:
                     if (Program.ResultadoIntegridad == null || Program.ResultadoIntegridad.EsValido)
                         new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
-                    MessageBox.Show(
+                    MsgBox.Show(
                         "Usuario bloqueado por intentos fallidos. Contactate con un administrador.",
-                        "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        "Acceso denegado", MsgBox.Botones.OK, MsgBox.Icono.Error);
                     break;
 
                 default:
                     if (Program.ResultadoIntegridad == null || Program.ResultadoIntegridad.EsValido)
                         new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
-                    MessageBox.Show("Usuario o contraseña incorrectos.", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MsgBox.Show("Usuario o contraseña incorrectos.", "Error",
+                        MsgBox.Botones.OK, MsgBox.Icono.Error);
                     break;
             }
         }
