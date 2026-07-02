@@ -53,17 +53,19 @@ note top of NodoPermiso
   común para hojas y ramas, de modo que el
   cliente trate a ambas de manera uniforme
   (""Agregar"", ""Quitar"", ""ObtenerHijos"", ""EsHoja"").
-  Se persiste en ""NODO_PERMISO"" (columna ""TIPO""
-  distingue ""'PERFIL'"" de ""'PERMISO'"").
+  La persistencia está separada en dos tablas:
+  ""ROL"" (ramas) y ""PERMISO"" (hojas), sin
+  discriminador de tipo.
 end note
 
 note right of Rol
-  **Composite** (rama): representa un **rol**
-  (""TIPO='PERFIL'""). Mantiene una lista de hijos
-  ""_hijos"" — que pueden ser otros ""Rol"" (jerarquía
-  de roles vía ""PadreId"") y/o ""Permiso"" (permisos
-  asignados al rol). Implementa ""Agregar""/""Quitar""
-  operando sobre esa lista.
+  **Composite** (rama): representa un **rol**,
+  persistido en la tabla ""ROL"". Mantiene una
+  lista de hijos ""_hijos"" — que pueden ser otros
+  ""Rol"" (jerarquía de roles vía ""PadreId"") y/o
+  ""Permiso"" (permisos asignados al rol).
+  Implementa ""Agregar""/""Quitar"" operando sobre
+  esa lista.
   ""Protegido=true"" marca al rol "Administrador":
   no puede eliminarse ni quedar sin permisos
   críticos (ver ""PerfilBLL.Eliminar"").
@@ -71,7 +73,8 @@ end note
 
 note right of Permiso
   **Leaf** (hoja): representa un **permiso**
-  del catálogo (""TIPO='PERMISO'"", sin hijos).
+  del catálogo, persistido en la tabla
+  ""PERMISO"" (sin hijos).
   ""Agregar""/""Quitar"" lanzan
   ""InvalidOperationException"" porque una hoja
   no puede contener nodos. ""ObtenerHijos()""
@@ -91,8 +94,8 @@ frmPerfiles ..> PerfilBLL : ObtenerArbol()
 
 note bottom of PerfilBLL
   ""ObtenerArbol()"" arma el árbol en memoria:
-  primero crea todos los ""Rol"" (filas
-  ""TIPO='PERFIL'"") y los enlaza por ""PadreId"";
+  primero crea todos los ""Rol"" (filas de la
+  tabla ""ROL"") y los enlaza por ""PadreId"";
   luego, para cada fila de ""ROL_PERMISO"", crea
   un ""Permiso"" y lo agrega (""Agregar()"") al
   ""Rol"" correspondiente. El resultado es una

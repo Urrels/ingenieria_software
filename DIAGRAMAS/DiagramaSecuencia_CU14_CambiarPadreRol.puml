@@ -90,7 +90,7 @@ opt nuevoPadreId tiene valor
   end
 end
 
-PB -> DB : CambiarPadre(rolId, nuevoPadreId)\n(UPDATE NODO_PERMISO SET PADRE_ID)
+PB -> DB : CambiarPadre(rolId, nuevoPadreId)\n(ROL_CAMBIAR_PADRE:\nUPDATE ROL SET PADRE_ID)
 note right of DB
   RN-03: asignar "(ninguno)"
   (nuevoPadreId = null) hace

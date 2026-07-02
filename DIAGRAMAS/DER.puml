@@ -11,16 +11,27 @@ entity USUARIO {
   INTENTOS_FALLIDOS : INT
   BLOQUEADO : BIT
   ROL : VARCHAR(20)
+  ROL_ID : INT <<FK, nullable>>
   DVH : INT
+  NOMBRE : VARCHAR(50) <<nullable>>
+  APELLIDO : VARCHAR(50) <<nullable>>
+  IDIOMA_ID : INT <<FK, nullable>>
+  TELEFONO : VARCHAR(30) <<nullable>>
+  EMAIL : VARCHAR(100) <<nullable>>
 }
 
-entity NODO_PERMISO {
+entity ROL {
   * ID : INT <<PK>>
   --
   NOMBRE : VARCHAR(100)
-  TIPO : VARCHAR(10)
-  PADRE_ID : INT <<FK>>
+  PADRE_ID : INT <<FK, nullable>>
   PROTEGIDO : BIT
+}
+
+entity PERMISO {
+  * ID : INT <<PK>>
+  --
+  NOMBRE : VARCHAR(100)
 }
 
 entity USUARIO_PERFIL {
@@ -68,9 +79,14 @@ entity USUARIO_HISTORIAL {
   USUARIO_ID : INT
   USUARIO_LOGIN : VARCHAR(50)
   ROL : VARCHAR(20)
+  ROL_ID : INT <<nullable>>
   BLOQUEADO : BIT
   INTENTOS_FALLIDOS : INT
   PERFILES : VARCHAR(500)
+  NOMBRE : VARCHAR(50) <<nullable>>
+  APELLIDO : VARCHAR(50) <<nullable>>
+  TELEFONO : VARCHAR(30) <<nullable>>
+  EMAIL : VARCHAR(100) <<nullable>>
   FECHA_CAMBIO : DATETIME
   REALIZADO_POR : VARCHAR(50)
   TIPO_CAMBIO : VARCHAR(25)
@@ -86,10 +102,12 @@ entity DIGITO_VERIFICADOR_VERTICAL {
 
 ' Relaciones con FK real
 USUARIO        ||--o{ USUARIO_PERFIL  : "tiene >"
-NODO_PERMISO   ||--o{ USUARIO_PERFIL  : "< rol asignado a"
-NODO_PERMISO   ||--o{ ROL_PERMISO     : "ROL_ID >"
-NODO_PERMISO   ||--o{ ROL_PERMISO     : "< PERMISO_ID"
-NODO_PERMISO   ||--o{ NODO_PERMISO    : "PADRE_ID (autoref) >"
+ROL            ||--o{ USUARIO_PERFIL  : "< rol asignado a"
+ROL            ||--o{ ROL_PERMISO     : "ROL_ID >"
+PERMISO        ||--o{ ROL_PERMISO     : "< PERMISO_ID"
+ROL            ||--o{ ROL             : "PADRE_ID (autoref) >"
+ROL            ||--o{ USUARIO         : "ROL_ID >"
+IDIOMA         ||--o{ USUARIO         : "IDIOMA_ID >"
 IDIOMA         ||--o{ TRADUCCION      : "tiene >"
 CONTROL_IDIOMA ||--o{ TRADUCCION      : "< traduce"
 
