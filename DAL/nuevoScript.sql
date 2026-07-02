@@ -242,26 +242,17 @@ GO
 
 IF OBJECT_ID('dbo.USUARIO_PERMISOS_LISTAR', 'P') IS NOT NULL DROP PROCEDURE [dbo].[USUARIO_PERMISOS_LISTAR]
 GO
+-- No hereda permisos de roles ancestros: PADRE_ID es solo organización
+-- visual del árbol de roles (frmPerfiles), sin efecto sobre permisos.
 CREATE PROCEDURE [dbo].[USUARIO_PERMISOS_LISTAR]
     @usuario_id INT
 AS
 BEGIN
-    ;WITH Herencia AS (
-        SELECT PERFIL_ID AS ROL_ID
-        FROM USUARIO_PERFIL
-        WHERE USUARIO_ID = @usuario_id
-
-        UNION ALL
-
-        SELECT r.PADRE_ID
-        FROM ROL r
-        INNER JOIN Herencia h ON r.ID = h.ROL_ID
-        WHERE r.PADRE_ID IS NOT NULL
-    )
     SELECT DISTINCT p.NOMBRE
-    FROM Herencia h
-    JOIN ROL_PERMISO rp ON rp.ROL_ID = h.ROL_ID
+    FROM USUARIO_PERFIL up
+    JOIN ROL_PERMISO rp ON rp.ROL_ID = up.PERFIL_ID
     JOIN PERMISO     p  ON p.ID      = rp.PERMISO_ID
+    WHERE up.USUARIO_ID = @usuario_id
 END
 GO
 

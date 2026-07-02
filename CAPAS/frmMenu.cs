@@ -35,9 +35,16 @@ namespace CAPAS
         public void ActualizarVisibilidadMenu()
         {
             var sm = SeguridadYServicios.SessionManager.getInstance();
-            administracionToolStripMenuItem.Visible = sm.TienePermiso("Administrar usuarios")
-                                                   || sm.TienePermiso("Gestión de roles")
-                                                   || sm.TienePermiso("Gestión de idiomas");
+            bool puedeAdminUsuarios = sm.TienePermiso("Administrar usuarios");
+            bool puedeGestionRoles = sm.TienePermiso("Gestión de roles");
+            bool puedeGestionIdiomas = sm.TienePermiso("Gestión de idiomas");
+
+            usuariosBloqueadosToolStripMenuItem.Visible = puedeAdminUsuarios;
+            perfilesToolStripMenuItem.Visible = puedeGestionRoles;
+            idiomasToolStripMenuItem.Visible = puedeGestionIdiomas;
+            administracionToolStripMenuItem.Visible = puedeAdminUsuarios
+                                                   || puedeGestionRoles
+                                                   || puedeGestionIdiomas;
             bitacoraToolStripMenuItem.Visible = sm.TienePermiso("Ver bitácora");
         }
 

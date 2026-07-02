@@ -17,7 +17,6 @@ namespace CAPAS
 
         private List<Permiso> _permisosDisponibles = new List<Permiso>();
         private readonly HashSet<int> _padresDeshabilitados = new HashSet<int>();
-        private readonly HashSet<int> _permisosHeredados = new HashSet<int>();
         private int _cboPadreIndiceAnterior;
 
         public frmPerfiles()
@@ -36,9 +35,6 @@ namespace CAPAS
             cboPadre.ItemHeight = 20;
             cboPadre.DrawItem += cboPadre_DrawItem;
             cboPadre.SelectedIndexChanged += cboPadre_SelectedIndexChanged;
-            chkPermisos.DrawMode = DrawMode.OwnerDrawFixed;
-            chkPermisos.DrawItem += chkPermisos_DrawItem;
-            chkPermisos.ItemCheck += chkPermisos_ItemCheck;
             ActualizarIdioma();
             CargarArbol();
             IdiomaUIHelper.AgregarSelector(this);
@@ -136,9 +132,7 @@ namespace CAPAS
             for (int i = 0; i < chkPermisos.Items.Count; i++)
             {
                 if (!chkPermisos.GetItemChecked(i)) continue;
-                int permisoId = ((Permiso)chkPermisos.Items[i]).Id;
-                if (_permisosHeredados.Contains(permisoId)) continue;
-                seleccionados.Add(permisoId);
+                seleccionados.Add(((Permiso)chkPermisos.Items[i]).Id);
             }
 
             _bll.ActualizarPermisosDeRol(rol.Id, seleccionados);
@@ -225,48 +219,9 @@ namespace CAPAS
                 if (hijo.EsHoja()) asignados.Add(hijo.Id);
             }
 
-            _permisosHeredados.Clear();
-            foreach (int id in _bll.ObtenerPermisosHeredados(rol.Id))
-                _permisosHeredados.Add(id);
-
             chkPermisos.Items.Clear();
             foreach (Permiso p in _permisosDisponibles)
-            {
-                bool marcado = asignados.Contains(p.Id) && !_permisosHeredados.Contains(p.Id);
-                chkPermisos.Items.Add(p, marcado);
-            }
-        }
-
-        private void chkPermisos_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            if (e.Index < 0 || e.Index >= chkPermisos.Items.Count) return;
-            if (chkPermisos.Items[e.Index] is Permiso p && _permisosHeredados.Contains(p.Id))
-                e.NewValue = CheckState.Unchecked;
-        }
-
-        private void chkPermisos_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if (e.Index < 0 || e.Index >= chkPermisos.Items.Count) return;
-
-            bool heredado = chkPermisos.Items[e.Index] is Permiso p && _permisosHeredados.Contains(p.Id);
-            Color colorTexto = heredado ? SystemColors.GrayText : chkPermisos.ForeColor;
-
-            e.DrawBackground();
-
-            CheckBoxState estadoCheck = chkPermisos.GetItemChecked(e.Index)
-                ? (heredado ? CheckBoxState.CheckedDisabled : CheckBoxState.CheckedNormal)
-                : (heredado ? CheckBoxState.UncheckedDisabled : CheckBoxState.UncheckedNormal);
-
-            Size tamanioCheck = CheckBoxRenderer.GetGlyphSize(e.Graphics, estadoCheck);
-            Point puntoCheck = new Point(e.Bounds.X + 2, e.Bounds.Y + (e.Bounds.Height - tamanioCheck.Height) / 2);
-            CheckBoxRenderer.DrawCheckBox(e.Graphics, puntoCheck, estadoCheck);
-
-            Rectangle rectTexto = new Rectangle(e.Bounds.X + tamanioCheck.Width + 4, e.Bounds.Y,
-                e.Bounds.Width - tamanioCheck.Width - 4, e.Bounds.Height);
-            using (Brush brush = new SolidBrush(colorTexto))
-                e.Graphics.DrawString(chkPermisos.Items[e.Index].ToString(), e.Font, brush, rectTexto);
-
-            e.DrawFocusRectangle();
+                chkPermisos.Items.Add(p, asignados.Contains(p.Id));
         }
 
         private void PopularComboPadre(Rol rol, TreeNode nodoActual)

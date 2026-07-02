@@ -48,22 +48,6 @@ namespace BLL
             _dal.GuardarPermisosDeRol(rolId, permisoIds);
         }
 
-        public HashSet<int> ObtenerPermisosHeredados(int rolId)
-        {
-            List<NodoPermiso> roles = _dal.ListarRoles();
-            List<Permiso> rolPermisos = _dal.ListarRolPermisos();
-
-            HashSet<int> heredados = new HashSet<int>();
-            int? actual = roles.FirstOrDefault(n => n.Id == rolId)?.PadreId;
-            while (actual.HasValue)
-            {
-                foreach (Permiso p in rolPermisos.Where(rp => rp.PadreId == actual.Value))
-                    heredados.Add(p.Id);
-                actual = roles.FirstOrDefault(n => n.Id == actual.Value)?.PadreId;
-            }
-            return heredados;
-        }
-
         public NodoPermiso AgregarRol(string nombre, int? padreId)
         {
             int id = _dal.Insertar(nombre, padreId);
