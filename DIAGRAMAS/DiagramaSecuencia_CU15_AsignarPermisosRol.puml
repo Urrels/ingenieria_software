@@ -42,13 +42,6 @@ alt 1a. el nodo seleccionado es un permiso (no un rol)
 
 else el nodo seleccionado es un rol
   FP -> FP : panelPermisos.Visible = true
-  FP -> PB : ObtenerPermisosHeredados(rol.Id)
-  activate PB
-  PB -> DB : ListarRoles() + ListarRolPermisos()
-  DB --> PB : filas
-  PB -> PB : recorrer cadena de padres\ny juntar Permiso.Id ya otorgados\na algún ancestro
-  PB --> FP : ids de permisos heredados
-  deactivate PB
   FP -> FP : PopularCheckPermisos(rol)
   note right of FP
     Recorre rol.ObtenerHijos() y
@@ -58,18 +51,8 @@ else el nodo seleccionado es un rol
 
     Para cada permiso del catálogo:
     marcado = asignados.Contains(p.Id)
-    && !_permisosHeredados.Contains(p.Id)
   end note
   FP --> A : lista de permisos del\ncatálogo con checks
-
-  note right of FP
-    RN-04: los permisos heredados
-    (_permisosHeredados) se fuerzan
-    a Unchecked (chkPermisos_ItemCheck)
-    y se dibujan en gris/deshabilitados
-    (chkPermisos_DrawItem) — no se
-    pueden tildar desde este rol.
-  end note
 
   ' ─────────────────────────────────────────
   ' EDICIÓN Y GUARDADO
@@ -79,7 +62,6 @@ else el nodo seleccionado es un rol
   A -> FP : marcar / desmarcar permisos\n+ click "Guardar"
 
   FP -> FP : recolectar IDs de permisos\nmarcados (seleccionados)
-  FP -> FP : descartar heredados\n(if _permisosHeredados.Contains(id)\ncontinue)
   FP -> PB : ActualizarPermisosDeRol(rol.Id, seleccionados)
   PB -> DB : GuardarPermisosDeRol(rol.Id, seleccionados)
   note right of DB

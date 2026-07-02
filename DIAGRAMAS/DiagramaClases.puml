@@ -345,7 +345,6 @@ package "BLL" #FFE6CC {
     + ObtenerPermisosDisponibles() : List<Permiso>
     + ListarRolesParaCombo() : List<Rol>
     + ActualizarPermisosDeRol(rolId : int, permisoIds : List<int>) : void
-    + ObtenerPermisosHeredados(rolId : int) : HashSet<int>
     + AgregarRol(nombre : string, padreId : int?) : NodoPermiso
     + CambiarPadre(rolId : int, nuevoPadreId : int?) : void
     + Eliminar(id : int) : void

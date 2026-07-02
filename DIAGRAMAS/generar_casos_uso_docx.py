@@ -937,7 +937,7 @@ CUS = [
             "El padre candidato no es un ancestro por encima del padre actual del rol.",
         ],
         "postcondiciones_exito": [
-            "El rol queda con su nuevo PADRE_ID en NODO_PERMISO.",
+            "El rol queda con su nuevo PADRE_ID en ROL.",
             "El árbol se refresca y muestra la nueva jerarquía.",
         ],
         "postcondiciones_fallo": [
