@@ -24,7 +24,14 @@ package "BE" #FEFECE {
     + IntentosFallidos : int
     + Bloqueado : bool
     + Rol : string
+    + RolId : int?
+    + RolNombre : string
+    + Nombre : string
+    + Apellido : string
+    + Telefono : string
+    + Email : string
     + DVH : int
+    + IdiomaId : int?
   }
 
   class BITACORA {
@@ -39,6 +46,7 @@ package "BE" #FEFECE {
     + Id : int
     + Nombre : string
     + Habilitado : bool
+    + Predeterminado : bool
     + ToString() : string
   }
 
@@ -54,13 +62,26 @@ package "BE" #FEFECE {
     + UsuarioId : int
     + UsuarioLogin : string
     + Rol : string
+    + RolId : int?
     + Bloqueado : bool
     + IntentosFallidos : int
     + Perfiles : string
+    + Nombre : string
+    + Apellido : string
+    + Telefono : string
+    + Email : string
     + FechaCambio : DateTime
     + RealizadoPor : string
     + TipoCambio : string
     + VersionOrigen : int?
+  }
+
+  class "PaginaResultado<T>" as PaginaResultado {
+    + Items : List<T>
+    + TotalFilas : int
+    + Pagina : int
+    + Tamanio : int
+    + TotalPaginas : int
   }
 
   abstract class NodoPermiso {
@@ -115,7 +136,6 @@ package "SeguridadYServicios" #D5E8D4 {
 
   class ValidadorContrasena <<static>> {
     + {static} LargoMinimo : int = 6
-    + {static} EsValida(contrasena : string) : bool
     + {static} ObtenerError(contrasena : string) : string
   }
 
@@ -149,7 +169,7 @@ package "SeguridadYServicios" #D5E8D4 {
     + Registrar(obs : IObservadorIdioma) : void
     + Desregistrar(obs : IObservadorIdioma) : void
     + CambiarIdioma(idioma : IDIOMA, trad : Dictionary<string,string>) : void
-    + Notificar() : void
+    - Notificar() : void
     + Traducir(clave : string) : string
   }
 
@@ -183,13 +203,15 @@ package "DAL" #DAE8FC {
     + EstaBloqueado(u : string) : bool
     + IncrementarIntentos(u : string) : bool
     + ResetearIntentos(u : string) : void
-    + ListarBloqueados() : List<USUARIO>
     + ListarTodos() : List<USUARIO>
+    + ListarPaginado(busqueda : string, pagina : int, tamanio : int) : PaginaResultado<USUARIO>
     + Eliminar(id : int) : void
-    + Crear(usuario : string, passHash : string, rol : string) : bool
+    + Crear(usuario : string, passHash : string, rolId : int, nombre : string, apellido : string, telefono : string = null, email : string = null) : bool
     + ObtenerPorId(id : int) : USUARIO
     + ObtenerIdPorNombre(u : string) : int?
-    + AplicarEstado(id : int, rol : string, bloqueado : bool, intentosFallidos : int) : void
+    + AplicarEstado(id : int, rol : string, bloqueado : bool, intentosFallidos : int, rolId : int? = null) : void
+    + ActualizarDatos(id : int, nombre : string, apellido : string, telefono : string, email : string) : void
+    + ActualizarIdioma(id : int, idiomaId : int) : void
     + Desbloquear(u : string) : void
   }
 
@@ -200,9 +222,10 @@ package "DAL" #DAE8FC {
     + ListarRolPermisos() : List<Permiso>
     + GuardarPermisosDeRol(rolId : int, permisoIds : List<int>) : void
     + TieneUsuariosAsignados(rolId : int) : bool
-    + Insertar(nombre : string, tipo : string, padreId : int?) : int
+    + Insertar(nombre : string, padreId : int?) : int
     + CambiarPadre(rolId : int, nuevoPadreId : int?) : void
     + Eliminar(id : int) : void
+    + ListarParaCombo() : List<Rol>
   }
 
   class UsuarioPerfilDAL {
@@ -217,6 +240,9 @@ package "DAL" #DAE8FC {
     - _acceso : Acceso
     + Registrar(usuario : string, accion : string) : void
     + Listar() : List<BITACORA>
+    + ListarPaginado(usuario : string, accion : string, fechaDesde : DateTime?, fechaHasta : DateTime?, pagina : int, tamanio : int) : PaginaResultado<BITACORA>
+    + ListarUsuariosDistinct() : List<string>
+    + ListarAccionesDistinct() : List<string>
   }
 
   class IntegridadDAL {
@@ -231,6 +257,8 @@ package "DAL" #DAE8FC {
     - _acceso : Acceso
     + ListarTodos() : List<IDIOMA>
     + ListarHabilitados() : List<IDIOMA>
+    + ObtenerPorId(id : int) : IDIOMA
+    + EstaEnUso(id : int) : bool
     + Insertar(nombre : string, habilitado : bool) : int
     + Renombrar(id : int, nombre : string) : void
     + ActualizarEstado(id : int, habilitado : bool) : void
@@ -245,6 +273,7 @@ package "DAL" #DAE8FC {
     - _acceso : Acceso
     + Insertar(h : UsuarioHistorial) : void
     + ListarPorUsuario(usuarioId : int) : List<UsuarioHistorial>
+    + ListarPorUsuarioPaginado(usuarioId : int, pagina : int, tamanio : int) : PaginaResultado<UsuarioHistorial>
     + ObtenerPorId(id : int) : UsuarioHistorial
   }
 
@@ -255,6 +284,9 @@ package "DAL" #DAE8FC {
   IntegridadDAL --> Acceso
   IdiomaDAL --> Acceso
   UsuarioHistorialDAL --> Acceso
+  UsuarioDAL --> PaginaResultado
+  BitacoraDAL --> PaginaResultado
+  UsuarioHistorialDAL --> PaginaResultado
 }
 
 ' ─────────────────────────────────────────
@@ -290,10 +322,12 @@ package "BLL" #FFE6CC {
     + ObtenerPorId(id : int) : USUARIO
     + VerificarContrasena(u : string, contrasena : string) : bool
     + CambiarContrasena(u : string, nuevaContrasena : string) : bool
-    + ListarBloqueados() : List<USUARIO>
     + ListarTodos() : List<USUARIO>
+    + ListarPaginado(busqueda : string, pagina : int, tamanio : int) : PaginaResultado<USUARIO>
     + Eliminar(id : int) : void
-    + Crear(usuario : string, contrasena : string, rol : string) : bool
+    + Crear(usuario : string, contrasena : string, rolId : int, nombre : string, apellido : string, telefono : string = null, email : string = null) : bool
+    + ActualizarDatos(id : int, nombre : string, apellido : string, telefono : string, email : string) : void
+    + ActualizarIdioma(id : int, idiomaId : int) : void
     + Desbloquear(u : string) : void
   }
 
@@ -309,15 +343,19 @@ package "BLL" #FFE6CC {
     - _dal : PerfilDAL
     + ObtenerArbol() : List<NodoPermiso>
     + ObtenerPermisosDisponibles() : List<Permiso>
+    + ListarRolesParaCombo() : List<Rol>
     + ActualizarPermisosDeRol(rolId : int, permisoIds : List<int>) : void
+    + ObtenerPermisosHeredados(rolId : int) : HashSet<int>
     + AgregarRol(nombre : string, padreId : int?) : NodoPermiso
     + CambiarPadre(rolId : int, nuevoPadreId : int?) : void
     + Eliminar(id : int) : void
     - GenerariaCiclo(rolId : int, candidatoPadreId : int, todos : List<NodoPermiso>) : bool
+    - EsAncestroDelPadreActual(padreActualId : int?, candidatoPadreId : int, todos : List<NodoPermiso>) : bool
   }
 
   class UsuarioPerfilBLL {
     - _dal : UsuarioPerfilDAL
+    - _usuarioDal : UsuarioDAL
     - _integridad : IntegridadBLL
     - _historial : UsuarioHistorialBLL
     + ObtenerPermisos(usuarioId : int) : List<string>
@@ -331,13 +369,18 @@ package "BLL" #FFE6CC {
     + RegistrarLogout(usuario : string) : void
     + RegistrarAccion(usuario : string, accion : string) : void
     + Listar() : List<BITACORA>
+    + ListarPaginado(usuario : string, accion : string, fechaDesde : DateTime?, fechaHasta : DateTime?, pagina : int, tamanio : int) : PaginaResultado<BITACORA>
+    + ListarUsuariosDistinct() : List<string>
+    + ListarAccionesDistinct() : List<string>
   }
 
   class IdiomaBLL {
     - _dal : IdiomaDAL
     + ListarTodos() : List<IDIOMA>
     + ListarHabilitados() : List<IDIOMA>
-    + Crear(nombre : string, habilitado : bool) : int
+    + ObtenerPorId(id : int) : IDIOMA
+    + EstaEnUso(id : int) : bool
+    + Crear(nombre : string, habilitado : bool) : IDIOMA
     + Renombrar(id : int, nombre : string) : void
     + ActualizarEstado(id : int, habilitado : bool) : void
     + Eliminar(id : int) : void
@@ -354,6 +397,7 @@ package "BLL" #FFE6CC {
     - ParsearPerfiles(perfilesStr : string) : List<int>
     + RegistrarCambio(usuarioId : int, tipo : string, realizadoPor : string, versionOrigen : int?) : void
     + ObtenerHistorial(usuarioId : int) : List<UsuarioHistorial>
+    + ObtenerHistorialPaginado(usuarioId : int, pagina : int, tamanio : int) : PaginaResultado<UsuarioHistorial>
     + Rollback(historialId : int, realizadoPor : string) : void
   }
 
@@ -367,8 +411,11 @@ package "BLL" #FFE6CC {
   LoginBLL --> BitacoraBLL
   LoginBLL --> UsuarioPerfilBLL
   LoginBLL --> UsuarioHistorialBLL
+  LoginBLL --> IdiomaBLL
+  LoginBLL --> IdiomaManager
   PerfilBLL --> PerfilDAL
   UsuarioPerfilBLL --> UsuarioPerfilDAL
+  UsuarioPerfilBLL --> UsuarioDAL
   UsuarioPerfilBLL --> IntegridadBLL
   UsuarioPerfilBLL --> UsuarioHistorialBLL
   BitacoraBLL --> BitacoraDAL
@@ -376,7 +423,11 @@ package "BLL" #FFE6CC {
   UsuarioHistorialBLL --> UsuarioHistorialDAL
   UsuarioHistorialBLL --> UsuarioDAL
   UsuarioHistorialBLL --> UsuarioPerfilDAL
+  UsuarioHistorialBLL --> IntegridadBLL
   LoginBLL --> LoginResultado
+  UsuarioBLL --> PaginaResultado
+  BitacoraBLL --> PaginaResultado
+  UsuarioHistorialBLL --> PaginaResultado
 }
 
 ' ─────────────────────────────────────────
@@ -406,6 +457,11 @@ package "CAPAS" #F8CECC {
       - ActualizarEncabezados() : void
     }
     class frmNuevoUsuario {
+      - _controles : Dictionary<string, Control>
+      - _defaults : Dictionary<string, string>
+      + ActualizarIdioma() : void
+    }
+    class frmEditarUsuario {
       - _controles : Dictionary<string, Control>
       - _defaults : Dictionary<string, string>
       + ActualizarIdioma() : void
@@ -458,6 +514,7 @@ package "CAPAS" #F8CECC {
   IObservadorIdioma <|.. frmMenu
   IObservadorIdioma <|.. frmAdminUsuarios
   IObservadorIdioma <|.. frmNuevoUsuario
+  IObservadorIdioma <|.. frmEditarUsuario
   IObservadorIdioma <|.. frmContraseña
   IObservadorIdioma <|.. frmHistorialUsuario
   IObservadorIdioma <|.. frmBitacora
@@ -471,12 +528,14 @@ package "CAPAS" #F8CECC {
 ' ─────────────────────────────────────────
 LogIn --> LoginBLL
 LogIn --> IntegridadBLL
+LogIn --> SessionManager
 frmAdminUsuarios --> UsuarioBLL
-frmNuevoUsuario --> UsuarioBLL
+frmNuevoUsuario --> PerfilBLL
 frmContraseña --> UsuarioBLL
 frmBitacora --> BitacoraBLL
 frmPerfiles --> PerfilBLL
 frmAsignarPerfiles --> UsuarioPerfilBLL
+frmAsignarPerfiles --> PerfilBLL
 frmIdiomas --> IdiomaBLL
 frmHistorialUsuario --> UsuarioHistorialBLL
 frmRestaurarIntegridad --> IntegridadBLL
@@ -485,5 +544,7 @@ frmRestaurarIntegridad --> UsuarioHistorialBLL
 frmMenu --> SessionManager
 frmMenu --> IdiomaManager
 frmMenu --> IdiomaBLL
+frmMenu --> UsuarioBLL
+frmMenu --> BitacoraBLL
 
 @enduml
