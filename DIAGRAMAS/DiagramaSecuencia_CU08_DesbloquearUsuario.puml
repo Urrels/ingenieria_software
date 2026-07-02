@@ -88,8 +88,8 @@ else el usuario está bloqueado (RN-01)
     deactivate UB
 
     FA --> A : "Usuario desbloqueado."
-    FA -> DB : CargarUsuarios()\n(USUARIO_LISTAR_TODOS)
-    DB --> FA : lista de usuarios
+    FA -> DB : CargarUsuarios()\n(USUARIO_LISTAR_PAGINADO,\ncon búsqueda y paginado)
+    DB --> FA : página de usuarios
     FA -> FA : refrescar grilla
   end
 end

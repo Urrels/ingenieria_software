@@ -111,6 +111,19 @@ else el administrador guarda
 
   UP -> UH : RegistrarCambio(usuario.Id, "ASIGNACION_PERFIL", admin)
   UH -> DB : insertar snapshot en USUARIO_HISTORIAL
+
+  opt usuario.Id == administrador logueado
+    UP -> SM : setUsuario(usuarioActualizado)
+    UP -> SM : setPermisos(permisosActualizados)
+    note right of SM
+      Si el admin se reasigna
+      perfiles a sí mismo, su
+      sesión se refresca en
+      caliente (USUARIO y
+      permisos) para no forzar
+      un relogueo.
+    end note
+  end
   deactivate UP
 
   FP --> A : "Asignaciones guardadas."

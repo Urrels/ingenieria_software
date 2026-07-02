@@ -47,19 +47,7 @@ FP -> FP : padreId = rol seleccionado\nen el árbol (o null si no hay\nselecció
 FP -> PB : AgregarRol(nombre, padreId)
 activate PB
 
-opt padreId tiene valor
-  PB -> DB : ListarRoles()
-  DB --> PB : todos los roles
-
-  alt 5a. el padre elegido generaría un ciclo
-    PB -> PB : GenerariaCiclo(padreId, padreId, todos)\n→ true
-    PB --> FP : throw InvalidOperationException\n("No se puede asignar ese padre:\ngeneraría una referencia circular.")
-    FP --> A : MessageBox de error
-    note right of FP : el caso de uso termina\nsin crear el rol
-  end
-end
-
-PB -> DB : Insertar(nombre, "PERFIL", padreId)
+PB -> DB : Insertar(nombre, padreId)
 note right of DB
   RN-02: el nuevo rol se crea
   sin permisos asignados —

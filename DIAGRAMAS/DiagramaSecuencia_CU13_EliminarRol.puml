@@ -85,11 +85,11 @@ else el nodo es un rol no protegido
         FP --> A : MessageBox de error
 
       else sin usuarios asignados
-        PB -> DB : Eliminar(id)\n(PERFIL_ELIMINAR)
+        PB -> DB : Eliminar(id)\n(ROL_ELIMINAR)
         note right of DB
           RN-03: CTE recursiva — borra
           el subárbol completo de
-          NODO_PERMISO y limpia sus
+          ROL y limpia sus
           vínculos en ROL_PERMISO
           y USUARIO_PERFIL.
         end note

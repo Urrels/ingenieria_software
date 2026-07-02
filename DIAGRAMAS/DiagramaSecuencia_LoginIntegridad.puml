@@ -24,6 +24,8 @@ participant "Hasher"                as H  #F4E8E8
 participant "SessionManager"        as SM #F4E8E8
 participant "UsuarioPerfilBLL"      as UP #E8F4E8
 participant "BitacoraBLL"           as BB #E8F4E8
+participant "IdiomaBLL"             as IDB #E8F4E8
+participant "IdiomaManager"         as IDM #F4E8E8
 participant "UsuarioHistorialBLL"   as UH #E8F4E8
 participant "frmRestaurar\nIntegridad" as FR #FEFECE
 participant "frmMenu"               as FM #FEFECE
@@ -93,6 +95,15 @@ else credenciales por validar
     UP --> LB : List<string>
     LB -> SM : setPermisos(permisos)
     LB -> BB : RegistrarLogin(usuario)
+
+    opt u.IdiomaId.HasValue
+      LB -> IDB : ObtenerPorId(u.IdiomaId)
+      IDB --> LB : idioma
+      LB -> IDB : CargarTraducciones(idioma.Id)
+      IDB --> LB : traducciones
+      LB -> IDM : CambiarIdioma(idioma, traducciones)
+    end
+
     LB --> L : LoginResultado.Exito
   else u == null  (credenciales inválidas)
     LB -> UD : IncrementarIntentos(usuario)
@@ -144,6 +155,7 @@ alt resultado == Exito
           FR -> UH : ObtenerHistorial(id)
           UH --> FR : List<UsuarioHistorial>
           opt tiene historial
+            note right of FR : alMenosUnoConHistorial = true
             FR -> FR : frmHistorialUsuario.ShowDialog()
             note right of FR
               dentro: Rollback() →
@@ -151,8 +163,20 @@ alt resultado == Exito
             end note
           end
         end
-        FR -> IB : RecalcularIntegridadUsuarios()
-        FR --> L : DialogResult.OK
+
+        alt alMenosUnoConHistorial == true
+          FR -> IB : RecalcularIntegridadUsuarios()
+          FR --> L : DialogResult.OK
+        else alMenosUnoConHistorial == false
+          note right of FR
+            Limitación: ningún usuario afectado
+            tiene historial registrado. El
+            formulario permanece abierto (no se
+            recalcula integridad ni se cierra el
+            diálogo); solo queda disponible
+            "Recalcular y continuar".
+          end note
+        end
       else admin cancela
         FR --> L : DialogResult.Cancel
         L -> SM : cerrarSesion()
