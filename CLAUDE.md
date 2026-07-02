@@ -85,33 +85,35 @@ AppTheme.AplicarTema(this);
 
 ## Key design patterns
 
-**Composite (roles and permissions tree)** — `NodoPermiso` is the abstract component; `Rol` (file: `PerfilPermiso.cs`) is a branch node stored as `TIPO='PERFIL'` in DB; `Permiso` is a leaf stored as `TIPO='PERMISO'`. The tree is built in-memory in `PerfilBLL.ObtenerArbol()`:
-1. `PerfilDAL.ListarRoles()` fetches all `TIPO='PERFIL'` nodes and builds the rol hierarchy from `PADRE_ID`.
-2. `PerfilDAL.ListarRolPermisos()` fetches all rows from `ROL_PERMISO` joined with `NODO_PERMISO`; each returned `Permiso` carries its rol's ID in the `PadreId` field as a carrier value, which `ObtenerArbol()` uses to attach the permiso to the correct rol branch.
+**Composite (roles and permissions tree)** — `NodoPermiso` is the abstract component; `Rol` (file: `PerfilPermiso.cs`) is a branch node stored in the `ROL` table; `Permiso` is a leaf stored in the `PERMISO` table. The tree is built in-memory in `PerfilBLL.ObtenerArbol()`:
+1. `PerfilDAL.ListarRoles()` fetches all `ROL` rows and builds the rol hierarchy from `PADRE_ID`.
+2. `PerfilDAL.ListarRolPermisos()` fetches all rows from `ROL_PERMISO` joined with `PERMISO`; each returned `Permiso` carries its rol's ID in the `PadreId` field as a carrier value, which `ObtenerArbol()` uses to attach the permiso to the correct rol branch.
 
-**Roles and permissions data model** — Two distinct concepts live in `NODO_PERMISO`:
-- **Roles** (`TIPO='PERFIL'`, `PADRE_ID` used for role hierarchy): created and deleted from the UI.
-- **Catalog permissions** (`TIPO='PERMISO'`, `PADRE_ID=NULL`): pre-established, never created or deleted from the UI. Currently: *Ver bitácora*, *Administrar usuarios*, *Gestión de roles*, *Gestión de idiomas*, *Cambiar contraseña*.
+**Roles and permissions data model** — Roles and permissions live in two separate tables (migrated off the old single-table `NODO_PERMISO` design, see `DAL/nuevoScript.sql`):
+- **`ROL`** (`ID, NOMBRE, PADRE_ID, PROTEGIDO`): created and deleted from the UI, `PADRE_ID` used for role hierarchy.
+- **`PERMISO`** (`ID, NOMBRE`): pre-established catalog, never created or deleted from the UI. Currently: *Ver bitácora*, *Administrar usuarios*, *Gestión de roles*, *Gestión de idiomas*, *Cambiar contraseña*.
 
-The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_ID, PERMISO_ID)`. `PERMISO_LISTAR_TODOS` filters `PADRE_ID IS NULL` so only catalog permisos appear; `PERFIL_LISTAR_TODOS` filters `TIPO='PERFIL'`.
+The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_ID, PERMISO_ID)`, with real FKs to both `ROL` and `PERMISO`. `PERMISO_LISTAR_TODOS` lists the `PERMISO` catalog; `ROL_LISTAR_TODOS` lists all roles.
 
-`PERFIL_ELIMINAR` cascades via a recursive CTE: it collects the entire subtree of descendant role IDs and deletes their entries from `USUARIO_PERFIL` and `ROL_PERMISO` before removing them from `NODO_PERMISO`. `PerfilDAL.GuardarPermisosDeRol` runs inside a transaction (LIMPIAR + N × INSERTAR).
+`ROL_ELIMINAR` cascades via a recursive CTE: it collects the entire subtree of descendant role IDs and deletes their entries from `USUARIO_PERFIL` and `ROL_PERMISO` before removing them from `ROL`. `PerfilDAL.GuardarPermisosDeRol` runs inside a transaction (LIMPIAR + N × INSERTAR).
 
-**Role parent assignment** — `PADRE_ID` on a `TIPO='PERFIL'` row establishes role hierarchy. `PerfilBLL.CambiarPadre` calls two in-memory guards before persisting, each throwing `InvalidOperationException`:
+`NODO_PERMISO` is kept as an unused legacy remnant (not dropped, for safety) — its data was copied into `ROL`/`PERMISO` and no current SP references it.
+
+**Role parent assignment** — `PADRE_ID` on a `ROL` row establishes role hierarchy. `PerfilBLL.CambiarPadre` calls two in-memory guards before persisting, each throwing `InvalidOperationException`:
 1. `GenerariaCiclo` — walks the parent chain up from the candidate parent; rejects it if `rolId` appears (candidate is a descendant of the role, would create a cycle).
 2. `EsAncestroDelPadreActual` — walks the parent chain up from the role's *current* parent (excluding it); rejects the candidate if it appears there (candidate is an ancestor above the current parent — only "lateral" moves or the no-op current parent are allowed).
 
-`frmPerfiles.PopularComboPadre` mirrors rule 1 by excluding the role's subtree (`RecolectarDescendientes`) from the combo entirely. Rule 2's targets — ancestors above the current parent (`RecolectarAncestrosSuperiores`, stored in `_padresDeshabilitados`) — remain visible in the combo but are rendered grayed-out (`cboPadre_DrawItem`, `OwnerDrawFixed`) and cannot be selected (`cboPadre_SelectedIndexChanged` reverts to `_cboPadreIndiceAnterior`). The SP `PERFIL_CAMBIAR_PADRE` does a plain `UPDATE NODO_PERMISO SET PADRE_ID`.
+`frmPerfiles.PopularComboPadre` mirrors rule 1 by excluding the role's subtree (`RecolectarDescendientes`) from the combo entirely. Rule 2's targets — ancestors above the current parent (`RecolectarAncestrosSuperiores`, stored in `_padresDeshabilitados`) — remain visible in the combo but are rendered grayed-out (`cboPadre_DrawItem`, `OwnerDrawFixed`) and cannot be selected (`cboPadre_SelectedIndexChanged` reverts to `_cboPadreIndiceAnterior`). The SP `ROL_CAMBIAR_PADRE` does a plain `UPDATE ROL SET PADRE_ID`.
 
 **Inherited permissions (CU-15)** — `PerfilBLL.ObtenerPermisosHeredados(rolId)` walks the parent chain upward (via `ListarRoles()`/`PadreId`) and collects every `Permiso.Id` already granted (in `ROL_PERMISO`, via `ListarRolPermisos()`) to any ancestor role. In `frmPerfiles.PopularCheckPermisos`, those IDs are stored in `_permisosHeredados` and the corresponding item is added unchecked; `chkPermisos_DrawItem` (owner-draw, `CheckBoxState.*Disabled`) then renders it as unchecked-and-disabled, since it's already implicitly granted via inheritance and shouldn't be toggled for the child role. `chkPermisos_ItemCheck` forces `NewValue = Unchecked` for heredados so the user cannot check them, and `Guardar` skips any heredado ID when collecting `seleccionados` as an extra safeguard, so they are never written as a duplicate `ROL_PERMISO` row for the child role.
 
 **Role deletion guards** — `PerfilBLL.Eliminar` enforces two rules before calling the DAL, throwing `InvalidOperationException` for each:
 1. `Rol.Protegido == true` → system role, cannot be deleted. Currently only *Administrador* (`PROTEGIDO=1`); all other roles default to `PROTEGIDO=0`.
-2. `PerfilDAL.TieneUsuariosAsignados(id)` → the SP `PERFIL_TIENE_USUARIOS` uses a recursive CTE to check whether any role in the subtree has entries in `USUARIO_PERFIL`. Blocks deletion if so.
+2. `PerfilDAL.TieneUsuariosAsignados(id)` → the SP `ROL_TIENE_USUARIOS` uses a recursive CTE to check whether any role in the subtree has entries in `USUARIO_PERFIL`. Blocks deletion if so.
 
 `frmPerfiles` shows three context-sensitive panels when a `Rol` node is selected: `panelPadre` (ComboBox to reassign parent, excludes the role's own subtree from candidates) and `panelPermisos` (CheckedListBox of catalog permissions). The Eliminar button is disabled in the UI when `rol.Protegido` is true.
 
-**Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → joins `USUARIO_PERFIL → ROL_PERMISO → NODO_PERMISO` to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`. **Never use `SessionManager.EsAdmin()` to control visibility** — it only compares `USUARIO.ROL` and is not aligned with the permission system; it exists but should stay unused.
+**Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → walks role inheritance (recursive CTE on `ROL.PADRE_ID`) then joins `ROL_PERMISO → PERMISO` to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`. **Never use `SessionManager.EsAdmin()` to control visibility** — it only compares `USUARIO.ROL` and is not aligned with the permission system; it exists but should stay unused.
 
 **Observer (multi-language)** — `IdiomaManager` is the Subject. Forms are Observers. Each form has its own language selector added dynamically by `IdiomaUIHelper.AgregarSelector(form)` (called at the end of every form's `Load`), because `ShowDialog()` disables the parent form. On change: CAPAS calls `BLL.IdiomaBLL.CargarTraducciones(idiomaId)`, then passes the dictionary to `IdiomaManager.CambiarIdioma()`, which calls `Notificar()` → `ActualizarIdioma()` on every registered form. Forms fall back to their design-time text when a key has no translation.
 
@@ -139,7 +141,7 @@ _defaults["lblTitulo_Bitacora"]  = lblTitulo.Text;
 
 ## Dígitos verificadores de integridad
 
-The system protects **USUARIO** against unauthorized out-of-system DB modifications. **BITACORA**, **NODO_PERMISO**, and **ROL_PERMISO** are not integrity-protected.
+The system protects **USUARIO** against unauthorized out-of-system DB modifications. **BITACORA**, **ROL**, **PERMISO**, and **ROL_PERMISO** are not integrity-protected.
 
 **DVH (horizontal)** — one `int` per row, stored in the row's own `DVH` column. Formula: `Σᵢ Σⱼ Unicode(atrib[i][j]) × (i+1) × (j+1)`.
 
@@ -150,7 +152,7 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 **Canonical attribute order** — fixed, must never change once data is stored:
 - `USUARIO`: `ID, USUARIO, PASS, INTENTOS_FALLIDOS, BLOQUEADO("1"/"0"), ROL, PERFILES`
 
-**Valid ROL values** — defined by `frmNuevoUsuario`'s ComboBox: `'admin'` and `'usuario'`. The `ROL` column is a display/classification field only; actual permissions are resolved via `USUARIO_PERFIL → ROL_PERMISO → NODO_PERMISO`.
+**Valid ROL values** — defined by `frmNuevoUsuario`'s ComboBox: `'admin'` and `'usuario'`. The `ROL` string column is a legacy display/classification field, kept for compatibility and included in the DVH canonical attribute array (its position must never change). `USUARIO.ROL_ID` (nullable FK to `ROL(ID)`, added by `DAL/nuevoScript.sql`, backfilled from the legacy string) is the real source of truth: actual permissions are resolved via `USUARIO_PERFIL → ROL_PERMISO → PERMISO`.
 
 **Startup and login flow** (`Program.cs` + `LogIn.cs`):
 

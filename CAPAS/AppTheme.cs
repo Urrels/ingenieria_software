@@ -6,20 +6,20 @@ namespace CAPAS
 {
     internal static class AppTheme
     {
-        // Paleta: claro suave
-        internal static readonly Color FondoForm      = Color.FromArgb(245, 247, 250); // #F5F7FA
-        internal static readonly Color FondoHeader    = Color.FromArgb(21,  101, 192); // #1565C0
-        internal static readonly Color FondoControl   = Color.FromArgb(238, 242, 247); // #EEF2F7
-        internal static readonly Color FondoGrilla    = Color.White;
-        internal static readonly Color FondoGrillaAlt = Color.FromArgb(238, 242, 247); // #EEF2F7
-        internal static readonly Color Acento         = Color.FromArgb(21,  101, 192); // #1565C0
-        internal static readonly Color AcentoHover    = Color.FromArgb(25,  118, 210); // #1976D2
-        internal static readonly Color TextoPrincipal  = Color.FromArgb(44,   62,  80); // #2C3E50
-        internal static readonly Color TextoEncabezado = Color.White;
-        internal static readonly Color TextoSecundario = Color.FromArgb(96,  125, 139); // #607D8B
-        internal static readonly Color Borde          = Color.FromArgb(207, 216, 220); // #CFD8DC
-        internal static readonly Color Seleccion      = Color.FromArgb(187, 222, 251); // #BBDEFB
-        internal static readonly Color SeleccionTexto = Color.FromArgb(13,   71, 161); // #0D47A1
+        // Paleta: Rosé Pine Main — oscuro con pasteles rose/iris/foam
+        internal static readonly Color FondoForm      = Color.FromArgb( 25,  23,  36); // base    #191724
+        internal static readonly Color FondoHeader    = Color.FromArgb( 38,  35,  58); // overlay #26233a
+        internal static readonly Color FondoControl   = Color.FromArgb( 31,  29,  46); // surface #1f1d2e
+        internal static readonly Color FondoGrilla    = Color.FromArgb( 31,  29,  46); // surface #1f1d2e
+        internal static readonly Color FondoGrillaAlt = Color.FromArgb( 38,  35,  58); // overlay #26233a
+        internal static readonly Color Acento         = Color.FromArgb(196, 167, 231); // iris    #c4a7e7  ← lavanda pastel
+        internal static readonly Color AcentoHover    = Color.FromArgb(235, 188, 186); // rose    #ebbcba  ← rosa pastel
+        internal static readonly Color TextoPrincipal  = Color.FromArgb(224, 222, 244); // text    #e0def4  ← lavanda claro
+        internal static readonly Color TextoEncabezado = Color.FromArgb(196, 167, 231); // iris    #c4a7e7  ← lavanda pastel
+        internal static readonly Color TextoSecundario = Color.FromArgb(144, 140, 170); // subtle  #908caa  ← gris lavanda
+        internal static readonly Color Borde          = Color.FromArgb(110, 106, 134); // muted   #6e6a86
+        internal static readonly Color Seleccion      = Color.FromArgb( 49, 116, 143); // pine    #31748f  ← teal muted
+        internal static readonly Color SeleccionTexto = Color.FromArgb(224, 222, 244); // text    #e0def4
 
         internal static readonly Font FontTitulo = new Font("Segoe UI", 11f, FontStyle.Bold);
         internal static readonly Font FontBold   = new Font("Segoe UI", 10f, FontStyle.Bold);
@@ -226,7 +226,7 @@ namespace CAPAS
 
         internal static void EstilizarStatusStrip(StatusStrip ss)
         {
-            Color fondoStatus = Color.FromArgb(227, 242, 253); // #E3F2FD azul muy claro
+            Color fondoStatus = Color.FromArgb(144, 140, 170); // subtle #908caa  ← gris claro abajo
             ss.BackColor  = fondoStatus;
             ss.ForeColor  = TextoSecundario;
             ss.Font       = FontNormal;
@@ -235,7 +235,7 @@ namespace CAPAS
 
             foreach (ToolStripItem item in ss.Items)
             {
-                item.BackColor = fondoStatus;   // color sólido — sin Transparent
+                item.BackColor = fondoStatus;
                 item.ForeColor = TextoSecundario;
                 item.Font      = FontNormal;
                 if (item is ToolStripComboBox tscbo)
@@ -289,8 +289,8 @@ namespace CAPAS
         public override Color MenuItemPressedGradientEnd    => AppTheme.Acento;
         public override Color SeparatorLight               => AppTheme.Borde;
         public override Color SeparatorDark                => AppTheme.Borde;
-        public override Color StatusStripGradientBegin     => Color.FromArgb(227, 242, 253);
-        public override Color StatusStripGradientEnd       => Color.FromArgb(227, 242, 253);
+        public override Color StatusStripGradientBegin     => Color.FromArgb(144, 140, 170);
+        public override Color StatusStripGradientEnd       => Color.FromArgb(144, 140, 170);
         public override Color MenuStripGradientBegin       => AppTheme.FondoHeader;
         public override Color MenuStripGradientEnd         => AppTheme.FondoHeader;
     }
