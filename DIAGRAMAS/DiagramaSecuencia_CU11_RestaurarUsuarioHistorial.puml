@@ -92,7 +92,7 @@ else el administrador confirma
       end note
 
     else snapshot restaurable
-      UH -> DB : AplicarEstado(usuarioId,\nsnapshot.Rol, snapshot.Bloqueado,\nsnapshot.IntentosFallidos)
+      UH -> DB : AplicarEstado(usuarioId,\nsnapshot.Rol, snapshot.Bloqueado,\nsnapshot.IntentosFallidos, snapshot.RolId)
       note right of DB
         RN-02: la contraseña (PASS)
         nunca se restaura — no se
@@ -103,6 +103,14 @@ else el administrador confirma
       loop por cada perfil del snapshot
         UH -> DB : Asignar(usuarioId, perfilId)
       end
+
+      UH -> DB : ActualizarDatos(usuarioId,\nsnapshot.Nombre, snapshot.Apellido,\nsnapshot.Telefono, snapshot.Email)
+      note right of DB
+        RN-05: los campos personales
+        (Nombre, Apellido, Teléfono,
+        Email) también se restauran
+        desde el snapshot histórico.
+      end note
 
       UH -> UH : RegistrarCambio(usuarioId,\n"ROLLBACK", admin, historialId)
       UH -> DB : insertar snapshot en USUARIO_HISTORIAL\n(VersionOrigen = historialId)
@@ -115,6 +123,31 @@ else el administrador confirma
 
       UH -> IB : RecalcularIntegridadUsuarios()
       IB -> DB : actualizar DVH / DVV
+
+      opt el rollback afecta al usuario de la sesión activa
+        UH -> SM : getUsuario()
+        SM --> UH : usuarioSesion
+
+        alt usuarioSesion != null\nAND usuarioSesion.Id == snapshot.UsuarioId
+          UH -> DB : ObtenerPorId(usuarioId)
+          DB --> UH : usuarioActualizado
+          UH -> SM : setUsuario(usuarioActualizado)
+
+          UH -> DB : ListarPermisosDeUsuario(usuarioId)
+          DB --> UH : permisos actualizados
+          UH -> SM : setPermisos(permisosActualizados)
+
+          note right of SM
+            RN-06: si el rollback afecta al
+            propio administrador logueado,
+            su SessionManager se refresca
+            en caliente (usuario y permisos)
+            para que no haga falta
+            desloguearse y volver a entrar.
+          end note
+        end
+      end
+
       deactivate UH
 
       FH --> A : "Estado restaurado correctamente."

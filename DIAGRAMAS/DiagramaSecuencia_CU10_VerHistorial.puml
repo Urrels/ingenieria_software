@@ -54,7 +54,8 @@ FH -> FH : dgvHistorial.DataSource = lista
 FH -> FH : ocultar columnas técnicas\n(Id, UsuarioId, UsuarioLogin)
 FH -> FH : ActualizarEncabezados()
 note right of FH
-  Fecha, Tipo, Rol, Bloqueado,
+  Fecha, Tipo, Rol, Nombre, Apellido,
+  Teléfono, Email, Bloqueado,
   Intentos fallidos, Perfiles,
   Realizado por, Versión origen
 end note
