@@ -38,11 +38,6 @@ namespace BLL
             return resultado;
         }
 
-        public System.Collections.Generic.List<BE.USUARIO> ListarTodos()
-        {
-            return _dal.ListarTodos();
-        }
-
         public BE.PaginaResultado<BE.USUARIO> ListarPaginado(string busqueda, int pagina, int tamanio)
         {
             return _dal.ListarPaginado(busqueda, pagina, tamanio);
