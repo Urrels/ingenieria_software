@@ -97,11 +97,11 @@ else cambio aplicado correctamente
   UB -> BB : RegistrarAccion(usuario, "CAMBIO_CONTRASENA")
   BB -> DB : insertar evento en BITACORA
 
-  UB -> UH : RegistrarCambio(usuarioId, "CAMBIO_CLAVE", usuario)
-  UH -> DB : insertar snapshot en USUARIO_HISTORIAL
-
   UB -> IB : RecalcularIntegridadUsuarios()
   IB -> DB : actualizar DVH / DVV
+
+  UB -> UH : RegistrarCambio(usuarioId, "CAMBIO_CLAVE", usuario)
+  UH -> DB : insertar snapshot en USUARIO_HISTORIAL
 
   UB --> FC : true
   FC --> U : "Contraseña cambiada exitosamente."

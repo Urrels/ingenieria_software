@@ -16,7 +16,9 @@ scale 0.8
 actor       ":Administrador"              as A
 participant ":LogIn"                      as L  #FEFECE
 participant ":frmRestaurar\nIntegridad"   as FR #FEFECE
+participant ":Program"                    as P  #FEFECE
 participant ":IntegridadBLL"              as IB #E8F4E8
+participant ":UsuarioBLL"                 as UB #E8F4E8
 participant ":frmHistorial\nUsuario"      as FH #FEFECE
 participant ":UsuarioHistorialBLL"        as UH #E8F4E8
 participant ":SessionManager"             as SM #F4E8E8
@@ -37,8 +39,8 @@ L -> FR : new frmRestaurarIntegridad(resultado)\n.ShowDialog()
 activate FR
 
 FR --> A : mostrar detalle de errores
-FR -> FR : GuardarLogIntegridad(errores)
-note right of FR
+FR -> P : GuardarLogIntegridad(errores)
+note right of P
   escribe a
   integridad_error.log
 end note
@@ -58,6 +60,9 @@ alt admin elige "Recalcular y continuar"
 else 4a. admin elige "Restaurar desde historial"
   A -> FR : click Restaurar
   loop por cada id en IdsUsuariosAfectados
+    FR -> UB : ObtenerPorId(id)
+    UB --> FR : usuario
+
     FR -> UH : ObtenerHistorial(id)
     UH --> FR : List<UsuarioHistorial>
 
@@ -65,6 +70,11 @@ else 4a. admin elige "Restaurar desde historial"
       FR -> FH : new frmHistorialUsuario(usuario)\n.ShowDialog()
       activate FH
       A -> FH : seleccionar versión\n+ click Rollback
+      note right of FH
+        las entradas de tipo BAJA no
+        tienen el botón Rollback habilitado
+        (sel.TipoCambio != "BAJA")
+      end note
 
       alt 2a. entrada seleccionada es de tipo ROLLBACK
         FH --> A : "No se puede restaurar una versión\nque ya es un rollback"\n(Operación no permitida)
@@ -72,9 +82,17 @@ else 4a. admin elige "Restaurar desde historial"
         FH --> A : solicitar confirmación
         A --> FH : confirmar
         FH -> UH : Rollback(historialId, admin)
-        UH -> DB : aplicar estado del snapshot\n+ reasignar perfiles\n+ registrar ROLLBACK
+        UH -> DB : aplicar estado del snapshot\n+ reasignar perfiles\n+ restaurar Nombre/Apellido/\nTelefono/Email\n+ registrar ROLLBACK
         UH -> IB : RecalcularIntegridadUsuarios()
         IB -> DB : actualizar DVH / DVV
+        opt usuario restaurado == admin logueado
+          UH -> SM : setUsuario(usuarioActualizado)\n+ setPermisos(permisosActualizados)
+          note right of SM
+            refresco en caliente: no hace
+            falta desloguearse y volver
+            a entrar
+          end note
+        end
       end
       FH --> FR : (form cerrado)
       deactivate FH
