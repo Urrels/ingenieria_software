@@ -117,37 +117,6 @@ namespace DAL
             }
         }
 
-        public List<BE.USUARIO> ListarTodos()
-        {
-            List<BE.USUARIO> lista = new List<BE.USUARIO>();
-            try
-            {
-                _acceso.Abrir();
-                DataTable tabla = _acceso.Leer("USUARIO_LISTAR_TODOS");
-                foreach (DataRow fila in tabla.Rows)
-                {
-                    lista.Add(new BE.USUARIO
-                    {
-                        Id = Convert.ToInt32(fila["ID"]),
-                        Usuario = fila["USUARIO"].ToString(),
-                        Rol = fila["ROL"].ToString(),
-                        RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
-                        RolNombre = fila["ROL_NOMBRE"] == DBNull.Value ? null : fila["ROL_NOMBRE"].ToString(),
-                        Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"]),
-                        Nombre = fila["NOMBRE"].ToString(),
-                        Apellido = fila["APELLIDO"].ToString(),
-                        Telefono = fila["TELEFONO"] == DBNull.Value ? null : fila["TELEFONO"].ToString(),
-                        Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString()
-                    });
-                }
-            }
-            finally
-            {
-                _acceso.Cerrar();
-            }
-            return lista;
-        }
-
         public BE.PaginaResultado<BE.USUARIO> ListarPaginado(string busqueda, int pagina, int tamanio)
         {
             SqlParameter pBusqueda = new SqlParameter("@busqueda", DbType.String);

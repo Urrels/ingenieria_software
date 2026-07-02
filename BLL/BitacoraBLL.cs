@@ -23,11 +23,6 @@ namespace BLL
             _dal.Registrar(usuario, accion);
         }
 
-        public List<BE.BITACORA> Listar()
-        {
-            return _dal.Listar();
-        }
-
         public BE.PaginaResultado<BE.BITACORA> ListarPaginado(string usuario, string accion,
             DateTime? fechaDesde, DateTime? fechaHasta, int pagina, int tamanio)
         {
