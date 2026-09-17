@@ -34,5 +34,6 @@
         public string Email { get; set; }
         public int DVH { get; set; }
         public int? IdiomaId { get; set; }
+        public int? LimiteHorasSemanales { get; set; }
     }
 }

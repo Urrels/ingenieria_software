@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="BITACORA.cs" />
     <Compile Include="CONTROL_IDIOMA.cs" />
+    <Compile Include="Disponibilidad.cs" />
+    <Compile Include="FranjaHorario.cs" />
     <Compile Include="IDIOMA.cs" />
     <Compile Include="LoginResultado.cs" />
     <Compile Include="NodoPermiso.cs" />

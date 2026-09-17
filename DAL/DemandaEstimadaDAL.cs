@@ -1,0 +1,66 @@
+﻿using BE;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace DAL
+{
+    public class DemandaEstimadaDAL
+    {
+        private readonly Acceso _acceso = new Acceso();
+
+        // OJO: esto depende de la tabla de historial de asistencia de socios,
+        // que se crea recién en el Proceso 3 (Control de Asistencia). Por ahora
+        // devuelve lista vacía para no romper el flujo de DemandaEstimadaBLL —
+        // cuando armemos el Proceso 3 esto se reemplaza por un SP real.
+        public List<int> ObtenerHistorial(int franjaId, int semanas)
+        {
+            return new List<int>();
+        }
+
+        public BE.EvaluacionCobertura ObtenerEvaluacionCobertura(int franjaId, DateTime semana)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@franja_id", franjaId),
+                new SqlParameter("@semana", semana)
+            };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("EVALUACION_COBERTURA_OBTENER", parametros);
+                if (tabla.Rows.Count == 0) return null;
+
+                DataRow fila = tabla.Rows[0];
+                return new BE.EvaluacionCobertura
+                {
+                    Id = Convert.ToInt32(fila["ID"]),
+                    FranjaId = Convert.ToInt32(fila["FRANJA_ID"]),
+                    Semana = Convert.ToDateTime(fila["SEMANA"]),
+                    Resultado = fila["RESULTADO"].ToString()
+                };
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public int Insertar(BE.DemandaEstimada demanda)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@franja_id", demanda.FranjaId),
+                new SqlParameter("@semana", demanda.Semana),
+                _acceso.CrearParametro("@rol_requerido", demanda.RolRequerido),
+                _acceso.CrearParametro("@cantidad_personal_necesario", demanda.CantidadPersonalNecesario),
+                _acceso.CrearParametro("@origen_dato", demanda.OrigenDato)
+            };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("DEMANDA_ESTIMADA_INSERTAR", parametros);
+                return Convert.ToInt32(tabla.Rows[0]["ID"]);
+            }
+            finally { _acceso.Cerrar(); }
+        }
+    }
+}

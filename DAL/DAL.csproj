@@ -42,7 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceso.cs" />
+    <Compile Include="DemandaEstimadaDAL.cs" />
+    <Compile Include="GtillaDAL.cs" />
     <Compile Include="IntegridadDAL.cs" />
+    <Compile Include="NotificacionDAL.cs" />
+    <Compile Include="TurnoDAL.cs" />
     <Compile Include="UsuarioHistorialDAL.cs" />
     <Compile Include="IdiomaDAL.cs" />
     <Compile Include="BitacoraDAL.cs" />
