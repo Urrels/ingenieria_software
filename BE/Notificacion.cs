@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BE
 {
-    internal class Notificacion
+    public class Notificacion
     {
+        public int Id { get; set; }
+        public int GrillaId { get; set; }
+        public int UsuarioId { get; set; }
+        public string Mensaje { get; set; }
+        public DateTime FechaEnvio { get; set; }
+        public string Estado { get; set; }   // "Enviada" | "Fallida" | "Pendiente"
     }
 }

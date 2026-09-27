@@ -31,6 +31,7 @@ namespace DAL
                         Usuario = fila["USUARIO"].ToString(),
                         Rol = fila["ROL"].ToString(),
                         RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
+                        RolNombre = fila["ROL_NOMBRE"] == DBNull.Value ? null : fila["ROL_NOMBRE"].ToString(),
                         IdiomaId = fila["IDIOMA_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["IDIOMA_ID"])
                     };
                 }
@@ -226,12 +227,14 @@ namespace DAL
                     Usuario = fila["USUARIO"].ToString(),
                     Rol = fila["ROL"].ToString(),
                     RolId = fila["ROL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["ROL_ID"]),
+                    RolNombre = fila["ROL_NOMBRE"] == DBNull.Value ? null : fila["ROL_NOMBRE"].ToString(),
                     IntentosFallidos = Convert.ToInt32(fila["INTENTOS_FALLIDOS"]),
                     Bloqueado = Convert.ToBoolean(fila["BLOQUEADO"]),
                     Nombre = fila["NOMBRE"].ToString(),
                     Apellido = fila["APELLIDO"].ToString(),
                     Telefono = fila["TELEFONO"] == DBNull.Value ? null : fila["TELEFONO"].ToString(),
-                    Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString()
+                    Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString(),
+                    LimiteHorasSemanales = fila["LIMITE_HORAS_SEMANALES"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["LIMITE_HORAS_SEMANALES"])
                 };
             }
             finally { _acceso.Cerrar(); }

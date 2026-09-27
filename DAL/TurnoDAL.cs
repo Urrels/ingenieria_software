@@ -33,14 +33,18 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        public void ActualizarAsignacion(int turnoId, int usuarioId, string estado)
+        public void ActualizarAsignacion(int turnoId, int? usuarioId, string estado)
         {
+            SqlParameter pUsuario = usuarioId.HasValue
+                ? _acceso.CrearParametro("@usuario_id", usuarioId.Value)
+                : new SqlParameter("@usuario_id", DBNull.Value);
+
             List<SqlParameter> parametros = new List<SqlParameter>
-            {
-                _acceso.CrearParametro("@turno_id", turnoId),
-                _acceso.CrearParametro("@usuario_id", usuarioId),
-                _acceso.CrearParametro("@estado", estado)
-            };
+    {
+        _acceso.CrearParametro("@turno_id", turnoId),
+        pUsuario,
+        _acceso.CrearParametro("@estado", estado)
+    };
             try
             {
                 _acceso.Abrir();
@@ -49,13 +53,14 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        public List<BE.USUARIO> BuscarCompatibles(string rolRequerido, int franjaId)
+        public List<BE.USUARIO> BuscarCompatibles(string rolRequerido, int franjaId, int grillaId)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
-            {
-                _acceso.CrearParametro("@rol_requerido", rolRequerido),
-                _acceso.CrearParametro("@franja_id", franjaId)
-            };
+    {
+        _acceso.CrearParametro("@rol_requerido", rolRequerido),
+        _acceso.CrearParametro("@franja_id", franjaId),
+        _acceso.CrearParametro("@grilla_id", grillaId)
+    };
             var lista = new List<BE.USUARIO>();
             try
             {
@@ -78,7 +83,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
             return lista;
         }
-
         public decimal HorasAsignadasEnSemana(int usuarioId, int grillaId)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
@@ -91,6 +95,50 @@ namespace DAL
                 _acceso.Abrir();
                 DataTable tabla = _acceso.Leer("TURNO_HORAS_ASIGNADAS_SEMANA", parametros);
                 return tabla.Rows.Count == 0 ? 0 : Convert.ToDecimal(tabla.Rows[0]["HORAS"]);
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public List<BE.Turno> ListarPorGrilla(int grillaId)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@grilla_id", grillaId)
+    };
+            var lista = new List<BE.Turno>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("TURNO_LISTAR_POR_GRILLA", parametros);
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new BE.Turno
+                    {
+                        Id = Convert.ToInt32(fila["ID"]),
+                        GrillaId = Convert.ToInt32(fila["GRILLA_ID"]),
+                        FranjaId = Convert.ToInt32(fila["FRANJA_ID"]),
+                        UsuarioId = fila["USUARIO_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["USUARIO_ID"]),
+                        RolRequerido = fila["ROL_REQUERIDO"].ToString(),
+                        Estado = fila["ESTADO"].ToString()
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
+
+        public int ContarAsignadosPorFranja(int grillaId, int franjaId)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@grilla_id", grillaId),
+        _acceso.CrearParametro("@franja_id", franjaId)
+    };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("TURNO_CONTAR_ASIGNADOS_POR_FRANJA", parametros);
+                return Convert.ToInt32(tabla.Rows[0]["CANTIDAD"]);
             }
             finally { _acceso.Cerrar(); }
         }

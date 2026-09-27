@@ -42,8 +42,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Acceso.cs" />
+    <Compile Include="AlertaRevisionDAL.cs" />
+    <Compile Include="AsistenciaPersonalDAL.cs" />
     <Compile Include="DemandaEstimadaDAL.cs" />
+    <Compile Include="DisponibilidadDAL.cs" />
+    <Compile Include="EquipoDAL.cs" />
+    <Compile Include="FranjaHorariaDAL.cs" />
     <Compile Include="GtillaDAL.cs" />
+    <Compile Include="HistorialAsistenciaSociosDAL.cs" />
+    <Compile Include="InformeMantenimientoDAL.cs" />
     <Compile Include="IntegridadDAL.cs" />
     <Compile Include="NotificacionDAL.cs" />
     <Compile Include="TurnoDAL.cs" />
@@ -54,6 +61,7 @@
     <Compile Include="UsuarioPerfilDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UsuarioDAL.cs" />
+    <Compile Include="VisitaTecnicaDAL.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BE\BE.csproj">

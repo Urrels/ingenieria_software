@@ -47,6 +47,53 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelExportHelper.cs" />
+    <Compile Include="frmAjustarPorAusencia.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAjustarPorAusencia.Designer.cs">
+      <DependentUpon>frmAjustarPorAusencia.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmAsignarEmpleado.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAsignarEmpleado.Designer.cs">
+      <DependentUpon>frmAsignarEmpleado.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmConfirmarCierreMantenimiento.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConfirmarCierreMantenimiento.Designer.cs">
+      <DependentUpon>frmConfirmarCierreMantenimiento.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCoordinarVisita.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCoordinarVisita.Designer.cs">
+      <DependentUpon>frmCoordinarVisita.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmEvaluarAutorizarVisita.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmEvaluarAutorizarVisita.Designer.cs">
+      <DependentUpon>frmEvaluarAutorizarVisita.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmEvaluarCobertura.cs" />
+    <Compile Include="frmEvaluarCobertura.Designer.cs">
+      <DependentUpon>frmEvaluarCobertura.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmFicharAsistencia.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmFicharAsistencia.Designer.cs">
+      <DependentUpon>frmFicharAsistencia.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmGestionFranjas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmGestionFranjas.Designer.cs">
+      <DependentUpon>frmGestionFranjas.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmIdiomas.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -64,6 +111,12 @@
     </Compile>
     <Compile Include="frmHistorialUsuario.Designer.cs">
       <DependentUpon>frmHistorialUsuario.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmMisNotificaciones.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMisNotificaciones.Designer.cs">
+      <DependentUpon>frmMisNotificaciones.cs</DependentUpon>
     </Compile>
     <Compile Include="frmNuevoUsuario.cs">
       <SubType>Form</SubType>
@@ -107,11 +160,45 @@
     <Compile Include="frmPerfiles.Designer.cs">
       <DependentUpon>frmPerfiles.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmRealizarRevision.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRealizarRevision.Designer.cs">
+      <DependentUpon>frmRealizarRevision.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRegistrarAsistenciaSocios.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRegistrarAsistenciaSocios.Designer.cs">
+      <DependentUpon>frmRegistrarAsistenciaSocios.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRegistrarDisponibilidad.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRegistrarDisponibilidad.Designer.cs">
+      <DependentUpon>frmRegistrarDisponibilidad.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRegistrarUsoMaquina.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRegistrarUsoMaquina.Designer.cs">
+      <DependentUpon>frmRegistrarUsoMaquina.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmRestaurarIntegridad.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmRestaurarIntegridad.Designer.cs">
       <DependentUpon>frmRestaurarIntegridad.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmGenerarGrilla.cs" />
+    <Compile Include="frmGenerarGrilla.Designer.cs">
+      <DependentUpon>frmGenerarGrilla.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmSeleccionarReemplazo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSeleccionarReemplazo.Designer.cs">
+      <DependentUpon>frmSeleccionarReemplazo.cs</DependentUpon>
     </Compile>
     <Compile Include="LogIn.cs">
       <SubType>Form</SubType>
@@ -127,11 +214,17 @@
     <EmbeddedResource Include="frmAdminUsuarios.resx">
       <DependentUpon>frmAdminUsuarios.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmAjustarPorAusencia.resx">
+      <DependentUpon>frmAjustarPorAusencia.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmBitacora.resx">
       <DependentUpon>frmBitacora.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmContraseña.resx">
       <DependentUpon>frmContraseña.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmGenerarGrilla.resx">
+      <DependentUpon>frmGenerarGrilla.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmHistorialUsuario.resx">
       <DependentUpon>frmHistorialUsuario.cs</DependentUpon>
@@ -141,6 +234,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMenu.resx">
       <DependentUpon>frmMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMisNotificaciones.resx">
+      <DependentUpon>frmMisNotificaciones.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmNuevoUsuario.resx">
       <DependentUpon>frmNuevoUsuario.cs</DependentUpon>
@@ -178,6 +274,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ClosedXML">
+      <Version>0.105.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.4</Version>
+    </PackageReference>
     <PackageReference Include="ReaLTaiizor">
       <Version>3.8.1.8</Version>
     </PackageReference>

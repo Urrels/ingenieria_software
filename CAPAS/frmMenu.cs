@@ -105,15 +105,10 @@ namespace CAPAS
                 new BLL.UsuarioBLL().ActualizarIdioma(usuario.Id, idioma.Id);
         }
 
-        private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
+        // ===== Usuario =====
+        private void misNotificacionesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new frmAdminUsuarios().ShowDialog();
-            ActualizarVisibilidadMenu();
-        }
-
-        private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new frmContraseña().ShowDialog();
+            new frmMisNotificaciones().ShowDialog();
         }
 
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -126,9 +121,92 @@ namespace CAPAS
             this.Close();
         }
 
+        // ===== Horarios (Proceso 1) =====
+        private void disponibilidadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmRegistrarDisponibilidad().ShowDialog();
+        }
+
+        private void generarGrillaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!SeguridadYServicios.SessionManager.getInstance().TienePermiso("Generar grilla de turnos"))
+            {
+                MsgBox.Show("No tenés permiso para acceder a esta función.", "Atención",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
+            new frmGenerarGrilla().ShowDialog();
+        }
+
+        private void ajustarPorAusenciaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmAjustarPorAusencia().ShowDialog();
+        }
+
+        private void gestionFranjasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmGestionFranjas().ShowDialog();
+        }
+
+        // ===== Mantenimiento (Proceso 2) =====
+        private void registrarUsoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmRegistrarUsoMaquina().ShowDialog();
+        }
+
+        private void evaluarAutorizarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmEvaluarAutorizarVisita().ShowDialog();
+        }
+
+        private void coordinarVisitaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmCoordinarVisita().ShowDialog();
+        }
+
+        private void realizarRevisionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmRealizarRevision().ShowDialog();
+        }
+
+        private void confirmarCierreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmConfirmarCierreMantenimiento().ShowDialog();
+        }
+
+        // ===== Asistencia (Proceso 3) =====
+        private void ficharAsistenciaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmFicharAsistencia().ShowDialog();
+        }
+
+        private void registrarAsistenciaSociosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmRegistrarAsistenciaSocios().ShowDialog();
+        }
+
+        private void evaluarCoberturaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmEvaluarCobertura().ShowDialog();
+        }
+
+        // ===== Configuración =====
+        private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmContraseña().ShowDialog();
+        }
+
+        // ===== Bitácora =====
         private void bitacoraToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmBitacora().ShowDialog();
+        }
+
+        // ===== Administración =====
+        private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmAdminUsuarios().ShowDialog();
+            ActualizarVisibilidadMenu();
         }
 
         private void perfilesToolStripMenuItem_Click(object sender, EventArgs e)

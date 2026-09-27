@@ -16,7 +16,7 @@ namespace DAL
         // cuando armemos el Proceso 3 esto se reemplaza por un SP real.
         public List<int> ObtenerHistorial(int franjaId, int semanas)
         {
-            return new List<int>();
+            return new DAL.HistorialAsistenciaSociosDAL().ObtenerPorFranja(franjaId, semanas);
         }
 
         public BE.EvaluacionCobertura ObtenerEvaluacionCobertura(int franjaId, DateTime semana)
@@ -62,5 +62,23 @@ namespace DAL
             }
             finally { _acceso.Cerrar(); }
         }
+
+        public int InsertarEvaluacionCobertura(BE.EvaluacionCobertura evaluacion)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@franja_id", evaluacion.FranjaId),
+        new SqlParameter("@semana", evaluacion.Semana),
+        _acceso.CrearParametro("@resultado", evaluacion.Resultado)
+    };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("EVALUACION_COBERTURA_INSERTAR", parametros);
+                return Convert.ToInt32(tabla.Rows[0]["ID"]);
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
     }
 }

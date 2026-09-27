@@ -87,5 +87,30 @@ namespace DAL
             finally { _acceso.Cerrar(); }
             return resultado;
         }
+
+
+        public BE.GrillaDeTurnos ObtenerPorSemana(DateTime semana)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                new SqlParameter("@semana", semana)
+            };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("GRILLA_OBTENER_POR_SEMANA", parametros);
+                if (tabla.Rows.Count == 0) return null;
+
+                DataRow fila = tabla.Rows[0];
+                return new BE.GrillaDeTurnos
+                {
+                    Id = Convert.ToInt32(fila["ID"]),
+                    AdministradorId = Convert.ToInt32(fila["ADMINISTRADOR_ID"]),
+                    Semana = Convert.ToDateTime(fila["SEMANA"]),
+                    Estado = fila["ESTADO"].ToString()
+                };
+            }
+            finally { _acceso.Cerrar(); }
+        }
     }
 }
