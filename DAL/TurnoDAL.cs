@@ -142,5 +142,80 @@ namespace DAL
             }
             finally { _acceso.Cerrar(); }
         }
+
+        public List<BE.Turno> ListarPorUsuario(int usuarioId)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@usuario_id", usuarioId)
+    };
+            var lista = new List<BE.Turno>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("TURNO_LISTAR_POR_USUARIO", parametros);
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new BE.Turno
+                    {
+                        Id = Convert.ToInt32(fila["ID"]),
+                        GrillaId = Convert.ToInt32(fila["GRILLA_ID"]),
+                        FranjaId = Convert.ToInt32(fila["FRANJA_ID"]),
+                        UsuarioId = fila["USUARIO_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["USUARIO_ID"]),
+                        RolRequerido = fila["ROL_REQUERIDO"].ToString(),
+                        Estado = fila["ESTADO"].ToString()
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
+
+        public bool TomarCobertura(int turnoId, int usuarioId)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@turno_id", turnoId),
+        _acceso.CrearParametro("@usuario_id", usuarioId)
+    };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("TURNO_TOMAR_COBERTURA", parametros);
+                return Convert.ToInt32(tabla.Rows[0]["FilasActualizadas"]) > 0;
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public List<BE.Turno> ListarPendientesPorRol(string rolRequerido)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@rol_requerido", rolRequerido)
+    };
+            var lista = new List<BE.Turno>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("TURNO_LISTAR_PENDIENTES_POR_ROL", parametros);
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new BE.Turno
+                    {
+                        Id = Convert.ToInt32(fila["ID"]),
+                        GrillaId = Convert.ToInt32(fila["GRILLA_ID"]),
+                        FranjaId = Convert.ToInt32(fila["FRANJA_ID"]),
+                        UsuarioId = fila["USUARIO_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["USUARIO_ID"]),
+                        RolRequerido = fila["ROL_REQUERIDO"].ToString(),
+                        Estado = fila["ESTADO"].ToString()
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
     }
+
+
+
 }

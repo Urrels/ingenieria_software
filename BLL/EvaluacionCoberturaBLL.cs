@@ -65,5 +65,14 @@ namespace BLL
 
             return resultados;
         }
+
+        public Dictionary<string, int> ObtenerResumen()
+        {
+            var crudo = _demandaDAL.ObtenerResumenCobertura();
+            var completo = new Dictionary<string, int> { { "Falta", 0 }, { "Ajustado", 0 }, { "Exceso", 0 } };
+            foreach (var kvp in crudo)
+                completo[kvp.Key] = kvp.Value;
+            return completo;
+        }
     }
 }

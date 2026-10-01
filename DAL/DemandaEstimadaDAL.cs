@@ -80,5 +80,19 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
+        public Dictionary<string, int> ObtenerResumenCobertura()
+        {
+            var resultado = new Dictionary<string, int>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("EVALUACION_COBERTURA_RESUMEN", null);
+                foreach (DataRow fila in tabla.Rows)
+                    resultado[fila["RESULTADO"].ToString()] = Convert.ToInt32(fila["CANTIDAD"]);
+            }
+            finally { _acceso.Cerrar(); }
+            return resultado;
+        }
+
     }
 }

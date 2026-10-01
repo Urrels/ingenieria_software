@@ -19,7 +19,17 @@ namespace BLL
             if (!TieneAlMenosUnaFranja(disponibilidad))
                 return null;   // flujo 5a: el llamador (UI) muestra el aviso
 
-            disponibilidad.Id = _dal.Guardar(disponibilidad);
+            BE.Disponibilidad previa = _dal.ObtenerPorUsuarioYSemana(usuario.Id, semana);
+            if (previa != null)
+            {
+                disponibilidad.Id = previa.Id;
+                _dal.Actualizar(disponibilidad);
+            }
+            else
+            {
+                disponibilidad.Id = _dal.Guardar(disponibilidad);
+            }
+
             return disponibilidad;
         }
 

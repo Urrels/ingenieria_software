@@ -90,5 +90,29 @@ namespace DAL
             }
             finally { _acceso.Cerrar(); }
         }
+
+        public void Actualizar(BE.Disponibilidad disponibilidad)
+        {
+            List<SqlParameter> parametrosBorrado = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@disponibilidad_id", disponibilidad.Id)
+    };
+            try
+            {
+                _acceso.Abrir();
+                _acceso.Escribir("DISPONIBILIDAD_FRANJA_ELIMINAR_POR_DISPONIBILIDAD", parametrosBorrado);
+
+                foreach (var franja in disponibilidad.Franjas)
+                {
+                    List<SqlParameter> parametrosRel = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@disponibilidad_id", disponibilidad.Id),
+                _acceso.CrearParametro("@franja_id", franja.Id)
+            };
+                    _acceso.Escribir("DISPONIBILIDAD_FRANJA_INSERTAR", parametrosRel);
+                }
+            }
+            finally { _acceso.Cerrar(); }
+        }
     }
 }

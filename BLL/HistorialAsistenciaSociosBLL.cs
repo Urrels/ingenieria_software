@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BLL
 {
@@ -11,5 +12,6 @@ namespace BLL
         {
             _dal.Insertar(franja.Id, fecha, cantidadSocios);
         }
+        public List<(DateTime fecha, int cantidad)> ObtenerSerieCompleta(int franjaId) => _dal.ObtenerSerieCompleta(franjaId);
     }
 }

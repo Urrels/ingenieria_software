@@ -67,5 +67,23 @@ namespace DAL
             finally { _acceso.Cerrar(); }
             return lista;
         }
+
+        public List<(DateTime fecha, int cantidad)> ObtenerSerieCompleta(int franjaId)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@franja_id", franjaId)
+    };
+            var lista = new List<(DateTime, int)>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("HISTORIAL_ASISTENCIA_SERIE_POR_FRANJA", parametros);
+                foreach (DataRow fila in tabla.Rows)
+                    lista.Add((Convert.ToDateTime(fila["FECHA"]), Convert.ToInt32(fila["CANTIDAD_SOCIOS"])));
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
     }
 }

@@ -45,7 +45,7 @@
     <Compile Include="AsistenciaPersonalBLL.cs" />
     <Compile Include="BitacoraBLL.cs" />
     <Compile Include="DemandaEstimadaBLL.cs" />
-    <Compile Include="Disponibilidad.cs" />
+    <Compile Include="DisponibilidadBLL.cs" />
     <Compile Include="EquipoBLL.cs" />
     <Compile Include="EvaluacionCoberturaBLL.cs" />
     <Compile Include="FranjaHorariaBLL.cs" />

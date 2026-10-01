@@ -129,6 +129,14 @@ namespace CAPAS
             if (e.RowIndex < 0) return;
             var fila = (TurnoFilaVM)dgvTurnos.Rows[e.RowIndex].DataBoundItem;
 
+            // Caso nuevo: el empleado ya canceló y el sistema ya notificó automáticamente.
+            // Acá el admin solo tiene que elegir, de los que ya fueron notificados, quién cubre.
+            if (fila.Turno.Estado == "PendienteCobertura")
+            {
+                AsignarReemplazoPendiente(fila);
+                return;
+            }
+
             if (!fila.Turno.UsuarioId.HasValue)
             {
                 MsgBox.Show("Este turno no tiene un empleado asignado para reemplazar.", "Atención",
@@ -179,6 +187,44 @@ namespace CAPAS
                 _notificacionBLL.Notificar(empleadoAusente, _grilla.Id, mensajeReemplazado);
 
                 MsgBox.Show("Turno reasignado y ambos empleados notificados.", "Éxito",
+                    MsgBox.Botones.OK, MsgBox.Icono.Exito);
+                CargarFilas();
+            }
+        }
+
+        private void AsignarReemplazoPendiente(TurnoFilaVM fila)
+        {
+            List<BE.USUARIO> compatibles = _turnoBLL.BuscarEmpleadosCompatibles(fila.Turno.RolRequerido, fila.Franja, _grilla.Id);
+
+            if (compatibles.Count == 0)
+            {
+                MsgBox.Show("No hay ningún empleado disponible compatible con el rol y la franja.\n" +
+                            "El turno sigue sin cobertura.", "Sin cobertura",
+                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
+
+            // Esta es la misma lista de empleados que ya recibió la notificación automática
+            // al momento de la cancelación.
+            using (var frmSeleccion = new frmSeleccionarReemplazo(compatibles))
+            {
+                if (frmSeleccion.ShowDialog() != DialogResult.OK) return;
+
+                BE.USUARIO nuevoEmpleado = frmSeleccion.EmpleadoSeleccionado;
+                bool ok = _turnoBLL.ReemplazarPorAusencia(fila.Turno, nuevoEmpleado);
+
+                if (!ok)
+                {
+                    MsgBox.Show($"{nuevoEmpleado.Usuario} superaría su límite de horas semanales. Elegí otro empleado.",
+                        "Límite de horas superado", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                    return;
+                }
+
+                string mensaje = $"Se te asignó el turno del {fila.Franja.Dia} " +
+                    $"{fila.Franja.HoraInicio:hh\\:mm}-{fila.Franja.HoraFin:hh\\:mm} que habías confirmado que podías cubrir.";
+                _notificacionBLL.Notificar(nuevoEmpleado, _grilla.Id, mensaje);
+
+                MsgBox.Show("Turno cubierto y empleado notificado.", "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 CargarFilas();
             }

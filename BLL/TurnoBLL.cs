@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace BLL
 {
@@ -6,6 +7,8 @@ namespace BLL
     {
         private readonly DAL.TurnoDAL _turnoDAL = new DAL.TurnoDAL();
         private readonly DAL.FranjaHorariaDAL _franjaDAL = new DAL.FranjaHorariaDAL();
+        private readonly NotificacionBLL _notificacionBLL = new NotificacionBLL();
+        private readonly UsuarioBLL _usuarioBLL = new UsuarioBLL();
 
         public bool AsignarEmpleado(BE.Turno turno, BE.USUARIO usuario)
         {
@@ -52,5 +55,64 @@ namespace BLL
             turno.UsuarioId = nuevoEmpleado.Id;
             return true;
         }
+
+        // Empleado logueado ve sus propios turnos asignados (frmMisTurnos)
+        public List<BE.Turno> ListarPorUsuario(int usuarioId) => _turnoDAL.ListarPorUsuario(usuarioId);
+
+        // Flujo nuevo: el empleado cancela desde frmMisTurnos.
+        // Marca el turno como PendienteCobertura, busca compatibles y notifica
+        // automáticamente a todos los disponibles + a los admins.
+        public List<BE.USUARIO> CancelarPorEmpleado(BE.Turno turno, BE.USUARIO empleadoQueCancela)
+        {
+            _turnoDAL.ActualizarAsignacion(turno.Id, null, "PendienteCobertura");
+            turno.UsuarioId = null;
+            turno.Estado = "PendienteCobertura";
+
+            var franja = _franjaDAL.ObtenerPorId(turno.FranjaId);
+
+            List<BE.USUARIO> candidatos = _turnoDAL.BuscarCompatibles(turno.RolRequerido, turno.FranjaId, turno.GrillaId)
+                .Where(u => u.Id != empleadoQueCancela.Id)
+                .ToList();
+
+            string mensajeCandidatos = $"Se necesita cobertura para el turno del {franja.Dia} " +
+                $"{franja.HoraInicio:hh\\:mm}-{franja.HoraFin:hh\\:mm}. Avisale al administrador si podés cubrirlo.";
+
+            foreach (var candidato in candidatos)
+                _notificacionBLL.Notificar(candidato, turno.GrillaId, mensajeCandidatos);
+
+            string mensajeAdmin = $"{empleadoQueCancela.Nombre} {empleadoQueCancela.Apellido} canceló su turno del " +
+                $"{franja.Dia} {franja.HoraInicio:hh\\:mm}-{franja.HoraFin:hh\\:mm}. " +
+                $"Se notificó a {candidatos.Count} empleado(s) disponible(s).";
+
+            foreach (var admin in _usuarioBLL.ListarAdmins())
+                _notificacionBLL.Notificar(admin, turno.GrillaId, mensajeAdmin);
+
+            return candidatos;
+        }
+
+        // El empleado toma un turno pendiente de cobertura. Devuelve false si
+        // otro empleado (o el admin) ya lo resolvió primero — la UPDATE atómica
+        // en TURNO_TOMAR_COBERTURA es la que de verdad resuelve la carrera.
+        public bool TomarCobertura(BE.Turno turno, BE.USUARIO empleado)
+        {
+            if (SuperaLimiteHoras(empleado, turno))
+                return false;
+
+            bool gano = _turnoDAL.TomarCobertura(turno.Id, empleado.Id);
+            if (!gano) return false;
+
+            turno.UsuarioId = empleado.Id;
+            turno.Estado = "Asignado";
+
+            var franja = _franjaDAL.ObtenerPorId(turno.FranjaId);
+            string mensajeAdmin = $"{empleado.Nombre} {empleado.Apellido} tomó el turno del {franja.Dia} " +
+                $"{franja.HoraInicio:hh\\:mm}-{franja.HoraFin:hh\\:mm} que estaba pendiente de cobertura.";
+            foreach (var admin in _usuarioBLL.ListarAdmins())
+                _notificacionBLL.Notificar(admin, turno.GrillaId, mensajeAdmin);
+
+            return true;
+        }
+
+        public List<BE.Turno> ListarPendientesPorRol(string rolRequerido) => _turnoDAL.ListarPendientesPorRol(rolRequerido);
     }
 }

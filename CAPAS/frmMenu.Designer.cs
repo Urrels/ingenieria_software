@@ -18,12 +18,16 @@ namespace CAPAS
             this.misNotificacionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cerrarSesionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.horariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.misTurnosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cubrirTurnoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disponibilidadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generarGrillaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ajustarPorAusenciaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gestionFranjasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mantenimientoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registrarUsoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.simulacionSensoresToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mantenimientoPredictivoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluarAutorizarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.coordinarVisitaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.realizarRevisionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -32,6 +36,7 @@ namespace CAPAS
             this.ficharAsistenciaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registrarAsistenciaSociosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluarCoberturaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configuraciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cambiarContraseñaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +61,7 @@ namespace CAPAS
             this.horariosToolStripMenuItem,
             this.mantenimientoToolStripMenuItem,
             this.asistenciaToolStripMenuItem,
+            this.panelToolStripMenuItem,
             this.configuraciónToolStripMenuItem,
             this.bitacoraToolStripMenuItem,
             this.administracionToolStripMenuItem});
@@ -91,6 +97,8 @@ namespace CAPAS
             // horariosToolStripMenuItem
             //
             this.horariosToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.misTurnosToolStripMenuItem,
+            this.cubrirTurnoToolStripMenuItem,
             this.disponibilidadToolStripMenuItem,
             this.generarGrillaToolStripMenuItem,
             this.ajustarPorAusenciaToolStripMenuItem,
@@ -98,6 +106,20 @@ namespace CAPAS
             this.horariosToolStripMenuItem.Name = "horariosToolStripMenuItem";
             this.horariosToolStripMenuItem.Size = new System.Drawing.Size(88, 29);
             this.horariosToolStripMenuItem.Text = "Horarios";
+            //
+            // misTurnosToolStripMenuItem
+            //
+            this.misTurnosToolStripMenuItem.Name = "misTurnosToolStripMenuItem";
+            this.misTurnosToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.misTurnosToolStripMenuItem.Text = "Mis turnos";
+            this.misTurnosToolStripMenuItem.Click += new System.EventHandler(this.misTurnosToolStripMenuItem_Click);
+            //
+            // cubrirTurnoToolStripMenuItem
+            //
+            this.cubrirTurnoToolStripMenuItem.Name = "cubrirTurnoToolStripMenuItem";
+            this.cubrirTurnoToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.cubrirTurnoToolStripMenuItem.Text = "Cubrir turno";
+            this.cubrirTurnoToolStripMenuItem.Click += new System.EventHandler(this.cubrirTurnoToolStripMenuItem_Click);
             //
             // disponibilidadToolStripMenuItem
             //
@@ -131,6 +153,8 @@ namespace CAPAS
             //
             this.mantenimientoToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.registrarUsoToolStripMenuItem,
+            this.simulacionSensoresToolStripMenuItem,
+            this.mantenimientoPredictivoToolStripMenuItem,
             this.evaluarAutorizarToolStripMenuItem,
             this.coordinarVisitaToolStripMenuItem,
             this.realizarRevisionToolStripMenuItem,
@@ -145,6 +169,20 @@ namespace CAPAS
             this.registrarUsoToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
             this.registrarUsoToolStripMenuItem.Text = "Registrar uso de máquina";
             this.registrarUsoToolStripMenuItem.Click += new System.EventHandler(this.registrarUsoToolStripMenuItem_Click);
+            //
+            // simulacionSensoresToolStripMenuItem
+            //
+            this.simulacionSensoresToolStripMenuItem.Name = "simulacionSensoresToolStripMenuItem";
+            this.simulacionSensoresToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.simulacionSensoresToolStripMenuItem.Text = "Simular sensores IoT";
+            this.simulacionSensoresToolStripMenuItem.Click += new System.EventHandler(this.simulacionSensoresToolStripMenuItem_Click);
+            //
+            // mantenimientoPredictivoToolStripMenuItem
+            //
+            this.mantenimientoPredictivoToolStripMenuItem.Name = "mantenimientoPredictivoToolStripMenuItem";
+            this.mantenimientoPredictivoToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.mantenimientoPredictivoToolStripMenuItem.Text = "Mantenimiento predictivo";
+            this.mantenimientoPredictivoToolStripMenuItem.Click += new System.EventHandler(this.mantenimientoPredictivoToolStripMenuItem_Click);
             //
             // evaluarAutorizarToolStripMenuItem
             //
@@ -204,6 +242,13 @@ namespace CAPAS
             this.evaluarCoberturaToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
             this.evaluarCoberturaToolStripMenuItem.Text = "Evaluar cobertura del servicio";
             this.evaluarCoberturaToolStripMenuItem.Click += new System.EventHandler(this.evaluarCoberturaToolStripMenuItem_Click);
+            //
+            // panelToolStripMenuItem
+            //
+            this.panelToolStripMenuItem.Name = "panelToolStripMenuItem";
+            this.panelToolStripMenuItem.Size = new System.Drawing.Size(80, 29);
+            this.panelToolStripMenuItem.Text = "Panel";
+            this.panelToolStripMenuItem.Click += new System.EventHandler(this.panelToolStripMenuItem_Click);
             //
             // configuraciónToolStripMenuItem
             //
@@ -310,12 +355,16 @@ namespace CAPAS
         private System.Windows.Forms.ToolStripMenuItem misNotificacionesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem horariosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem misTurnosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cubrirTurnoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disponibilidadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generarGrillaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ajustarPorAusenciaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gestionFranjasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mantenimientoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem registrarUsoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem simulacionSensoresToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mantenimientoPredictivoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem evaluarAutorizarToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem coordinarVisitaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem realizarRevisionToolStripMenuItem;
@@ -324,6 +373,7 @@ namespace CAPAS
         private System.Windows.Forms.ToolStripMenuItem ficharAsistenciaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem registrarAsistenciaSociosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem evaluarCoberturaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem panelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configuraciónToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem;

@@ -97,5 +97,52 @@ namespace DAL
             Estado = fila["ESTADO"].ToString(),
             TecnicoHabitualId = fila["TECNICO_HABITUAL_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["TECNICO_HABITUAL_ID"])
         };
+
+        public BE.Equipo ObtenerPorNombre(string nombre)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@nombre", nombre)
+    };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("EQUIPO_OBTENER_POR_NOMBRE", parametros);
+                return tabla.Rows.Count == 0 ? null : Mapear(tabla.Rows[0]);
+            }
+            finally { _acceso.Cerrar(); }
+        }
+        public void RegistrarUsoLog(int equipoId, int incremento)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@equipo_id", equipoId),
+        _acceso.CrearParametro("@incremento", incremento)
+    };
+            try
+            {
+                _acceso.Abrir();
+                _acceso.Escribir("EQUIPO_USO_LOG_INSERTAR", parametros);
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public (int total, DateTime? desde) ObtenerUsoUltimosDias(int equipoId, int dias)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@equipo_id", equipoId),
+        _acceso.CrearParametro("@dias", dias)
+    };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("EQUIPO_USO_LOG_ULTIMOS_DIAS", parametros);
+                int total = Convert.ToInt32(tabla.Rows[0]["TOTAL"]);
+                DateTime? desde = tabla.Rows[0]["DESDE"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(tabla.Rows[0]["DESDE"]);
+                return (total, desde);
+            }
+            finally { _acceso.Cerrar(); }
+        }
     }
 }

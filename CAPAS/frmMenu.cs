@@ -122,6 +122,16 @@ namespace CAPAS
         }
 
         // ===== Horarios (Proceso 1) =====
+        private void misTurnosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmMisTurnos().ShowDialog();
+        }
+
+        private void cubrirTurnoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmCubrirTurno().ShowDialog();
+        }
+
         private void disponibilidadToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmRegistrarDisponibilidad().ShowDialog();
@@ -154,6 +164,16 @@ namespace CAPAS
             new frmRegistrarUsoMaquina().ShowDialog();
         }
 
+        private void simulacionSensoresToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmSimulacionSensores().ShowDialog();
+        }
+
+        private void mantenimientoPredictivoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmMantenimientoPredictivo().ShowDialog();
+        }
+
         private void evaluarAutorizarToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmEvaluarAutorizarVisita().ShowDialog();
@@ -172,6 +192,10 @@ namespace CAPAS
         private void confirmarCierreToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmConfirmarCierreMantenimiento().ShowDialog();
+        }
+        private void panelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmDashboard().ShowDialog();
         }
 
         // ===== Asistencia (Proceso 3) =====

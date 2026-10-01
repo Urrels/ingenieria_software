@@ -7,6 +7,10 @@ namespace BLL
     {
         private readonly DAL.DemandaEstimadaDAL _dal = new DAL.DemandaEstimadaDAL();
 
+        // Pesos decrecientes: la semana más reciente (índice 0, según ObtenerHistorial que
+        // ordena por FECHA DESC) pesa más que las anteriores.
+        private static readonly double[] PesosSemanales = { 0.4, 0.3, 0.2, 0.1 };
+
         public BE.DemandaEstimada CalcularDemanda(DateTime semana, BE.FranjaHoraria franja)
         {
             var historial = _dal.ObtenerHistorial(franja.Id, 4);
@@ -18,17 +22,28 @@ namespace BLL
                     FranjaId = franja.Id,
                     Semana = semana,
                     RolRequerido = franja.RolRequerido,
-                    CantidadPersonalNecesario = 0,   // la UI debe pedírselo al Administrador (flujo 3a de UC1)
+                    CantidadPersonalNecesario = 0,
                     OrigenDato = "Manual"
                 };
                 manual.Id = _dal.Insertar(manual);
                 return manual;
             }
 
+            // Media móvil ponderada
+            double promedioPonderado = 0;
+            for (int i = 0; i < 4; i++)
+                promedioPonderado += historial[i] * PesosSemanales[i];
+
+            // Tendencia: pendiente simple entre la medición más vieja y la más nueva del set de 4.
+            // Positiva = la asistencia viene creciendo semana a semana; se proyecta una semana más.
+            double tendenciaSemanal = (historial[0] - historial[3]) / 3.0;
+            double proyeccion = promedioPonderado + tendenciaSemanal;
+            if (proyeccion < 0) proyeccion = promedioPonderado;   // la tendencia no puede proyectar negativo
+
             var evalAnterior = ConsultarEvaluacionCobertura(semana.AddDays(-7), franja);
 
-            int promedio = (int)historial.Average();
-            int personalNecesario = promedio / 15;   // 1 empleado cada 15 socios — parametrizable a futuro
+            int personalNecesario = (int)Math.Ceiling(proyeccion / 15.0);
+            if (personalNecesario < 1) personalNecesario = 1;
 
             if (evalAnterior != null && evalAnterior.Resultado == "Falta")
                 personalNecesario++;

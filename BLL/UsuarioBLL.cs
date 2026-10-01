@@ -1,6 +1,7 @@
 using BE;
 using DAL;
 using SeguridadYServicios;
+using System.Collections.Generic;
 
 namespace BLL
 {
@@ -86,5 +87,7 @@ namespace BLL
             int? id = _dal.ObtenerIdPorNombre(usuario);
             if (id.HasValue) _historial.RegistrarCambio(id.Value, "DESBLOQUEO", admin);
         }
+
+        public List<BE.USUARIO> ListarAdmins() => _dal.ListarPorRol("admin");
     }
 }

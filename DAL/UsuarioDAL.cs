@@ -333,5 +333,34 @@ namespace DAL
                 _acceso.Cerrar();
             }
         }
+
+
+        public List<BE.USUARIO> ListarPorRol(string rol)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+    {
+        _acceso.CrearParametro("@rol", rol)
+    };
+            var lista = new List<BE.USUARIO>();
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("USUARIO_LISTAR_POR_ROL", parametros);
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    lista.Add(new BE.USUARIO
+                    {
+                        Id = Convert.ToInt32(fila["ID"]),
+                        Usuario = fila["USUARIO"].ToString(),
+                        Nombre = fila["NOMBRE"].ToString(),
+                        Apellido = fila["APELLIDO"].ToString(),
+                        Email = fila["EMAIL"] == DBNull.Value ? null : fila["EMAIL"].ToString(),
+                        Telefono = fila["TELEFONO"] == DBNull.Value ? null : fila["TELEFONO"].ToString()
+                    });
+                }
+            }
+            finally { _acceso.Cerrar(); }
+            return lista;
+        }
     }
 }
