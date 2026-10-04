@@ -89,7 +89,7 @@ namespace CAPAS
             try
             {
                 string carpeta = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAPAS");
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GestionGimnasio");
                 Directory.CreateDirectory(carpeta);
                 string ruta = Path.Combine(carpeta, "integridad_error.log");
                 using (StreamWriter sw = new StreamWriter(ruta, append: true))

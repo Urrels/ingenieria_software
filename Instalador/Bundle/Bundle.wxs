@@ -1,20 +1,21 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
-  <Bundle Name="CAPAS - Gestión de gimnasio"
+  <Bundle Name="Gestión de gimnasio"
           Manufacturer="TP Ingeniería de Software"
-          Version="1.0.0"
+          Version="1.0.1"
           UpgradeCode="07C59D9F-3B4F-40BA-931A-303F319BD1B9">
 
     <BootstrapperApplication>
       <bal:WixStandardBootstrapperApplication Theme="rtfLicense"
+                                              ThemeFile="Tema.xml"
                                               LicenseFile="..\Licencia.rtf"
                                               LocalizationFile="Tema.es-ES.wxl"
                                               ShowVersion="yes"
                                               LaunchTarget="[InstallFolder]\ConfiguradorBD.exe" />
     </BootstrapperApplication>
 
-    <Variable Name="InstallFolder" Type="formatted" Value="[ProgramFiles6432Folder]CAPAS" bal:Overridable="yes" />
+    <Variable Name="InstallFolder" Type="formatted" Value="[ProgramFiles6432Folder]Gestión de gimnasio" bal:Overridable="yes" />
 
     <util:RegistrySearch Id="BuscarInstanciasSql"
                          Variable="HaySqlServer"
@@ -42,7 +43,7 @@
       </MsiPackage>
       <?endif?>
 
-      <MsiPackage Id="CAPAS" SourceFile="$(var.Instalador.TargetPath)">
+      <MsiPackage Id="Aplicacion" SourceFile="$(var.Instalador.TargetPath)">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
       </MsiPackage>
     </Chain>

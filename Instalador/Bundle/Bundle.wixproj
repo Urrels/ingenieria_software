@@ -1,7 +1,7 @@
 <Project Sdk="WixToolset.Sdk/6.0.2">
   <PropertyGroup>
     <OutputType>Bundle</OutputType>
-    <OutputName>CAPAS-Setup</OutputName>
+    <OutputName>GestionGimnasio-Setup</OutputName>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
   <PropertyGroup Condition="Exists('..\Prerequisitos\SqlLocalDB.msi')">
