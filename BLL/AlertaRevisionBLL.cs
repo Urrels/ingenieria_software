@@ -29,6 +29,11 @@ namespace BLL
             alerta.Estado = "Descartada";
         }
 
+        public void MarcarResuelta(int alertaId)
+        {
+            _dal.ActualizarEstado(alertaId, "Resuelta");
+        }
+
         public void MantenerActiva(int alertaId)
         {
             _dal.ActualizarEstado(alertaId, "Pendiente");

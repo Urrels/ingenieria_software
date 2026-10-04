@@ -32,7 +32,7 @@ else
     F --> A : "¿X avisó una ausencia?"
     A -> F : Sí
     F -> T : BuscarEmpleadosCompatibles()
-    T -> DB : TURNO_BUSCAR_COMPATIBLES
+    T -> DB : TURNO_BUSCAR_COMPATIBLES\n(rol + disponibilidad)
     F -> F : excluir al ausente
     alt 5a. sin compatibles
       F -> T : MarcarDeficitCobertura()

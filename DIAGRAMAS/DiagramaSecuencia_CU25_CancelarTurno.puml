@@ -37,7 +37,7 @@ else
     E --> F : Sí
     F -> T : CancelarPorEmpleado(turno, empleado)
     T -> DB : TURNO_ACTUALIZAR_ASIGNACION (null, "PendienteCobertura")
-    T -> DB : TURNO_BUSCAR_COMPATIBLES
+    T -> DB : TURNO_BUSCAR_COMPATIBLES\n(rol + disponibilidad)
     T -> T : excluir al empleado que cancela
     loop por cada compatible
       T -> N : Notificar(candidato, "Se necesita cobertura...")

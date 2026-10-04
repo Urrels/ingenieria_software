@@ -6,7 +6,7 @@ namespace BLL
     {
         private readonly DAL.NotificacionDAL _dal = new DAL.NotificacionDAL();
 
-        public bool Notificar(BE.USUARIO usuario, int grillaId, string mensaje)
+        public bool Notificar(BE.USUARIO usuario, int? grillaId, string mensaje)
         {
             bool medioValido = !string.IsNullOrEmpty(usuario.Email) || !string.IsNullOrEmpty(usuario.Telefono);
 
@@ -20,6 +20,15 @@ namespace BLL
             notificacion.Id = _dal.Guardar(notificacion);
 
             return medioValido;
+        }
+
+        public void NotificarAdministradores(string mensaje, bool unaVezPorDia = false)
+        {
+            foreach (BE.USUARIO admin in new UsuarioBLL().ListarAdmins())
+            {
+                if (unaVezPorDia && _dal.ExisteHoy(admin.Id, mensaje)) continue;
+                Notificar(admin, null, mensaje);
+            }
         }
 
         public List<BE.Notificacion> ListarPorUsuario(BE.USUARIO usuario) => _dal.ListarPorUsuario(usuario.Id);

@@ -25,6 +25,7 @@ loop 7–10. por cada turno
   F -> AE : ShowDialog()
   AE -> T : BuscarEmpleados\nCompatibles()
   T -> DB : TURNO_BUSCAR_COMPATIBLES
+  note right of DB : rol requerido + disponibilidad\ndeclarada para la franja en\nesa semana (CU-22)
   alt 7a. "Sin cobertura"
     A -> AE : "Sin cobertura"\n+ confirmar
     AE -> T : MarcarDeficitCobertura()

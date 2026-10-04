@@ -36,7 +36,8 @@ else
   opt 5a. pendiente de repuesto
     IB -> DB : ALERTA_ACTUALIZAR_ESTADO\n("Pendiente")
   end
-  F --> T : "Informe de mantenimiento\nregistrado."
+  IB -> DB : NOTIFICACION_INSERTAR\n(a cada administrador)\n(NotificacionBLL)
+  F --> T : "Informe registrado.\nSe notificó al Administrador."
 end
 
 @enduml

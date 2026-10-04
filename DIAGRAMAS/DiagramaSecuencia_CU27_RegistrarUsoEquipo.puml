@@ -42,12 +42,14 @@ EB -> DB : EQUIPO_ACTUALIZAR_USO
 DB --> EB : uso acumulado, nivel crítico
 EB -> DB : EQUIPO_USO_LOG_INSERTAR
 alt 4a. sin nivel crítico configurado
+  EB -> DB : NOTIFICACION_EXISTE_HOY\n+ NOTIFICACION_INSERTAR a cada admin\n(NotificacionBLL, una vez por día)
   EB --> F : false
   F --> E : "El equipo no tiene un nivel de uso crítico configurado..."
 else con nivel crítico
   opt uso acumulado >= nivel crítico
     EB -> AB : GenerarAlerta(equipoId)
-    AB -> DB : ALERTA_INSERTAR (estado "Pendiente")
+    AB -> DB : ALERTA_INSERTAR
+    note right of DB : si el equipo ya tiene una alerta\nabierta devuelve esa; si no,\ncrea una "Pendiente"
   end
   EB --> F : true
   F --> E : "Registro de uso guardado correctamente."

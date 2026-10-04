@@ -14,7 +14,7 @@ namespace DAL
         {
             List<SqlParameter> parametros = new List<SqlParameter>
             {
-                _acceso.CrearParametro("@grilla_id", notificacion.GrillaId),
+                new SqlParameter("@grilla_id", SqlDbType.Int) { Value = (object)notificacion.GrillaId ?? DBNull.Value },
                 _acceso.CrearParametro("@usuario_id", notificacion.UsuarioId),
                 _acceso.CrearParametro("@mensaje", notificacion.Mensaje),
                 _acceso.CrearParametro("@estado", notificacion.Estado)
@@ -24,6 +24,22 @@ namespace DAL
                 _acceso.Abrir();
                 DataTable tabla = _acceso.Leer("NOTIFICACION_INSERTAR", parametros);
                 return Convert.ToInt32(tabla.Rows[0]["ID"]);
+            }
+            finally { _acceso.Cerrar(); }
+        }
+
+        public bool ExisteHoy(int usuarioId, string mensaje)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@usuario_id", usuarioId),
+                _acceso.CrearParametro("@mensaje", mensaje)
+            };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("NOTIFICACION_EXISTE_HOY", parametros);
+                return Convert.ToInt32(tabla.Rows[0]["CANTIDAD"]) > 0;
             }
             finally { _acceso.Cerrar(); }
         }
@@ -44,7 +60,7 @@ namespace DAL
                     lista.Add(new BE.Notificacion
                     {
                         Id = Convert.ToInt32(fila["ID"]),
-                        GrillaId = Convert.ToInt32(fila["GRILLA_ID"]),
+                        GrillaId = fila["GRILLA_ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(fila["GRILLA_ID"]),
                         UsuarioId = Convert.ToInt32(fila["USUARIO_ID"]),
                         Mensaje = fila["MENSAJE"].ToString(),
                         FechaEnvio = Convert.ToDateTime(fila["FECHA_ENVIO"]),
