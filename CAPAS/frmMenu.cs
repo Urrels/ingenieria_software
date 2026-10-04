@@ -36,17 +36,42 @@ namespace CAPAS
         public void ActualizarVisibilidadMenu()
         {
             var sm = SeguridadYServicios.SessionManager.getInstance();
-            bool puedeAdminUsuarios = sm.TienePermiso("Administrar usuarios");
-            bool puedeGestionRoles = sm.TienePermiso("Gestión de roles");
-            bool puedeGestionIdiomas = sm.TienePermiso("Gestión de idiomas");
+            var permisoPorOpcion = new Dictionary<ToolStripItem, string>
+            {
+                { misTurnosToolStripMenuItem, "Gestionar mis turnos" },
+                { cubrirTurnoToolStripMenuItem, "Gestionar mis turnos" },
+                { disponibilidadToolStripMenuItem, "Gestionar mis turnos" },
+                { generarGrillaToolStripMenuItem, "Generar grilla de turnos" },
+                { ajustarPorAusenciaToolStripMenuItem, "Ajustar grilla de turnos" },
+                { gestionFranjasToolStripMenuItem, "Gestionar franjas horarias" },
+                { registrarUsoToolStripMenuItem, "Registrar uso de equipos" },
+                { simulacionSensoresToolStripMenuItem, "Administrar mantenimiento" },
+                { mantenimientoPredictivoToolStripMenuItem, "Administrar mantenimiento" },
+                { evaluarAutorizarToolStripMenuItem, "Administrar mantenimiento" },
+                { coordinarVisitaToolStripMenuItem, "Administrar mantenimiento" },
+                { confirmarCierreToolStripMenuItem, "Administrar mantenimiento" },
+                { realizarRevisionToolStripMenuItem, "Realizar revisión técnica" },
+                { ficharAsistenciaToolStripMenuItem, "Fichar asistencia" },
+                { registrarAsistenciaSociosToolStripMenuItem, "Registrar asistencia de socios" },
+                { evaluarCoberturaToolStripMenuItem, "Evaluar cobertura" },
+                { panelToolStripMenuItem, "Ver panel de indicadores" },
+                { cambiarContraseñaToolStripMenuItem, "Cambiar contraseña" },
+                { bitacoraToolStripMenuItem, "Ver bitácora" },
+                { usuariosBloqueadosToolStripMenuItem, "Administrar usuarios" },
+                { perfilesToolStripMenuItem, "Gestión de roles" },
+                { idiomasToolStripMenuItem, "Gestión de idiomas" }
+            };
+            foreach (var par in permisoPorOpcion)
+                par.Key.Visible = sm.TienePermiso(par.Value);
 
-            usuariosBloqueadosToolStripMenuItem.Visible = puedeAdminUsuarios;
-            perfilesToolStripMenuItem.Visible = puedeGestionRoles;
-            idiomasToolStripMenuItem.Visible = puedeGestionIdiomas;
-            administracionToolStripMenuItem.Visible = puedeAdminUsuarios
-                                                   || puedeGestionRoles
-                                                   || puedeGestionIdiomas;
-            bitacoraToolStripMenuItem.Visible = sm.TienePermiso("Ver bitácora");
+            foreach (ToolStripMenuItem grupo in new[] { horariosToolStripMenuItem, mantenimientoToolStripMenuItem,
+                         asistenciaToolStripMenuItem, configuraciónToolStripMenuItem, administracionToolStripMenuItem })
+            {
+                bool algunaVisible = false;
+                foreach (ToolStripItem opcion in grupo.DropDownItems)
+                    if (opcion.Available) algunaVisible = true;
+                grupo.Visible = algunaVisible;
+            }
         }
 
         private void frmMenu_FormClosed(object sender, FormClosedEventArgs e)
