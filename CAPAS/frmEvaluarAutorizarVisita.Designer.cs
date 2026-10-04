@@ -98,7 +98,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 529);
             this.Name = "frmEvaluarAutorizarVisita";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmEvaluarAutorizarVisita";
+            this.Text = "Evaluar y autorizar visita";
             this.Load += new System.EventHandler(this.frmEvaluarAutorizarVisita_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlertas)).EndInit();
             this.ResumeLayout(false);

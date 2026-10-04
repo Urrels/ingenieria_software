@@ -35,9 +35,7 @@ namespace CAPAS
                 if (dgvInformes.Columns["VisitaId"] != null) dgvInformes.Columns["VisitaId"].Visible = false;
                 if (dgvInformes.Columns["AlertaId"] != null) dgvInformes.Columns["AlertaId"].Visible = false;
                 if (dgvInformes.Columns["EquipoId"] != null) dgvInformes.Columns["EquipoId"].Visible = false;
-                if (dgvInformes.Columns["Resultado"] != null) dgvInformes.Columns["Resultado"].HeaderText = "Resultado";
-                if (dgvInformes.Columns["PendienteRepuesto"] != null) dgvInformes.Columns["PendienteRepuesto"].HeaderText = "¿Repuesto pendiente?";
-                if (dgvInformes.Columns["FechaEmision"] != null) dgvInformes.Columns["FechaEmision"].HeaderText = "Fecha del informe";
+                ActualizarEncabezados();
             }
         }
 
@@ -48,7 +46,7 @@ namespace CAPAS
 
             var equipo = _equipoBLL.ObtenerPorId(informe.EquipoId);
             lblDetalle.Text = equipo != null
-                ? $"Equipo: {equipo.Nombre}  |  Estado actual: {equipo.Estado}  |  Uso acumulado: {equipo.UsoAcumulado}"
+                ? Textos.T("lbl_DetalleEquipo", "Equipo: {0}  |  Estado actual: {1}  |  Uso acumulado: {2}", equipo.Nombre, equipo.Estado, equipo.UsoAcumulado)
                 : "";
         }
 
@@ -81,6 +79,18 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvInformes, "Resultado", "hdr_Resultado", "Resultado");
+            Encabezado(dgvInformes, "PendienteRepuesto", "hdr_RepuestoPendiente", "¿Repuesto pendiente?");
+            Encabezado(dgvInformes, "FechaEmision", "hdr_FechaDelInforme", "Fecha del informe");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

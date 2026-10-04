@@ -19,10 +19,15 @@ namespace CAPAS
             _usuario = usuario;
         }
 
+        protected override void AjustarClaves()
+        {
+            ExcluirDeTraduccion(lblUsuario);
+        }
+
         private void frmAsignarPerfiles_Load(object sender, EventArgs e)
         {
-            lblUsuario.Text = "Usuario: " + _usuario.Usuario;
             InicializarFormulario();
+            lblUsuario.Text = Textos.T("lbl_UsuarioNombre", "Usuario: {0}", _usuario.Usuario);
             _arbol = _perfilBll.ObtenerArbol();
             CargarArbolRoles();
             MarcarRolesAsignados();

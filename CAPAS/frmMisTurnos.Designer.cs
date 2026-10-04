@@ -74,7 +74,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 539);
             this.Name = "frmMisTurnos";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmMisTurnos";
+            this.Text = "Mis turnos";
             this.Load += new System.EventHandler(this.frmMisTurnos_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);

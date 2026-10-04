@@ -85,7 +85,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 529);
             this.Name = "frmConfirmarCierreMantenimiento";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmConfirmarCierreMantenimiento";
+            this.Text = "Cierre de mantenimiento";
             this.Load += new System.EventHandler(this.frmConfirmarCierreMantenimiento_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvInformes)).EndInit();
             this.ResumeLayout(false);

@@ -1,11 +1,9 @@
 using System;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmRestaurarIntegridad : MaterialForm
+    public partial class frmRestaurarIntegridad : FormBase
     {
         private readonly BLL.ResultadoIntegridad _resultado;
         private readonly BLL.UsuarioBLL _usuarioBll = new BLL.UsuarioBLL();
@@ -22,8 +20,7 @@ namespace CAPAS
             txtErrores.Text = string.Join(Environment.NewLine, _resultado.Errores);
             Program.GuardarLogIntegridad(_resultado.Errores);
             btnRestaurar.Enabled = _resultado.IdsUsuariosAfectados.Count > 0;
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void btnRecalcular_Click(object sender, EventArgs e)

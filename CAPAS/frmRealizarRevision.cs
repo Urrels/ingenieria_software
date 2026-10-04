@@ -37,9 +37,7 @@ namespace CAPAS
             if (dgvVisitas.Columns.Count > 0)
             {
                 if (dgvVisitas.Columns["TecnicoId"] != null) dgvVisitas.Columns["TecnicoId"].Visible = false;
-                if (dgvVisitas.Columns["AlertaId"] != null) dgvVisitas.Columns["AlertaId"].HeaderText = "Alerta";
-                if (dgvVisitas.Columns["FechaCoordinada"] != null) dgvVisitas.Columns["FechaCoordinada"].HeaderText = "Fecha coordinada";
-                if (dgvVisitas.Columns["Estado"] != null) dgvVisitas.Columns["Estado"].HeaderText = "Estado";
+                ActualizarEncabezados();
             }
 
             txtResultado.Clear();
@@ -49,14 +47,14 @@ namespace CAPAS
         private void dgvVisitas_SelectionChanged(object sender, EventArgs e)
         {
             var visita = dgvVisitas.CurrentRow?.DataBoundItem as BE.VisitaTecnica;
-            if (visita == null) { lblEquipo.Text = "Equipo: —"; return; }
+            if (visita == null) { lblEquipo.Text = Textos.T("lbl_EquipoSinSeleccion", "Equipo: —"); return; }
 
             BE.AlertaRevision alerta = _alertaBLL.ObtenerPorId(visita.AlertaId);
             BE.Equipo equipo = alerta != null ? _equipoBLL.ObtenerPorId(alerta.EquipoId) : null;
 
             lblEquipo.Text = equipo != null
-                ? $"Equipo: {equipo.Nombre}  (uso acumulado: {equipo.UsoAcumulado})"
-                : "Equipo: (no se pudo obtener el detalle)";
+                ? Textos.T("lbl_EquipoConUso", "Equipo: {0}  (uso acumulado: {1})", equipo.Nombre, equipo.UsoAcumulado)
+                : Textos.T("lbl_EquipoSinDetalle", "Equipo: (no se pudo obtener el detalle)");
         }
         private void btnRegistrarInforme_Click(object sender, EventArgs e)
         {
@@ -83,6 +81,18 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvVisitas, "AlertaId", "hdr_Alerta", "Alerta");
+            Encabezado(dgvVisitas, "FechaCoordinada", "hdr_FechaCoordinada", "Fecha coordinada");
+            Encabezado(dgvVisitas, "Estado", "hdr_Estado", "Estado");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

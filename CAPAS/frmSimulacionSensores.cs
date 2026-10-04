@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,7 +8,7 @@ using System.Windows.Forms;
 
 namespace CAPAS
 {
-    public partial class frmSimulacionSensores : MaterialForm
+    public partial class frmSimulacionSensores : FormBase
     {
         private readonly ApiSensoresEquipos _api = new ApiSensoresEquipos();
         private readonly HttpClient _http = new HttpClient();
@@ -28,8 +26,7 @@ namespace CAPAS
 
         private void frmSimulacionSensores_Load(object sender, EventArgs e)
         {
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void MostrarEvento(string mensaje)

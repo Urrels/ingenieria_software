@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmAsignarEmpleado : MaterialForm
+    public partial class frmAsignarEmpleado : FormBase
     {
         private readonly BE.Turno _turno;
         private readonly BE.FranjaHoraria _franja;
@@ -29,7 +27,7 @@ namespace CAPAS
             List<BE.USUARIO> compatibles = _turnoBLL.BuscarEmpleadosCompatibles(_turno.RolRequerido, _franja, _turno.GrillaId);
             if (compatibles.Count == 0)
             {
-                lblAviso.Text = "No hay empleados disponibles para esta franja.";
+                lblAviso.Text = Textos.T("lbl_SinEmpleadosParaFranja", "No hay empleados disponibles para esta franja.");
                 lstEmpleados.Enabled = false;
                 btnAsignar.Enabled = false;
             }
@@ -40,8 +38,7 @@ namespace CAPAS
                 lstEmpleados.ValueMember = "Id";
             }
 
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void btnAsignar_Click(object sender, EventArgs e)

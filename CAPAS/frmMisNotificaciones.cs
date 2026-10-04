@@ -41,10 +41,8 @@ namespace CAPAS
                 dgvNotificaciones.Columns["Id"].Visible = false;
                 dgvNotificaciones.Columns["GrillaId"].Visible = false;
                 dgvNotificaciones.Columns["UsuarioId"].Visible = false;
-                dgvNotificaciones.Columns["Mensaje"].HeaderText = "Mensaje";
                 dgvNotificaciones.Columns["Mensaje"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dgvNotificaciones.Columns["FechaEnvio"].HeaderText = "Fecha";
-                dgvNotificaciones.Columns["Estado"].HeaderText = "Estado";
+                ActualizarEncabezados();
             }
 
             if (filaSeleccionada >= 0 && filaSeleccionada < dgvNotificaciones.Rows.Count
@@ -67,6 +65,18 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvNotificaciones, "Mensaje", "hdr_Mensaje", "Mensaje");
+            Encabezado(dgvNotificaciones, "FechaEnvio", "hdr_Fecha", "Fecha");
+            Encabezado(dgvNotificaciones, "Estado", "hdr_Estado", "Estado");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

@@ -37,12 +37,7 @@ namespace CAPAS
 
         protected override void AjustarClaves()
         {
-            _controles.Remove("lblTitulo");
-            _defaults.Remove("lblTitulo");
-            _controles.Remove("lblPagina");
-            _defaults.Remove("lblPagina");
-            _controles["lblTitulo_Bitacora"] = lblTitulo;
-            _defaults["lblTitulo_Bitacora"] = lblTitulo.Text;
+            ExcluirDeTraduccion(lblPagina);
         }
 
         private void ReposicionarLayout()
@@ -136,7 +131,7 @@ namespace CAPAS
 
         private void ActualizarControlesPaginacion()
         {
-            lblPagina.Text = string.Format("Página {0} de {1}", _paginaActual, _totalPaginas);
+            lblPagina.Text = Textos.T("lbl_PaginaDe", "Página {0} de {1}", _paginaActual, _totalPaginas);
             btnPaginaAnterior.Enabled = _paginaActual > 1;
             btnPaginaSiguiente.Enabled = _paginaActual < _totalPaginas;
         }

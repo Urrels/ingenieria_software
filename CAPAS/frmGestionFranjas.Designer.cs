@@ -186,7 +186,7 @@
             this.MinimumSize = new System.Drawing.Size(576, 559);
             this.Name = "frmGestionFranjas";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmGestionFranjas";
+            this.Text = "Franjas horarias";
             this.Load += new System.EventHandler(this.frmGestionFranjas_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvFranjas)).EndInit();
             this.ResumeLayout(false);

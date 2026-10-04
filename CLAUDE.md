@@ -16,15 +16,18 @@ The entry point is `CAPAS` (outputs `CAPAS.exe`). There are no automated tests; 
 
 ## Database setup
 
-Run the full script against the local SQL Server instance (Windows Auth, database `BDCAPAS`):
+Two scripts live in `DAL/` (both UTF-8 with BOM, so `sqlcmd` reads accents correctly):
 
 ```powershell
-sqlcmd -S . -d BDCAPAS -E -i "DAL\script.sql"
+# 1. Full schema (tables, FKs, all stored procedures) + idempotent seed data
+sqlcmd -S . -E -i "DAL\script.sql"
+# 2. Every UI text of the system and its Spanish/English/Portuguese translations
+sqlcmd -S . -d BDCAPAS -E -i "DAL\traducciones.sql"
 ```
 
-Then run, in order, `DAL\nuevoScript.sql` (ROL/PERMISO migration) and `DAL\mejoras_idiomas_perfiles.sql` (transactional `IDIOMA_ELIMINAR`, `USUARIO_PERFIL_LISTAR_ACTIVOS`, and English/Portuguese translations for message keys — insert-only, never overwrites translations edited from `frmIdiomas`; idempotent; saved as UTF-8 with BOM so `sqlcmd` reads accents correctly).
+`script.sql` is the SSMS export of the real `BDCAPAS` database (it starts with `CREATE DATABASE`, so it is meant for a fresh install), with `USUARIO_PERMISOS_LISTAR` in its non-inheriting version and a final idempotent seed block: languages (`Español` default, `Inglés`, `Portugues`), the `PERMISO` catalog, roles (`Administrador` protected with every permission; `Usuario`, `Sala`, `Recepcion`, `Tecnico` with *Cambiar contraseña*) and the `admin` user (password `1234`) assigned to `Administrador`. When the schema changes, update `script.sql` (re-export from SSMS or edit the affected object) instead of adding migration scripts.
 
-`script.sql` is append-only and mostly idempotent: `CONTROL_REGISTRAR` and `TRADUCCION_GUARDAR` are upserts, but early `CREATE TABLE` / `CREATE PROCEDURE` blocks will error if objects already exist (harmless — the rest of the batch still runs). Later blocks use `IF OBJECT_ID ... DROP` before recreating, so they are fully idempotent.
+`traducciones.sql` is the single source of translations and can be re-run at any time. It upserts the 427 keys of the system (`CONTROL_IDIOMA.TEXTO_DEFAULT` = Spanish, plus `TRADUCCION` rows for Español/Inglés/Portugues; it creates Inglés/Portugues if missing) inside a transaction, and **deletes keys that are no longer used** (with their translations). Because it overwrites translations, edits made from `frmIdiomas` must also be copied into the script to survive a re-run.
 
 **Resetting integrity for testing** — if you need to force the app to reinitialize DVH/DVV (e.g., after a direct DB edit):
 ```sql
@@ -87,7 +90,7 @@ skin.ColorScheme = new MaterialColorScheme(
 1. `PerfilDAL.ListarRoles()` fetches all `ROL` rows and builds the rol hierarchy from `PADRE_ID`.
 2. `PerfilDAL.ListarRolPermisos()` fetches all rows from `ROL_PERMISO` joined with `PERMISO`; each returned `Permiso` carries its rol's ID in the `PadreId` field as a carrier value, which `ObtenerArbol()` uses to attach the permiso to the correct rol branch.
 
-**Roles and permissions data model** — Roles and permissions live in two separate tables (migrated off the old single-table `NODO_PERMISO` design, see `DAL/nuevoScript.sql`):
+**Roles and permissions data model** — Roles and permissions live in two separate tables (migrated off the old single-table `NODO_PERMISO` design; the legacy table and its `PERFIL_*` SPs still exist in `script.sql` but nothing uses them):
 - **`ROL`** (`ID, NOMBRE, PADRE_ID, PROTEGIDO`): created and deleted from the UI, `PADRE_ID` used for role hierarchy.
 - **`PERMISO`** (`ID, NOMBRE`): pre-established catalog, never created or deleted from the UI. Currently: *Ver bitácora*, *Administrar usuarios*, *Gestión de roles*, *Gestión de idiomas*, *Cambiar contraseña*.
 
@@ -123,9 +126,9 @@ The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_I
 
 **Facade (`BLL.FachadaIdioma`)** — single entry point for language operations, hiding `IdiomaBLL`, `IdiomaManager`, `SessionManager` and `UsuarioBLL`. `Cambiar(idioma)` applies a language and, if there is a session, saves it as the user's preference; `AplicarPreferencia(usuario)` (used by `LoginBLL`) applies the saved language only if it is still enabled; `RecargarSiEstaActivo(idiomaId)` (used by `frmIdiomas` after saving translations); `ListarDisponibles()`, `IdiomaActivo`, `Traducir(clave)`, `RegistrarClave(clave, textoDefault)`. UI code must not call `IdiomaManager.CambiarIdioma` or `IdiomaBLL.CargarTraducciones` directly.
 
-**Template Method (`CAPAS.FormBase`)** — base class (derives from `MaterialForm`, implements `IObservadorIdioma`) for every form except `frmMenu`. Owns `_controles`/`_defaults`, `GuardarDefaults`, `ActualizarIdioma`, and unregisters from `IdiomaManager` in `OnFormClosed`. `InicializarFormulario()` runs the fixed sequence (GuardarDefaults → `AjustarClaves()` hook → title-bar key → `Registrar` → `ActualizarIdioma()` → `AgregarSelector` → skin → theme). Hooks: `AjustarClaves()` (rename colliding keys) and `ActualizarTextosDinamicos()` (grid headers, tree refresh — called at the end of every `ActualizarIdioma()`).
+**Template Method (`CAPAS.FormBase`)** — base class (derives from `MaterialForm`, implements `IObservadorIdioma`) for every form except `frmMenu`. Owns `_controles`/`_defaults`, `GuardarDefaults`, `ActualizarIdioma`, and unregisters from `IdiomaManager` in `OnFormClosed`. `InicializarFormulario()` runs the fixed sequence (GuardarDefaults → `AjustarClaves()` hook → title-bar key → `Registrar` → `ActualizarIdioma()` → `AgregarSelector` → skin → theme). Translation keys are **scoped by form**: `<FormName>.<ControlName>` for controls, `<FormName>` for the title bar — so two forms can reuse a control name (e.g. `lblTitulo`) without sharing a translation. Hooks: `AjustarClaves()` (call `ExcluirDeTraduccion(control)` for labels whose text is generated at runtime, e.g. `lblPagina`, so a language change does not overwrite them) and `ActualizarTextosDinamicos()` (grid headers, tree refresh — called at the end of every `ActualizarIdioma()`). Helper `Encabezado(grilla, columna, clave, texto)` sets a column header through `Textos.T` if the column exists. All 31 forms except `frmMenu` derive from `FormBase`; `frmMenu` scopes its menu/status-strip keys as `frmMenu.<ItemName>` and its title as `frmMenu_Titulo`.
 
-**Translated messages (`CAPAS.Textos`)** — every `MsgBox.Show` message and `InputBox` prompt goes through `Textos.T("msg_Clave", "texto en español", args...)`: returns the active language's translation or the Spanish default, applying `string.Format` with `args` (falls back to the default if a translation has a broken placeholder). The first time a key is used in a session it is registered in `CONTROL_IDIOMA` (`CONTROL_REGISTRAR`, insert-only), so it appears in `frmIdiomas` ready to translate. `MsgBox` translates titles itself (key `tit_` + CamelCase of the Spanish title, via `Textos.ClaveDesdeTexto`) and its buttons (`btnmsg_Si`, `btnmsg_No`, `btnmsg_Aceptar`). English/Portuguese translations for all current keys are seeded by `DAL/mejoras_idiomas_perfiles.sql`. Messages that come from BLL exceptions (`ex.Message`) or `ValidadorContrasena` are still Spanish-only.
+**Translated messages (`CAPAS.Textos`)** — every `MsgBox.Show` message and `InputBox` prompt goes through `Textos.T("msg_Clave", "texto en español", args...)`: returns the active language's translation or the Spanish default, applying `string.Format` with `args` (falls back to the default if a translation has a broken placeholder). The first time a key is used in a session it is registered in `CONTROL_IDIOMA` (`CONTROL_REGISTRAR`, insert-only), so it appears in `frmIdiomas` ready to translate. `MsgBox` translates titles itself (key `tit_` + CamelCase of the Spanish title, via `Textos.ClaveDesdeTexto`) and its buttons (`btnmsg_Si`, `btnmsg_No`, `btnmsg_Aceptar`). Runtime texts use the same helper with prefixes `lbl_` (dynamic labels), `hdr_` (grid headers), `chart_` (dashboard charts) and `input_` (InputBox). English/Portuguese translations for every key are in `DAL/traducciones.sql`. Messages that come from BLL exceptions (`ex.Message`) or `ValidadorContrasena` are still Spanish-only.
 
 **`IDIOMA.PREDETERMINADO`** — `BIT` column marking the system's default language (`Español`, seeded via `UPDATE IDIOMA SET PREDETERMINADO = 1 WHERE NOMBRE = 'Español'`). A language can be neither **deleted** nor **disabled** in two cases, each with its own message:
 1. It is the default language (`Predeterminado == true`).
@@ -135,18 +138,7 @@ The rules are enforced in three layers: `frmIdiomas` pre-checks before asking fo
 
 **Per-user language preference (`USUARIO.IDIOMA_ID`)** — nullable FK to `IDIOMA(ID)` (`FK_USUARIO_IDIOMA`); `NULL` means "no preference saved yet". Both language selectors (`IdiomaUIHelper.AgregarSelector`'s combo and `frmMenu.cboIdiomaStatus`) call `FachadaIdioma.Cambiar(idioma)`, which persists the choice through `UsuarioBLL.ActualizarIdioma` (SP `USUARIO_ACTUALIZAR_IDIOMA`) only when there is a logged-in user — the pre-login `LogIn` selector does not persist. On successful login, `LoginBLL.AutenticarUsuario` calls `FachadaIdioma.AplicarPreferencia(u)` (`u.IdiomaId` is returned by `USUARIO_LOGIN`; the language is loaded with SP `IDIOMA_OBTENER_POR_ID`) — this happens *before* `frmMenu` is constructed, so the menu loads already translated. `BE.USUARIO.IdiomaId` (`int?`) is hidden from `dgvUsuarios` in `frmAdminUsuarios` (not user-relevant in that grid).
 
-The form title bar is registered automatically by `FormBase` (key = form `Name`). **DataGridView column headers** are not in the `Controls` collection: translate them in an `ActualizarEncabezados()` method, called from the `ActualizarTextosDinamicos()` override and after any `DataSource` assignment. Use keys like `colhdr_Id`, `colhdr_Usuario`, etc.
-
-**Key collision between forms** — if two forms have a control with the same `Name`, override `AjustarClaves()` to remove the generic key and register a form-specific one:
-```csharp
-protected override void AjustarClaves()
-{
-    _controles.Remove("lblTitulo");
-    _defaults.Remove("lblTitulo");
-    _controles["lblTitulo_Bitacora"] = lblTitulo;
-    _defaults["lblTitulo_Bitacora"]  = lblTitulo.Text;
-}
-```
+The form title bar is registered automatically by `FormBase` (key = form `Name`). **DataGridView column headers** are not in the `Controls` collection: set them in an `ActualizarEncabezados()` method using `Encabezado(...)` (keys `hdr_*`; older forms use `colhdr_*` through `Traducir`), call it after any `DataSource` assignment and from the `ActualizarTextosDinamicos()` override.
 
 **Dynamic content (TreeView, generated text)** — controls whose text is built at runtime (e.g., node prefixes `"[Rol] "`, `"[Permiso] "`) are not in `_controles`. Call `IdiomaManager.getInstance().Traducir(key)` directly. Translation keys: `prefijo_Rol`, `prefijo_Permiso`.
 
@@ -167,7 +159,7 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 **Canonical attribute order** — fixed, must never change once data is stored:
 - `USUARIO`: `ID, USUARIO, PASS, INTENTOS_FALLIDOS, BLOQUEADO("1"/"0"), ROL, PERFILES`
 
-**Valid ROL values** — defined by `frmNuevoUsuario`'s ComboBox: `'admin'` and `'usuario'`. The `ROL` string column is a legacy display/classification field, kept for compatibility and included in the DVH canonical attribute array (its position must never change). `USUARIO.ROL_ID` (nullable FK to `ROL(ID)`, added by `DAL/nuevoScript.sql`, backfilled from the legacy string) is the real source of truth: actual permissions are resolved via `USUARIO_PERFIL → ROL_PERMISO → PERMISO`.
+**Valid ROL values** — defined by `frmNuevoUsuario`'s ComboBox: `'admin'` and `'usuario'`. The `ROL` string column is a legacy display/classification field, kept for compatibility and included in the DVH canonical attribute array (its position must never change). `USUARIO.ROL_ID` (nullable FK to `ROL(ID)`, backfilled from the legacy string) is the real source of truth: actual permissions are resolved via `USUARIO_PERFIL → ROL_PERMISO → PERMISO`.
 
 **Startup and login flow** (`Program.cs` + `LogIn.cs`):
 
@@ -236,7 +228,7 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 - `Acceso.Leer()` returns a `DataTable`; `Acceso.Escribir()` returns affected row count.
 - `Acceso` only has `CrearParametro` overloads for `string` and `int`. Pass `bool` values as `habilitado ? 1 : 0`.
 - For **nullable int** parameters, `CrearParametro` cannot be used — construct manually: `new SqlParameter("@version_origen", SqlDbType.Int) { Value = (object)h.VersionOrigen ?? DBNull.Value }`.
-- New tables and SPs are appended to `DAL/script.sql`.
+- New tables and SPs go into `DAL/script.sql` (keep it in sync with the real database); new UI texts go into `DAL/traducciones.sql`.
 - `EXEC` does not accept expression parameters — assign to a variable first.
 - **PERSONA** table exists in the DB but is not used — legacy leftover from the initial scaffold.
 - When a batch in `script.sql` uses `DECLARE @var` variables, a `GO` statement resets scope. Each batch after a `GO` must re-declare any variables it needs.
@@ -246,11 +238,11 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 
 1. Inherit from `CAPAS.FormBase` (which already derives from `MaterialForm` and implements `IObservadorIdioma`).
 2. In the `Load` handler, put form-specific setup that must happen first (data that `ActualizarTextosDinamicos` needs, default values), then call `InicializarFormulario();`, then anything that should run after the theme (e.g., layout adjustments).
-3. Override `ActualizarTextosDinamicos()` if the form has DataGridView headers or other runtime text, and `AjustarClaves()` if a control name collides with another form's.
+3. Override `ActualizarTextosDinamicos()` if the form has DataGridView headers or other runtime text, and `AjustarClaves()` to exclude labels whose text is generated at runtime. Control names may repeat across forms (keys are scoped by form).
 4. Use `Textos.T("msg_...", "texto")` for every `MsgBox.Show` message and `InputBox` prompt.
 5. In `.Designer.cs`: place all content controls at `Location.Y ≥ 70` to clear the ~64 px MaterialForm title bar. Set `ClientSize.Height` to accommodate the shifted layout. Wire only `Load` (unregistering on close is handled by `FormBase`).
 6. Add the `.cs` and `.Designer.cs` entries to `CAPAS/UI.csproj`.
-7. Register the new control keys and form name in `CONTROL_IDIOMA` (`CONTROL_REGISTRAR`) with their translations (`TRADUCCION_GUARDAR`), or translate them from `frmIdiomas` once registered. Message keys from `Textos.T` register themselves.
+7. Add the new keys (`<FormName>` title, `<FormName>.<ControlName>` for each control with text, and any `Textos.T` keys) with their Spanish/English/Portuguese texts to `DAL/traducciones.sql` and re-run it. `Textos.T` keys also register themselves at runtime, so they appear in `frmIdiomas` even before the script is updated.
 
 ## Documentation artifacts
 

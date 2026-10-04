@@ -82,7 +82,7 @@
             this.MinimizeBox = false;
             this.Name = "frmFicharAsistencia";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmFicharAsistencia";
+            this.Text = "Fichar asistencia";
             this.Load += new System.EventHandler(this.frmFicharAsistencia_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

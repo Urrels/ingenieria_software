@@ -138,7 +138,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 599);
             this.Name = "frmSimulacionSensores";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmSimulacionSensores";
+            this.Text = "Simulación de sensores IoT";
             this.Load += new System.EventHandler(this.frmSimulacionSensores_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmSimulacionSensores_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.numIntervalo)).EndInit();

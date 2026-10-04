@@ -36,10 +36,7 @@ namespace CAPAS
 
             if (dgvFranjas.Columns.Count > 0)
             {
-                dgvFranjas.Columns["Dia"].HeaderText = "Día";
-                dgvFranjas.Columns["HoraInicio"].HeaderText = "Hora inicio";
-                dgvFranjas.Columns["HoraFin"].HeaderText = "Hora fin";
-                dgvFranjas.Columns["RolRequerido"].HeaderText = "Rol";
+                ActualizarEncabezados();
             }
         }
 
@@ -100,6 +97,19 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvFranjas, "Dia", "hdr_Dia", "Día");
+            Encabezado(dgvFranjas, "HoraInicio", "hdr_HoraInicio", "Hora inicio");
+            Encabezado(dgvFranjas, "HoraFin", "hdr_HoraFin", "Hora fin");
+            Encabezado(dgvFranjas, "RolRequerido", "hdr_Rol", "Rol");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

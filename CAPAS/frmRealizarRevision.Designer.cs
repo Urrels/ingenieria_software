@@ -119,7 +119,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 559);
             this.Name = "frmRealizarRevision";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmRealizarRevision";
+            this.Text = "Revisión técnica";
             this.Load += new System.EventHandler(this.frmRealizarRevision_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvVisitas)).EndInit();
             this.ResumeLayout(false);

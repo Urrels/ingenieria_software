@@ -61,8 +61,7 @@ namespace CAPAS
             if (dgvIdiomas.Columns.Count > 0)
             {
                 dgvIdiomas.Columns["Id"].Visible = false;
-                dgvIdiomas.Columns["Nombre"].HeaderText = "Idioma";
-                dgvIdiomas.Columns["Habilitado"].HeaderText = "Habilitado";
+                ActualizarEncabezados();
             }
         }
 
@@ -82,11 +81,9 @@ namespace CAPAS
             if (dgvTraducciones.Columns.Count > 0)
             {
                 dgvTraducciones.Columns["Id"].Visible = false;
-                dgvTraducciones.Columns["Clave"].HeaderText = "Clave";
                 dgvTraducciones.Columns["Clave"].ReadOnly = true;
-                dgvTraducciones.Columns["TextoDefault"].HeaderText = "Texto por defecto";
                 dgvTraducciones.Columns["TextoDefault"].ReadOnly = true;
-                dgvTraducciones.Columns["TextoTraduccion"].HeaderText = "Traducción";
+                ActualizarEncabezados();
                 dgvTraducciones.Columns["TextoTraduccion"].ReadOnly = false;
             }
         }

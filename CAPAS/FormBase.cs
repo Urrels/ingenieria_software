@@ -28,6 +28,21 @@ namespace CAPAS
 
         protected virtual void AjustarClaves() { }
 
+        protected void ExcluirDeTraduccion(params Control[] controles)
+        {
+            foreach (Control c in controles)
+            {
+                _controles.Remove(Clave(c));
+                _defaults.Remove(Clave(c));
+            }
+        }
+
+        protected static void Encabezado(DataGridView grilla, string columna, string clave, string textoDefault)
+        {
+            if (grilla.Columns[columna] != null)
+                grilla.Columns[columna].HeaderText = Textos.T(clave, textoDefault);
+        }
+
         protected virtual void ActualizarTextosDinamicos() { }
 
         public void ActualizarIdioma()
@@ -45,14 +60,16 @@ namespace CAPAS
             base.OnFormClosed(e);
         }
 
+        private string Clave(Control c) => Name + "." + c.Name;
+
         private void GuardarDefaults(Control.ControlCollection controles)
         {
             foreach (Control c in controles)
             {
                 if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
                 {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
+                    _controles[Clave(c)] = c;
+                    _defaults[Clave(c)] = c.Text;
                 }
                 if (c.HasChildren) GuardarDefaults(c.Controls);
             }

@@ -36,12 +36,10 @@ namespace CAPAS
             if (dgvAlertas.Columns.Count > 0)
             {
                 if (dgvAlertas.Columns["EquipoId"] != null) dgvAlertas.Columns["EquipoId"].Visible = false;
-                if (dgvAlertas.Columns["EquipoNombre"] != null) dgvAlertas.Columns["EquipoNombre"].HeaderText = "Equipo";
-                if (dgvAlertas.Columns["FechaGeneracion"] != null) dgvAlertas.Columns["FechaGeneracion"].HeaderText = "Fecha alerta";
-                if (dgvAlertas.Columns["Estado"] != null) dgvAlertas.Columns["Estado"].HeaderText = "Estado";
+                ActualizarEncabezados();
             }
 
-            lblTecnico.Text = "Técnico: (seleccioná una alerta)";
+            lblTecnico.Text = Textos.T("lbl_TecnicoSinAlerta", "Técnico: (seleccioná una alerta)");
             _tecnicoSeleccionado = null;
         }
 
@@ -61,8 +59,8 @@ namespace CAPAS
             _tecnicoSeleccionado = _visitaBLL.ObtenerTecnicoHabitual(equipo);
 
             lblTecnico.Text = _tecnicoSeleccionado != null
-                ? $"Técnico habitual: {_tecnicoSeleccionado.Usuario}"
-                : "Sin técnico habitual asignado — usá 'Buscar alternativo'.";
+                ? Textos.T("lbl_TecnicoHabitual", "Técnico habitual: {0}", _tecnicoSeleccionado.Usuario)
+                : Textos.T("lbl_SinTecnicoHabitual", "Sin técnico habitual asignado — usá 'Buscar alternativo'.");
         }
 
         private void btnBuscarAlternativo_Click(object sender, EventArgs e)
@@ -79,7 +77,7 @@ namespace CAPAS
             {
                 if (frm.ShowDialog() != DialogResult.OK) return;
                 _tecnicoSeleccionado = frm.EmpleadoSeleccionado;
-                lblTecnico.Text = $"Técnico (alternativo): {_tecnicoSeleccionado.Usuario}";
+                lblTecnico.Text = Textos.T("lbl_TecnicoAlternativo", "Técnico (alternativo): {0}", _tecnicoSeleccionado.Usuario);
             }
         }
 
@@ -105,6 +103,18 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvAlertas, "EquipoNombre", "hdr_Equipo", "Equipo");
+            Encabezado(dgvAlertas, "FechaGeneracion", "hdr_FechaAlerta", "Fecha alerta");
+            Encabezado(dgvAlertas, "Estado", "hdr_Estado", "Estado");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

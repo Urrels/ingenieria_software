@@ -132,7 +132,7 @@
             this.MinimumSize = new System.Drawing.Size(816, 599);
             this.Name = "frmGenerarGrilla";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmGenerarGrilla";
+            this.Text = "Generar grilla de turnos";
             this.Load += new System.EventHandler(this.frmGenerarGrilla_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);

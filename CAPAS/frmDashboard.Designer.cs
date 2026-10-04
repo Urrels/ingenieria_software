@@ -111,7 +111,7 @@
             this.MinimumSize = new System.Drawing.Size(936, 789);
             this.Name = "frmDashboard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmDashboard";
+            this.Text = "Panel de indicadores";
             this.Load += new System.EventHandler(this.frmDashboard_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -108,7 +108,7 @@ namespace CAPAS
             this.btnAceptar.Name = "btnAceptar";
             this.btnAceptar.Size = new System.Drawing.Size(110, 48);
             this.btnAceptar.TabIndex = 4;
-            this.btnAceptar.Text = "Crear";
+            this.btnAceptar.Text = "Guardar";
             this.btnAceptar.Click += new System.EventHandler(this.btnAceptar_Click);
             //
             // btnCancelar

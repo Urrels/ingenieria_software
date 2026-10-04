@@ -119,7 +119,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 509);
             this.Name = "frmCoordinarVisita";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmCoordinarVisita";
+            this.Text = "Coordinar visita técnica";
             this.Load += new System.EventHandler(this.frmCoordinarVisita_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlertas)).EndInit();
             this.ResumeLayout(false);

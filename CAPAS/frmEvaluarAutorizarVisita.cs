@@ -32,9 +32,7 @@ namespace CAPAS
             if (dgvAlertas.Columns.Count > 0)
             {
                 if (dgvAlertas.Columns["EquipoId"] != null) dgvAlertas.Columns["EquipoId"].Visible = false;
-                if (dgvAlertas.Columns["EquipoNombre"] != null) dgvAlertas.Columns["EquipoNombre"].HeaderText = "Equipo";
-                if (dgvAlertas.Columns["FechaGeneracion"] != null) dgvAlertas.Columns["FechaGeneracion"].HeaderText = "Fecha";
-                if (dgvAlertas.Columns["Estado"] != null) dgvAlertas.Columns["Estado"].HeaderText = "Estado";
+                ActualizarEncabezados();
             }
         }
 
@@ -82,6 +80,18 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvAlertas, "EquipoNombre", "hdr_Equipo", "Equipo");
+            Encabezado(dgvAlertas, "FechaGeneracion", "hdr_Fecha", "Fecha");
+            Encabezado(dgvAlertas, "Estado", "hdr_Estado", "Estado");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

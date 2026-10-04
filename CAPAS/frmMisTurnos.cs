@@ -41,10 +41,7 @@ namespace CAPAS
             {
                 if (dgvTurnos.Columns["Turno"] != null) dgvTurnos.Columns["Turno"].Visible = false;
                 if (dgvTurnos.Columns["Franja"] != null) dgvTurnos.Columns["Franja"].Visible = false;
-                if (dgvTurnos.Columns["Dia"] != null) dgvTurnos.Columns["Dia"].HeaderText = "Día";
-                if (dgvTurnos.Columns["Horario"] != null) dgvTurnos.Columns["Horario"].HeaderText = "Horario";
-                if (dgvTurnos.Columns["Rol"] != null) dgvTurnos.Columns["Rol"].HeaderText = "Rol";
-                if (dgvTurnos.Columns["Estado"] != null) dgvTurnos.Columns["Estado"].HeaderText = "Estado";
+                ActualizarEncabezados();
             }
         }
 
@@ -86,6 +83,19 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvTurnos, "Dia", "hdr_Dia", "Día");
+            Encabezado(dgvTurnos, "Horario", "hdr_Horario", "Horario");
+            Encabezado(dgvTurnos, "Rol", "hdr_Rol", "Rol");
+            Encabezado(dgvTurnos, "Estado", "hdr_Estado", "Estado");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 

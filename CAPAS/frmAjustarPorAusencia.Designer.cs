@@ -108,7 +108,7 @@
             this.MinimumSize = new System.Drawing.Size(816, 599);
             this.Name = "frmAjustarPorAusencia";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmAjustarPorAusencia";
+            this.Text = "Ajustar grilla por ausencia";
             this.Load += new System.EventHandler(this.frmAjustarPorAusencia_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);

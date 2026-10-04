@@ -87,7 +87,7 @@
             this.MinimizeBox = false;
             this.Name = "frmRegistrarDisponibilidad";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmRegistrarDisponibilidad";
+            this.Text = "Disponibilidad horaria";
             this.Load += new System.EventHandler(this.frmRegistrarDisponibilidad_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
