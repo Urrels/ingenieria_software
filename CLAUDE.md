@@ -273,13 +273,15 @@ All diagram sources, generated images, and doc-generation scripts live under `DI
 | File | Type | Purpose |
 |---|---|---|
 | `DIAGRAMAS/DER.puml` / `.png` | DER | Modelo entidad-relación de BDCAPAS |
-| `DIAGRAMAS/DiagramaClases.puml` / `.png` | Diagrama de clases | Capas BE, BLL, DAL, SeguridadYServicios |
+| `DIAGRAMAS/DiagramaClases.puml` / `.png` | Diagrama de clases | Seguridad: capas BE, BLL, DAL, SeguridadYServicios y formularios de seguridad (los procesos de negocio están en los dos diagramas siguientes) |
 | `DIAGRAMAS/DiagramaClases_Composite.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Composite — árbol de roles/permisos (`NodoPermiso`/`Rol`/`Permiso`), con comentarios |
 | `DIAGRAMAS/DiagramaClases_Observer.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Observer — multiidioma (`IdiomaManager`/`IObservadorIdioma`), con comentarios |
 | `DIAGRAMAS/DiagramaClases_Singleton.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Singleton — `SessionManager`/`IdiomaManager`, con comentarios |
 | `DIAGRAMAS/DiagramaClases_Facade.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Facade — `FachadaIdioma` y el subsistema de idiomas, con comentarios |
 | `DIAGRAMAS/DiagramaClases_Prototype.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Prototype — `NodoPermiso.Clonar()` y "Duplicar rol", con comentarios |
 | `DIAGRAMAS/DiagramaClases_TemplateMethod.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Template Method — `FormBase.InicializarFormulario()` y sus hooks, con comentarios |
+| `DIAGRAMAS/DiagramaClases_Proceso1_Planificacion.puml` / `.png` | Diagrama de clases (negocio) | Proceso 1 — planificación de horarios y control operativo: UI, BLL, DAL y BE, con relaciones entre entidades |
+| `DIAGRAMAS/DiagramaClases_Proceso2_Mantenimiento.puml` / `.png` | Diagrama de clases (negocio) | Proceso 2 — mantenimiento de equipamiento (incluye `ApiSensoresEquipos`) |
 | `DIAGRAMAS/DiagramaComponentes.puml` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
 | `DIAGRAMAS/DiagramaComponentes/DiagramaComponentes - TP_IS.png` | Diagrama de componentes (render) | PNG renderizado del anterior |
 | `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |

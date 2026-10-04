@@ -1,0 +1,247 @@
+@startuml DiagramaClases_Proceso1_Planificacion
+
+title Diagrama de clases — Proceso 1: Planificación de horarios del personal (y control operativo)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontSize 12
+skinparam dpi 130
+skinparam nodesep 25
+skinparam ranksep 45
+hide empty members
+left to right direction
+
+package "CAPAS (UI)" #FEFECE {
+  class frmGestionFranjas
+  class frmRegistrarDisponibilidad
+  class frmGenerarGrilla
+  class frmAsignarEmpleado
+  class frmAjustarPorAusencia
+  class frmSeleccionarReemplazo
+  class frmMisTurnos
+  class frmCubrirTurno
+  class frmMisNotificaciones
+  class frmFicharAsistencia
+  class frmRegistrarAsistenciaSocios
+  class frmEvaluarCobertura
+}
+
+package "BLL" #E8F4E8 {
+  class GrillaBLL {
+    + GenerarGrilla(semana) : GrillaDeTurnos
+    + ConfirmarGrilla(grilla) : bool
+    + ComunicarHorarios(grilla)
+    + ObtenerConTurnosPorSemana(semana) : GrillaDeTurnos
+    + ObtenerTurnosPorEmpleado(grilla)
+  }
+  class TurnoBLL {
+    + BuscarEmpleadosCompatibles(rol, franja, grillaId) : List<USUARIO>
+    + AsignarEmpleado(turno, usuario) : bool
+    + SuperaLimiteHoras(usuario, turno) : bool
+    + MarcarDeficitCobertura(turno)
+    + ReemplazarPorAusencia(turno, empleado) : bool
+    + CancelarPorEmpleado(turno, empleado) : List<USUARIO>
+    + TomarCobertura(turno, empleado) : bool
+    + ListarPorUsuario(usuarioId) : List<Turno>
+    + ListarPendientesPorRol(rol) : List<Turno>
+  }
+  class DemandaEstimadaBLL {
+    - PesosSemanales : double[] = {0.4, 0.3, 0.2, 0.1}
+    + CalcularDemanda(semana, franja) : DemandaEstimada
+    + ConsultarEvaluacionCobertura(semana, franja) : EvaluacionCobertura
+  }
+  class DisponibilidadBLL {
+    + RegistrarDisponibilidad(usuario, semana, franjas) : Disponibilidad
+    + ObtenerPrevia(usuario, semana) : Disponibilidad
+    + TieneAlMenosUnaFranja(disponibilidad) : bool
+  }
+  class FranjaHorariaBLL {
+    + ListarTodas() : List<FranjaHoraria>
+    + Insertar(dia, inicio, fin, rol) : int
+    + Eliminar(id) : bool
+  }
+  class NotificacionBLL {
+    + Notificar(usuario, grillaId?, mensaje) : bool
+    + NotificarAdministradores(mensaje, unaVezPorDia)
+    + ListarPorUsuario(usuario) : List<Notificacion>
+  }
+  class EvaluacionCoberturaBLL {
+    - SOCIOS_POR_EMPLEADO : int = 15
+    + EvaluarSemana(semana) : List<ResultadoEvaluacionFranjaVM>
+    + ObtenerResumen() : Dictionary<string,int>
+  }
+  class HistorialAsistenciaSociosBLL {
+    + RegistrarAsistencia(franja, fecha, cantidad)
+  }
+  class AsistenciaPersonalBLL {
+    + RegistrarIngreso(usuario) : bool
+    + RegistrarEgreso(usuario) : bool
+    + TieneIngresoAbierto(usuario) : bool
+  }
+}
+
+package "DAL" #E8E8F4 {
+  class GrillaDAL {
+    + Crear()
+    + Confirmar()
+    + MarcarComunicada()
+    + ObtenerPorSemana()
+    + ObtenerTurnosPorEmpleado()
+  }
+  class TurnoDAL {
+    + Agregar()
+    + ActualizarAsignacion()
+    + BuscarCompatibles()
+    + HorasAsignadasEnSemana()
+    + TomarCobertura()
+    + ListarPorGrilla()
+  }
+  class DemandaEstimadaDAL {
+    + ObtenerHistorial()
+    + Insertar()
+    + ObtenerEvaluacionCobertura()
+    + InsertarEvaluacionCobertura()
+  }
+  class DisponibilidadDAL {
+    + ObtenerPorUsuarioYSemana()
+    + Guardar()
+    + Actualizar()
+  }
+  class FranjaHorariaDAL
+  class NotificacionDAL {
+    + Guardar()
+    + ExisteHoy()
+    + ListarPorUsuario()
+  }
+  class HistorialAsistenciaSociosDAL
+  class AsistenciaPersonalDAL
+  class Acceso <<stored procedures>>
+}
+
+package "BE" #F4F4F4 {
+  class FranjaHoraria {
+    + Id : int
+    + Dia : string
+    + HoraInicio : TimeSpan
+    + HoraFin : TimeSpan
+    + RolRequerido : string
+  }
+  class Disponibilidad {
+    + Id : int
+    + UsuarioId : int
+    + Semana : DateTime
+    + Franjas : List<FranjaHoraria>
+  }
+  class DemandaEstimada {
+    + FranjaId : int
+    + Semana : DateTime
+    + CantidadPersonalNecesario : int
+    + OrigenDato : string
+  }
+  class GrillaDeTurnos {
+    + Id : int
+    + Semana : DateTime
+    + Estado : string
+    + AdministradorId : int
+    + Turnos : List<Turno>
+  }
+  class Turno {
+    + Id : int
+    + GrillaId : int
+    + FranjaId : int
+    + UsuarioId : int?
+    + RolRequerido : string
+    + Estado : string
+  }
+  class Notificacion {
+    + GrillaId : int?
+    + UsuarioId : int
+    + Mensaje : string
+    + Estado : string
+  }
+  class EvaluacionCobertura {
+    + FranjaId : int
+    + Semana : DateTime
+    + Resultado : string
+  }
+  class RegistroAsistenciaPersonal {
+    + UsuarioId : int
+    + Fecha : DateTime
+    + HoraIngreso : TimeSpan
+    + HoraEgreso : TimeSpan?
+  }
+  class USUARIO {
+    + Id : int
+    + Usuario : string
+    + LimiteHorasSemanales : int?
+  }
+}
+
+' UI → BLL
+frmGestionFranjas ..> FranjaHorariaBLL
+frmRegistrarDisponibilidad ..> DisponibilidadBLL
+frmGenerarGrilla ..> GrillaBLL
+frmAsignarEmpleado ..> TurnoBLL
+frmAjustarPorAusencia ..> TurnoBLL
+frmAjustarPorAusencia ..> NotificacionBLL
+frmSeleccionarReemplazo ..> TurnoBLL
+frmMisTurnos ..> TurnoBLL
+frmCubrirTurno ..> TurnoBLL
+frmMisNotificaciones ..> NotificacionBLL
+frmFicharAsistencia ..> AsistenciaPersonalBLL
+frmRegistrarAsistenciaSocios ..> HistorialAsistenciaSociosBLL
+frmEvaluarCobertura ..> EvaluacionCoberturaBLL
+
+' BLL → BLL
+GrillaBLL --> DemandaEstimadaBLL
+GrillaBLL --> NotificacionBLL
+TurnoBLL --> NotificacionBLL
+EvaluacionCoberturaBLL --> GrillaBLL
+
+' BLL → DAL
+GrillaBLL --> GrillaDAL
+GrillaBLL --> TurnoDAL
+TurnoBLL --> TurnoDAL
+DemandaEstimadaBLL --> DemandaEstimadaDAL
+DisponibilidadBLL --> DisponibilidadDAL
+FranjaHorariaBLL --> FranjaHorariaDAL
+NotificacionBLL --> NotificacionDAL
+EvaluacionCoberturaBLL --> DemandaEstimadaDAL
+HistorialAsistenciaSociosBLL --> HistorialAsistenciaSociosDAL
+AsistenciaPersonalBLL --> AsistenciaPersonalDAL
+GrillaDAL ..> Acceso
+TurnoDAL ..> Acceso
+DemandaEstimadaDAL ..> Acceso
+DisponibilidadDAL ..> Acceso
+FranjaHorariaDAL ..> Acceso
+NotificacionDAL ..> Acceso
+HistorialAsistenciaSociosDAL ..> Acceso
+AsistenciaPersonalDAL ..> Acceso
+
+' Relaciones entre entidades
+GrillaDeTurnos "1" *-- "0..*" Turno
+Turno "0..*" --> "1" FranjaHoraria
+Turno "0..*" --> "0..1" USUARIO : asignado a
+Disponibilidad "0..*" o-- "1..*" FranjaHoraria
+Disponibilidad "0..*" --> "1" USUARIO
+DemandaEstimada "0..*" --> "1" FranjaHoraria
+EvaluacionCobertura "0..*" --> "1" FranjaHoraria
+Notificacion "0..*" --> "1" USUARIO
+Notificacion "0..*" --> "0..1" GrillaDeTurnos
+RegistroAsistenciaPersonal "0..*" --> "1" USUARIO
+
+note bottom of DemandaEstimadaBLL
+  demanda = promedio ponderado de las últimas
+  4 semanas + tendencia; 1 empleado cada 15
+  socios; +1 si la evaluación anterior dio "Falta"
+end note
+note bottom of TurnoBLL
+  compatibles = rol requerido + disponibilidad
+  declarada para la franja en esa semana +
+  sin otro turno en la franja; TomarCobertura
+  es atómico (solo si sigue PendienteCobertura)
+end note
+
+@enduml
