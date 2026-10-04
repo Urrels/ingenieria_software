@@ -91,7 +91,26 @@ El script compila la solución en `Release` y después el instalador. El resulta
 - Crea accesos directos en el menú Inicio y en el escritorio.
 - Aparece en "Agregar o quitar programas" para desinstalarlo. Al instalar una versión nueva, reemplaza la anterior.
 
-La base de datos no se crea sola: después de instalar hay que correr `Scripts\script.sql` y `Scripts\traducciones.sql` en el SQL Server, y revisar la cadena de conexión en `CAPAS.exe.config` (clave `BDCAPAS`).
+- Al terminar ofrece abrir el **configurador de la base de datos** (casilla marcada por defecto). También queda un acceso directo "Configurar base de datos de CAPAS" en el menú Inicio.
+
+### Configurador de la base de datos (`ConfiguradorBD.exe`)
+
+Se ejecuta como administrador (pide permiso de Windows) y resuelve la instalación de la base:
+
+- **Busca las instancias de SQL Server del equipo** en el registro de Windows, incluida LocalDB, y también acepta un servidor de la red escrito a mano. Permite autenticación de Windows o de SQL Server (usuario y contraseña).
+- **Si el servicio de SQL Server está detenido**, lo detecta y ofrece iniciarlo.
+- **Si no hay ningún motor instalado**, ofrece instalar SQL Server Express LocalDB. Si el instalador incluye `SqlLocalDB.msi` (ver `Instalador\Prerequisitos\LEEME.txt`), lo instala en modo silencioso; si no, abre la página oficial de descarga.
+- **Verifica antes de tocar nada**: conexión, versión (SQL Server 2019 o posterior), permiso para crear bases y espacio en disco.
+- **Crea la base** ejecutando `script.sql` (tablas, relaciones, procedimientos y datos iniciales) y `traducciones.sql`. Si la base ya existe, no la modifica: solo actualiza las traducciones.
+- **Rollback**: si algún paso falla, elimina la base creada a medias y el servidor queda como estaba.
+- **Configura CAPAS**: escribe la cadena de conexión elegida en `CAPAS.exe.config`.
+- **Registro**: todo queda en `C:\ProgramData\CAPAS\install.log`.
+
+Además, si CAPAS arranca y no puede conectarse a la base, ofrece abrir el configurador.
+
+Usuario inicial: `admin`, contraseña `1234`.
+
+**Limitación de LocalDB:** cada usuario de Windows tiene su propia instancia. La base creada por el configurador queda disponible para el usuario que lo ejecutó; si varios usuarios van a usar CAPAS en el mismo equipo, conviene SQL Server Express.
 
 ### Publicar una versión nueva
 
@@ -110,6 +129,7 @@ TP_IS.sln
 ├── BLL/                    Lógica de negocio
 ├── SeguridadYServicios/    Servicios transversales (sesión, idioma, integridad, hash)
 ├── CAPAS/                  UI — Windows Forms
+├── ConfiguradorBD/         Configurador de la base de datos (lo abre el instalador)
 ├── Instalador/             Instalador .msi (WiX Toolset)
 │   └── Program.cs          Punto de entrada
 ├── DER.puml                Diagrama entidad-relación (PlantUML)

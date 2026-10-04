@@ -1,0 +1,10 @@
+SQL Server Express LocalDB (opcional)
+
+Si se copia aquí el archivo SqlLocalDB.msi, el instalador lo incluye y el
+configurador de la base de datos lo instala en modo silencioso cuando el
+equipo no tiene ningún motor de SQL Server.
+
+Descarga oficial (elegir "LocalDB" en el instalador de SQL Server Express):
+https://www.microsoft.com/sql-server/sql-server-downloads
+
+El .msi no se sube al repositorio (está en .gitignore).

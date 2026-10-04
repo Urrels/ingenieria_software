@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using ReaLTaiizor.Colors;
@@ -28,8 +30,39 @@ namespace CAPAS
                 MaterialTextShade.WHITE
             );
 
+            if (!new BLL.ConexionBLL().Disponible())
+            {
+                OfrecerConfigurador();
+                return;
+            }
+
             InicializarIntegridad();
             Application.Run(new LogIn());
+        }
+
+        private static void OfrecerConfigurador()
+        {
+            string configurador = Path.Combine(Application.StartupPath, "ConfiguradorBD.exe");
+            if (!File.Exists(configurador))
+            {
+                MsgBox.Show(Textos.T("msg_SinConexionSinConfigurador",
+                        "No se pudo conectar a la base de datos y no se encontró el configurador (ConfiguradorBD.exe).\n\nRevisá la cadena de conexión en CAPAS.exe.config."),
+                    "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
+                return;
+            }
+
+            if (MsgBox.Show(Textos.T("msg_SinConexionAbrirConfigurador",
+                    "No se pudo conectar a la base de datos.\n\n¿Querés abrir el configurador para crearla o elegir otro servidor?"),
+                    "Error", MsgBox.Botones.SiNo, MsgBox.Icono.Error) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                Process.Start(new ProcessStartInfo(configurador) { UseShellExecute = true });
+            }
+            catch (Win32Exception)
+            {
+            }
         }
 
         private static void InicializarIntegridad()
