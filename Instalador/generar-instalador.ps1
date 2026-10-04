@@ -8,8 +8,10 @@ if (-not $msbuild) { throw 'No se encontró MSBuild. Instalá Visual Studio 2022
 & $msbuild (Join-Path $raiz 'TP_IS.sln') /restore /p:Configuration=Release /v:minimal
 if ($LASTEXITCODE -ne 0) { throw 'Falló la compilación de la solución.' }
 
-& $msbuild (Join-Path $PSScriptRoot 'Instalador.wixproj') /restore /p:Configuration=Release /v:minimal
+& $msbuild (Join-Path $PSScriptRoot 'Bundle\Bundle.wixproj') /restore /p:Configuration=Release /v:minimal
 if ($LASTEXITCODE -ne 0) { throw 'Falló la generación del instalador.' }
 
 $msi = Get-ChildItem (Join-Path $PSScriptRoot 'bin\Release') -Recurse -Filter *.msi | Select-Object -First 1
-Write-Host "Instalador generado: $($msi.FullName)" -ForegroundColor Green
+$exe = Get-ChildItem (Join-Path $PSScriptRoot 'Bundle\bin\Release') -Recurse -Filter *.exe | Select-Object -First 1
+Write-Host "Instalador .exe: $($exe.FullName)" -ForegroundColor Green
+Write-Host "Instalador .msi: $($msi.FullName)" -ForegroundColor Green

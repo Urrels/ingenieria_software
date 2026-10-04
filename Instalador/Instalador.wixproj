@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputName>CAPAS-Instalador</OutputName>
     <Cultures>es-ES</Cultures>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Bundle\**</DefaultItemExcludes>
     <DefineConstants>AppBin=..\CAPAS\bin\$(Configuration)\;Scripts=..\DAL\</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="Exists('Prerequisitos\SqlLocalDB.msi')">
