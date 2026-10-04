@@ -69,8 +69,8 @@ The app uses **ReaLTaiizor 3.8.1.8** (NuGet, .NET Framework 4.8). Two layers coo
 var skin = MaterialSkinManager.Instance;
 skin.Theme = MaterialSkinManager.Themes.LIGHT;
 skin.ColorScheme = new MaterialColorScheme(
-    MaterialPrimary.Blue700, MaterialPrimary.Blue900, MaterialPrimary.Blue200,
-    MaterialAccent.LightBlue200, MaterialTextShade.LIGHT);
+    AppTheme.Acento, AppTheme.AcentoHover, AppTheme.Seleccion,
+    AppTheme.AcentoHover, MaterialTextShade.WHITE);
 ```
 
 **Per-form** — every form's `Load` event must call, in this order:
@@ -79,7 +79,7 @@ MaterialSkinManager.Instance.AddFormToManage(this);
 AppTheme.AplicarTema(this);
 ```
 
-**`AppTheme.AplicarTema(form)`** (`CAPAS/AppTheme.cs`) — applies the corporate palette to Button, TextBox, Label, DataGridView, TreeView, ComboBox, Panel, GroupBox, MenuStrip, StatusStrip, and DateTimePicker controls recursively. Color constants: `FondoForm=#F5F7FA`, header/accent `#1565C0`.
+**`AppTheme.AplicarTema(form)`** (`CAPAS/AppTheme.cs`) — applies the corporate palette to Button, TextBox, Label, DataGridView, TreeView, ComboBox, Panel, GroupBox, MenuStrip, StatusStrip, and DateTimePicker controls recursively. White + blue/pink palette (gym branding): `FondoForm=#FFFFFF`, `FondoHeader=#E8F0FB` (soft blue), `FondoGrillaAlt=#FDF3F7` (soft pink), `FondoStatus=#E1EAF8`, accent `#3B6FB6` (blue: title bar, buttons, headers), hover `#C2386B` (pink, with white text), selection `#F8D7E3` (light pink), text `#2B2D42`. The MaterialForm title bar uses the same `AppTheme` colors (custom `Color` overload of `MaterialColorScheme`). All colors live in `AppTheme` — never hardcode colors elsewhere; labels always get `TextoPrincipal` (a white label would be invisible on the white background).
 
 **Critical layout constraint** — `MaterialForm` renders its own title bar (~64 px) **inside** the client area at `y=0`. Controls in `.Designer.cs` must have `Location.Y ≥ ~70` or they will be hidden under the title bar. When designing a new form or adjusting an existing one, offset all content controls by at least 70 px from the top of the client area. The `ClientSize.Height` must be increased by the same amount relative to the visible content.
 
