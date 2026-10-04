@@ -243,7 +243,7 @@ Flujo post-login en `LogIn.cs`:
 
 Los permisos se cargan en `SessionManager` al hacer login vía `USUARIO_PERMISOS_LISTAR` (join `USUARIO_PERFIL → ROL_PERMISO → NODO_PERMISO`).
 
-La UI consulta `SessionManager.TienePermiso("nombre del permiso")` para mostrar u ocultar elementos. **Nunca usar `EsAdmin()` para controlar visibilidad** — ese método compara el campo `ROL` del usuario y no está alineado con el sistema de permisos.
+La UI consulta `SessionManager.TienePermiso("nombre del permiso")` para mostrar u ocultar elementos. **Nunca usar el campo `ROL` del usuario para controlar visibilidad** — no está alineado con el sistema de permisos (el antiguo método `EsAdmin()` que lo hacía fue eliminado).
 
 ### Contraseñas
 

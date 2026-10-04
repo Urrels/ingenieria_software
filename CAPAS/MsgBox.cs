@@ -7,11 +7,6 @@ using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    /// <summary>
-    /// Reemplazo estilizado de MessageBox.Show() que usa MaterialForm
-    /// y los colores de AppTheme para mantener consistencia visual.
-    /// Uso: MsgBox.Show("mensaje", "título", MsgBox.Botones.OK, MsgBox.Icono.Info);
-    /// </summary>
     internal static class MsgBox
     {
         internal enum Botones { OK, SiNo }
@@ -62,10 +57,9 @@ namespace CAPAS
 
         private void CrearControles()
         {
-            int topInicio = 75;   // debajo del título de MaterialForm
+            int topInicio = 75;
             int margen = 20;
 
-            // ── Panel del ícono ──
             pnlIcono = new Panel
             {
                 Location = new Point(margen, topInicio),
@@ -75,7 +69,6 @@ namespace CAPAS
             pnlIcono.Paint += PnlIcono_Paint;
             this.Controls.Add(pnlIcono);
 
-            // ── Label del mensaje ──
             lblMensaje = new Label
             {
                 Location = new Point(margen + 70, topInicio + 4),
@@ -87,7 +80,6 @@ namespace CAPAS
             };
             this.Controls.Add(lblMensaje);
 
-            // ── Botones ──
             int anchoForm = Math.Max(lblMensaje.Right + margen + 20, 420);
             this.ClientSize = new Size(anchoForm, 220);
 
@@ -183,23 +175,23 @@ namespace CAPAS
             switch (_icono)
             {
                 case MsgBox.Icono.Exito:
-                    colorFondo = Color.FromArgb(46, 125, 50);   // verde
+                    colorFondo = Color.FromArgb(46, 125, 50);
                     simbolo = "✓";
                     break;
                 case MsgBox.Icono.Atencion:
-                    colorFondo = Color.FromArgb(245, 166, 35);  // naranja
+                    colorFondo = Color.FromArgb(245, 166, 35);
                     simbolo = "!";
                     break;
                 case MsgBox.Icono.Error:
-                    colorFondo = Color.FromArgb(198, 40, 40);   // rojo
+                    colorFondo = Color.FromArgb(198, 40, 40);
                     simbolo = "✕";
                     break;
                 case MsgBox.Icono.Pregunta:
-                    colorFondo = AppTheme.Acento;               // azul
+                    colorFondo = AppTheme.Acento;
                     simbolo = "?";
                     break;
-                default: // Info
-                    colorFondo = AppTheme.Acento;               // azul
+                default:
+                    colorFondo = AppTheme.Acento;
                     simbolo = "i";
                     break;
             }

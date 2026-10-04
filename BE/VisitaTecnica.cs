@@ -8,6 +8,6 @@ namespace BE
         public int AlertaId { get; set; }
         public int TecnicoId { get; set; }
         public DateTime FechaCoordinada { get; set; }
-        public string Estado { get; set; }   // "Coordinada" | "Realizada"
+        public string Estado { get; set; }
     }
 }

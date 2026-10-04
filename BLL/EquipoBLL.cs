@@ -17,7 +17,7 @@ namespace BLL
         public bool RegistrarUso(int equipoId, int incremento = 1)
         {
             var (usoAcumulado, nivelUsoCritico) = _dal.ActualizarUso(equipoId, incremento);
-            _dal.RegistrarUsoLog(equipoId, incremento);   // Plus: queda el historial para el predictivo
+            _dal.RegistrarUsoLog(equipoId, incremento);
 
             if (!nivelUsoCritico.HasValue)
                 return false;
@@ -32,9 +32,6 @@ namespace BLL
 
         public void MarcarEnMantenimiento(int equipoId) => _dal.MarcarEnMantenimiento(equipoId);
 
-        // Plus: mantenimiento predictivo — estima cuántos días faltan para llegar al umbral
-        // crítico, en base a la velocidad de uso real observada en los últimos N días.
-        // Devuelve null si no hay umbral configurado o no hay uso reciente para proyectar.
         public int? EstimarDiasHastaCritico(BE.Equipo equipo, int ventanaDias = 14)
         {
             if (!equipo.NivelUsoCritico.HasValue) return null;
@@ -47,7 +44,7 @@ namespace BLL
             if (velocidadDiaria <= 0) return null;
 
             int faltante = equipo.NivelUsoCritico.Value - equipo.UsoAcumulado;
-            if (faltante <= 0) return 0;   // ya está en el umbral o lo superó
+            if (faltante <= 0) return 0;
 
             return (int)Math.Ceiling(faltante / velocidadDiaria);
         }

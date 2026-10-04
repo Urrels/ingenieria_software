@@ -21,7 +21,6 @@ package "SeguridadYServicios" #F4E8E8 {
     + setUsuario(usuario : USUARIO)
     + setPermisos(permisos : List<string>)
     + TienePermiso(nombre : string) : bool
-    + EsAdmin() : bool
     + cerrarSesion()
   }
 
@@ -96,7 +95,7 @@ class "LogIn" as LogIn <<Form>>
 class "frmMenu / demás Forms" as OtrosForms <<Form>>
 
 LogIn ..> SessionManager : getInstance()\n.setUsuario() / .setPermisos()
-OtrosForms ..> SessionManager : getInstance()\n.TienePermiso() / .EsAdmin()
+OtrosForms ..> SessionManager : getInstance()\n.TienePermiso()
 OtrosForms ..> IdiomaManager : getInstance()\n.Registrar(this) / .Traducir()
 
 note bottom of OtrosForms

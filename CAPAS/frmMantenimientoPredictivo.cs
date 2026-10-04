@@ -50,8 +50,6 @@ namespace CAPAS
             foreach (var equipo in equiposConUmbral)
                 filas.Add((equipo, _equipoBLL.EstimarDiasHastaCritico(equipo)));
 
-            // Los que tienen estimación concreta van primero, ordenados de más urgente a menos.
-            // Los que no tienen uso reciente para proyectar van al final.
             var ordenadas = filas
                 .OrderBy(f => f.dias.HasValue ? 0 : 1)
                 .ThenBy(f => f.dias ?? int.MaxValue)

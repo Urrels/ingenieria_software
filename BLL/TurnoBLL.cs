@@ -21,8 +21,6 @@ namespace BLL
             return true;
         }
 
-        public bool ReemplazarEmpleado(BE.Turno turno, BE.USUARIO usuario) => AsignarEmpleado(turno, usuario);
-
         public bool SuperaLimiteHoras(BE.USUARIO usuario, BE.Turno turno)
         {
             if (!usuario.LimiteHorasSemanales.HasValue) return false;
@@ -56,12 +54,8 @@ namespace BLL
             return true;
         }
 
-        // Empleado logueado ve sus propios turnos asignados (frmMisTurnos)
         public List<BE.Turno> ListarPorUsuario(int usuarioId) => _turnoDAL.ListarPorUsuario(usuarioId);
 
-        // Flujo nuevo: el empleado cancela desde frmMisTurnos.
-        // Marca el turno como PendienteCobertura, busca compatibles y notifica
-        // automáticamente a todos los disponibles + a los admins.
         public List<BE.USUARIO> CancelarPorEmpleado(BE.Turno turno, BE.USUARIO empleadoQueCancela)
         {
             _turnoDAL.ActualizarAsignacion(turno.Id, null, "PendienteCobertura");
@@ -90,9 +84,6 @@ namespace BLL
             return candidatos;
         }
 
-        // El empleado toma un turno pendiente de cobertura. Devuelve false si
-        // otro empleado (o el admin) ya lo resolvió primero — la UPDATE atómica
-        // en TURNO_TOMAR_COBERTURA es la que de verdad resuelve la carrera.
         public bool TomarCobertura(BE.Turno turno, BE.USUARIO empleado)
         {
             if (SuperaLimiteHoras(empleado, turno))

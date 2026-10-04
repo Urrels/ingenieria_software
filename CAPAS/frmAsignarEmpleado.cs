@@ -55,8 +55,6 @@ namespace CAPAS
             bool asignado = _turnoBLL.AsignarEmpleado(_turno, seleccionado);
             if (!asignado)
             {
-                // flujo 4a: rechazado por límite de horas — se queda en el mismo diálogo
-                // para que elija otro de la misma lista, como dice la especificación de UC1
                 MsgBox.Show(
                     $"{seleccionado.Usuario} superaría su límite de horas semanales con este turno. Elegí otro empleado.",
                     "Límite de horas superado", MsgBox.Botones.OK, MsgBox.Icono.Atencion);

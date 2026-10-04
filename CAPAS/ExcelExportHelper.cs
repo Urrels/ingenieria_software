@@ -6,7 +6,6 @@ namespace CAPAS
 {
     public static class ExcelExportHelper
     {
-        // Exporta las columnas VISIBLES de cualquier DataGridView a un .xlsx elegido por el usuario.
         public static void ExportarDataGridView(DataGridView grilla, string nombreSugerido)
         {
             if (grilla.Rows.Count == 0)

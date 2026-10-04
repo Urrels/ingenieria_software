@@ -5,6 +5,6 @@
         public int Id { get; set; }
         public int FranjaId { get; set; }
         public System.DateTime Semana { get; set; }
-        public string Resultado { get; set; }   // "Exceso" | "Falta" | "Ajustado"
+        public string Resultado { get; set; }
     }
 }

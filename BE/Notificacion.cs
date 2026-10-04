@@ -9,6 +9,6 @@ namespace BE
         public int UsuarioId { get; set; }
         public string Mensaje { get; set; }
         public DateTime FechaEnvio { get; set; }
-        public string Estado { get; set; }   // "Enviada" | "Fallida" | "Pendiente"
+        public string Estado { get; set; }
     }
 }

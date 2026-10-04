@@ -7,6 +7,6 @@
         public System.DateTime Semana { get; set; }
         public string RolRequerido { get; set; }
         public int CantidadPersonalNecesario { get; set; }
-        public string OrigenDato { get; set; }   // "Calculado" | "Manual"
+        public string OrigenDato { get; set; }
     }
 }

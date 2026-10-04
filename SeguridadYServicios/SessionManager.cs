@@ -51,10 +51,5 @@ namespace SeguridadYServicios
             _permisos = new List<string>();
             _instance = null;
         }
-
-        public bool EsAdmin()
-        {
-            return _usuario != null && _usuario.Rol == "admin";
-        }
     }
 }

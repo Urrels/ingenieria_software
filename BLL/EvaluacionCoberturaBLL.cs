@@ -9,7 +9,7 @@ namespace BLL
         public BE.FranjaHoraria Franja { get; set; }
         public int PersonalAsignado { get; set; }
         public int SociosAsistidos { get; set; }
-        public string Resultado { get; set; }   // "Exceso" | "Falta" | "Ajustado"
+        public string Resultado { get; set; }
     }
 
     public class EvaluacionCoberturaBLL
@@ -21,7 +21,6 @@ namespace BLL
 
         private const int SOCIOS_POR_EMPLEADO = 15;
 
-        // UC4
         public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana)
         {
             var grilla = _grillaBLL.ObtenerConTurnosPorSemana(semana);

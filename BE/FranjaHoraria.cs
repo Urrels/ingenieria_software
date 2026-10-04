@@ -8,6 +8,6 @@ namespace BE
         public string Dia { get; set; }
         public TimeSpan HoraInicio { get; set; }
         public TimeSpan HoraFin { get; set; }
-        public string RolRequerido { get; set; }   // "Sala" | "Recepcion"
+        public string RolRequerido { get; set; }
     }
 }

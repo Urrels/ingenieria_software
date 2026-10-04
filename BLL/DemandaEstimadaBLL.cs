@@ -7,8 +7,6 @@ namespace BLL
     {
         private readonly DAL.DemandaEstimadaDAL _dal = new DAL.DemandaEstimadaDAL();
 
-        // Pesos decrecientes: la semana más reciente (índice 0, según ObtenerHistorial que
-        // ordena por FECHA DESC) pesa más que las anteriores.
         private static readonly double[] PesosSemanales = { 0.4, 0.3, 0.2, 0.1 };
 
         public BE.DemandaEstimada CalcularDemanda(DateTime semana, BE.FranjaHoraria franja)
@@ -29,16 +27,13 @@ namespace BLL
                 return manual;
             }
 
-            // Media móvil ponderada
             double promedioPonderado = 0;
             for (int i = 0; i < 4; i++)
                 promedioPonderado += historial[i] * PesosSemanales[i];
 
-            // Tendencia: pendiente simple entre la medición más vieja y la más nueva del set de 4.
-            // Positiva = la asistencia viene creciendo semana a semana; se proyecta una semana más.
             double tendenciaSemanal = (historial[0] - historial[3]) / 3.0;
             double proyeccion = promedioPonderado + tendenciaSemanal;
-            if (proyeccion < 0) proyeccion = promedioPonderado;   // la tendencia no puede proyectar negativo
+            if (proyeccion < 0) proyeccion = promedioPonderado;
 
             var evalAnterior = ConsultarEvaluacionCobertura(semana.AddDays(-7), franja);
 

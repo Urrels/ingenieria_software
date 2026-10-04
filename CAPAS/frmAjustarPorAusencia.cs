@@ -129,8 +129,6 @@ namespace CAPAS
             if (e.RowIndex < 0) return;
             var fila = (TurnoFilaVM)dgvTurnos.Rows[e.RowIndex].DataBoundItem;
 
-            // Caso nuevo: el empleado ya canceló y el sistema ya notificó automáticamente.
-            // Acá el admin solo tiene que elegir, de los que ya fueron notificados, quién cubre.
             if (fila.Turno.Estado == "PendienteCobertura")
             {
                 AsignarReemplazoPendiente(fila);
@@ -204,8 +202,6 @@ namespace CAPAS
                 return;
             }
 
-            // Esta es la misma lista de empleados que ya recibió la notificación automática
-            // al momento de la cancelación.
             using (var frmSeleccion = new frmSeleccionarReemplazo(compatibles))
             {
                 if (frmSeleccion.ShowDialog() != DialogResult.OK) return;

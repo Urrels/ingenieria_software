@@ -201,7 +201,6 @@ namespace CAPAS
             BE.UsuarioHistorial sel = dgvHistorial.CurrentRow?.DataBoundItem as BE.UsuarioHistorial;
             if (sel == null) return;
 
-            // FIX: no permitir rollback de un rollback
             if (sel.TipoCambio == "ROLLBACK")
             {
                 MsgBox.Show("No se puede restaurar una versión que ya es un rollback.",

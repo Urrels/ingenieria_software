@@ -83,7 +83,6 @@ namespace CAPAS
 
             if (!tieneUmbral)
             {
-                // flujo 3a
                 MsgBox.Show(
                     $"El equipo '{equipo.Nombre}' no tiene un nivel de uso crítico configurado.\n" +
                     "Se notificará al Administrador para que lo defina.",

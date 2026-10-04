@@ -55,7 +55,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // Agrupa los turnos asignados de la grilla por empleado (para el envío de notificaciones, UC4)
         public Dictionary<int, List<BE.Turno>> ObtenerTurnosPorEmpleado(int grillaId)
         {
             List<SqlParameter> parametros = new List<SqlParameter>

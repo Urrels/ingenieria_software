@@ -9,8 +9,6 @@ namespace BLL
 
         public List<BE.FranjaHoraria> ListarTodas() => _dal.ListarTodas();
 
-        public BE.FranjaHoraria ObtenerPorId(int id) => _dal.ObtenerPorId(id);
-
         public int Insertar(string dia, TimeSpan horaInicio, TimeSpan horaFin, string rolRequerido)
         {
             if (horaFin <= horaInicio)
@@ -21,7 +19,7 @@ namespace BLL
 
         public bool Eliminar(int id)
         {
-            return _dal.Eliminar(id);   // false si tiene referencias (disponibilidad/turnos/historial)
+            return _dal.Eliminar(id);
         }
     }
 

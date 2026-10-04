@@ -39,8 +39,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // Devuelve el uso acumulado y el nivel crítico ya actualizados, para que el BLL
-        // pueda evaluar sin pegarle una segunda vuelta a la base.
         public (int usoAcumulado, int? nivelUsoCritico) ActualizarUso(int equipoId, int incremento)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
