@@ -1,0 +1,53 @@
+@startuml DiagramaSecuencia_CU21_GenerarGrilla
+
+title CU-21 — Generar grilla de turnos (1/2: propuesta) — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmGenerarGrilla" as F #FEFECE
+participant ":GrillaBLL" as G #E8F4E8
+participant ":DemandaEstimadaBLL" as D #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : abrir "Generar grilla"
+F -> F : proponer lunes de\nla semana siguiente
+A -> F : "Generar" + confirmar
+F -> G : GenerarGrilla(semana)
+G -> DB : GRILLA_OBTENER_POR_SEMANA
+alt 3a. ya existe
+  G -> DB : TURNO_LISTAR_POR_GRILLA
+  G --> F : grilla existente\n(no se duplica)
+else
+  G -> DB : GRILLA_INSERTAR\n("Propuesta")
+  G -> DB : FRANJA_HORARIA_LISTAR_TODAS
+  loop por cada franja
+    G -> D : CalcularDemanda(semana, franja)
+    D -> DB : HISTORIAL_ASISTENCIA\n_OBTENER_POR_FRANJA
+    alt 5a. menos de 4 semanas
+      D -> DB : DEMANDA_ESTIMADA_INSERTAR\n("Manual", 0 personas)
+    else
+      D -> D : ponderado 40/30/20/10\n+ tendencia; 1 cada 15
+      D -> DB : EVALUACION_COBERTURA_OBTENER
+      D -> D : +1 si la semana anterior\ndio "Falta"
+      D -> DB : DEMANDA_ESTIMADA_INSERTAR\n("Calculado")
+    end
+    loop por cada empleado necesario
+      G -> DB : TURNO_INSERTAR\n("SinAsignar")
+    end
+  end
+  G --> F : grilla propuesta
+end
+F --> A : grilla de turnos
+note over A, DB : continúa en la parte 2: asignación y confirmación
+
+@enduml

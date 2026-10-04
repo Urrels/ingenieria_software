@@ -1,0 +1,40 @@
+@startuml DiagramaCasosDeUso_Seguridad2
+
+title Sistema de Gestión de Gimnasio — Casos de Uso de Seguridad (2/2): roles, idiomas y bitácora
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+skinparam dpi 140
+left to right direction
+
+actor "Administrador" as A
+
+rectangle "Roles y permisos" #F4E8E8 {
+  usecase "CU-12 Crear rol" as CU12
+  usecase "CU-13 Eliminar rol" as CU13
+  usecase "CU-14 Cambiar padre de rol" as CU14
+  usecase "CU-15 Asignar permisos a rol" as CU15
+  usecase "CU-33 Duplicar rol" as CU33
+}
+rectangle "Idiomas y bitácora" #F4E8E8 {
+  usecase "CU-16 Crear idioma" as CU16
+  usecase "CU-17 Editar idioma" as CU17
+  usecase "CU-18 Eliminar idioma" as CU18
+  usecase "CU-19 Cargar o editar traducciones" as CU19
+  usecase "CU-20 Ver bitácora" as CU20
+}
+
+A --> CU12
+A --> CU13
+A --> CU14
+A --> CU15
+A --> CU33
+A --> CU16
+A --> CU17
+A --> CU18
+A --> CU19
+A --> CU20
+
+@enduml

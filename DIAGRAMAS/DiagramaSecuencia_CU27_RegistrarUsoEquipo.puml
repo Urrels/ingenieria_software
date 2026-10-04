@@ -1,0 +1,57 @@
+@startuml DiagramaSecuencia_CU27_RegistrarUsoEquipo
+
+title CU-27 — Registrar uso de equipamiento — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Empleado" as E
+actor ":Sensor IoT" as SI
+participant ":frmRegistrarUsoMaquina" as F #FEFECE
+participant ":ApiSensoresEquipos" as API #FEFECE
+participant ":EquipoBLL" as EB #E8F4E8
+participant ":AlertaRevisionBLL" as AB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+alt carga manual
+  E -> F : abrir "Registrar uso"
+  F -> EB : ListarTodos()
+  EB -> DB : EQUIPO_LISTAR_TODOS
+  F -> F : mostrar solo equipos "Operativo"
+  E -> F : elegir equipo + "Registrar"
+  F -> EB : RegistrarUso(equipoId, 1)
+else 1a. sensor IoT
+  SI -> API : POST /api/equipos/uso\n{NombreEquipo, Incremento}
+  API -> EB : ObtenerPorNombre(nombre)
+  EB -> DB : EQUIPO_OBTENER_POR_NOMBRE
+  alt equipo inexistente
+    API --> SI : 400 {ok: false}
+  else
+    API -> EB : RegistrarUso(equipoId, incremento)
+  end
+end
+EB -> DB : EQUIPO_ACTUALIZAR_USO
+DB --> EB : uso acumulado, nivel crítico
+EB -> DB : EQUIPO_USO_LOG_INSERTAR
+alt 4a. sin nivel crítico configurado
+  EB --> F : false
+  F --> E : "El equipo no tiene un nivel de uso crítico configurado..."
+else con nivel crítico
+  opt uso acumulado >= nivel crítico
+    EB -> AB : GenerarAlerta(equipoId)
+    AB -> DB : ALERTA_INSERTAR (estado "Pendiente")
+  end
+  EB --> F : true
+  F --> E : "Registro de uso guardado correctamente."
+  API --> SI : 200 {ok: true}
+end
+
+@enduml

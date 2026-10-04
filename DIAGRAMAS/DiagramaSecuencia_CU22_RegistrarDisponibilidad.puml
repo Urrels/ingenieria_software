@@ -1,0 +1,49 @@
+@startuml DiagramaSecuencia_CU22_RegistrarDisponibilidad
+
+title CU-22 — Registrar disponibilidad horaria — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Empleado" as E
+participant ":frmRegistrarDisponibilidad" as F #FEFECE
+participant ":FranjaHorariaBLL" as FB #E8F4E8
+participant ":DisponibilidadBLL" as D #E8F4E8
+participant ":SessionManager" as S #F4E8E8
+database ":DB" as DB #E8E8F4
+
+E -> F : abrir "Disponibilidad"
+F -> F : semana = lunes de la semana siguiente
+F -> S : getUsuario()
+F -> FB : ListarTodas()
+FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
+F -> F : filtrar franjas del rol del empleado
+F -> D : ObtenerPrevia(usuario, semana)
+D -> DB : DISPONIBILIDAD_OBTENER_POR_USUARIO_SEMANA
+opt ya cargó disponibilidad
+  F -> F : marcar franjas + aviso "Ya habías cargado..."
+end
+F --> E : franjas con día y fecha
+E -> F : marcar franjas + "Aceptar"
+alt 5a. ninguna franja marcada
+  F --> E : "Tenés que indicar al menos una franja."
+else
+  F -> D : RegistrarDisponibilidad(usuario, semana, franjas)
+  D -> DB : DISPONIBILIDAD_OBTENER_POR_USUARIO_SEMANA
+  alt ya existía
+    D -> DB : DISPONIBILIDAD_FRANJA_ELIMINAR_POR_DISPONIBILIDAD\n+ N × DISPONIBILIDAD_FRANJA_INSERTAR
+  else nueva
+    D -> DB : DISPONIBILIDAD_INSERTAR\n+ N × DISPONIBILIDAD_FRANJA_INSERTAR
+  end
+  F --> E : "Disponibilidad registrada correctamente."
+end
+
+@enduml

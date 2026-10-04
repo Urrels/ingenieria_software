@@ -1,0 +1,60 @@
+@startuml DiagramaSecuencia_CU23_AjustarGrillaAusencia
+
+title CU-23 — Ajustar grilla por ausencia — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmAjustarPorAusencia" as F #FEFECE
+participant ":TurnoBLL" as T #E8F4E8
+participant ":NotificacionBLL" as N #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : día de la semana + "Buscar"
+F -> DB : GRILLA_OBTENER_POR_SEMANA\n+ TURNO_LISTAR_POR_GRILLA\n(GrillaBLL)
+alt 2a. sin grilla o no confirmada
+  F --> A : aviso correspondiente
+else
+  F --> A : turnos de la semana
+  A -> F : doble clic en el turno
+  alt 3a. sin empleado
+    F --> A : "Este turno no tiene un\nempleado asignado..."
+  else turno asignado
+    F --> A : "¿X avisó una ausencia?"
+    A -> F : Sí
+    F -> T : BuscarEmpleadosCompatibles()
+    T -> DB : TURNO_BUSCAR_COMPATIBLES
+    F -> F : excluir al ausente
+    alt 5a. sin compatibles
+      F -> T : MarcarDeficitCobertura()
+      T -> DB : TURNO_ACTUALIZAR_ASIGNACION
+      F --> A : "...queda marcado\ncomo sin cobertura."
+    else
+      F -> F : frmSeleccionarReemplazo
+      A -> F : elegir reemplazo
+      F -> T : ReemplazarPorAusencia()
+      T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
+      alt 7a. supera el límite
+        F --> A : "X superaría su límite..."
+      else
+        T -> DB : TURNO_ACTUALIZAR_ASIGNACION
+        F -> N : Notificar(reemplazante)
+        F -> N : Notificar(ausente)
+        N -> DB : NOTIFICACION_INSERTAR × 2
+        F --> A : "Turno reasignado y ambos\nempleados notificados."
+      end
+    end
+  end
+end
+note over A, DB : 3b. turno "PendienteCobertura" (CU-25): mismos pasos\nde búsqueda y asignación, notificando solo al nuevo empleado
+
+@enduml

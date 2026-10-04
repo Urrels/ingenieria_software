@@ -1,0 +1,55 @@
+@startuml DiagramaSecuencia_CU25_CancelarTurno
+
+title CU-25 — Cancelar turno asignado — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Empleado" as E
+participant ":frmMisTurnos" as F #FEFECE
+participant ":TurnoBLL" as T #E8F4E8
+participant ":NotificacionBLL" as N #E8F4E8
+participant ":UsuarioBLL" as UB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+E -> F : abrir "Mis turnos"
+F -> T : ListarPorUsuario(usuarioId)
+T -> DB : TURNO_LISTAR_POR_USUARIO
+F --> E : turnos del empleado
+E -> F : seleccionar turno + "Cancelar turno"
+alt 1a. sin selección
+  F --> E : "Seleccioná un turno de la lista."
+else 2a. el turno ya no está "Asignado"
+  F --> E : "Este turno ya no está asignado..."
+else
+  F --> E : "¿Seguro que querés cancelar el turno...?"
+  alt 3a. no confirma
+    E --> F : No
+  else confirma
+    E --> F : Sí
+    F -> T : CancelarPorEmpleado(turno, empleado)
+    T -> DB : TURNO_ACTUALIZAR_ASIGNACION (null, "PendienteCobertura")
+    T -> DB : TURNO_BUSCAR_COMPATIBLES
+    T -> T : excluir al empleado que cancela
+    loop por cada compatible
+      T -> N : Notificar(candidato, "Se necesita cobertura...")
+    end
+    T -> UB : ListarAdmins()
+    loop por cada administrador
+      T -> N : Notificar(admin, "X canceló su turno...\nSe notificó a N empleado(s).")
+    end
+    N -> DB : NOTIFICACION_INSERTAR
+    T --> F : candidatos notificados
+    F --> E : "Turno cancelado. Se notificó al administrador\ny a N empleado(s) disponible(s)."
+  end
+end
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml DiagramaSecuencia_CU21b_GenerarGrilla_Asignacion
+
+title CU-21 — Generar grilla de turnos (2/2: asignación y confirmación) — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmGenerarGrilla" as F #FEFECE
+participant ":frmAsignarEmpleado" as AE #FEFECE
+participant ":TurnoBLL" as T #E8F4E8
+participant ":GrillaBLL" as G #E8F4E8
+database ":DB" as DB #E8E8F4
+
+loop 7–10. por cada turno
+  A -> F : doble clic en un turno
+  F -> AE : ShowDialog()
+  AE -> T : BuscarEmpleados\nCompatibles()
+  T -> DB : TURNO_BUSCAR_COMPATIBLES
+  alt 7a. "Sin cobertura"
+    A -> AE : "Sin cobertura"\n+ confirmar
+    AE -> T : MarcarDeficitCobertura()
+    T -> DB : TURNO_ACTUALIZAR_ASIGNACION\n("DeficitCobertura")
+  else elegir empleado
+    A -> AE : empleado + "Asignar"
+    AE -> T : AsignarEmpleado()
+    T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
+    alt 9a. supera el límite
+      AE --> A : "X superaría su límite\nde horas semanales..."
+    else
+      T -> DB : TURNO_ACTUALIZAR_ASIGNACION\n("Asignado")
+    end
+  end
+end
+A -> F : "Confirmar grilla"
+F -> G : ConfirmarGrilla(grilla)
+alt 12a. quedan turnos sin resolver
+  G --> F : false
+  F --> A : "Todavía quedan franjas\nsin asignar..."
+else
+  G -> DB : GRILLA_CONFIRMAR
+  F --> A : "Grilla confirmada\ncorrectamente."
+end
+
+@enduml

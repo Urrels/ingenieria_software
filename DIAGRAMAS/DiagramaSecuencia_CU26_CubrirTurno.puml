@@ -1,0 +1,57 @@
+@startuml DiagramaSecuencia_CU26_CubrirTurno
+
+title CU-26 — Cubrir turno pendiente — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Empleado" as E
+participant ":frmCubrirTurno" as F #FEFECE
+participant ":TurnoBLL" as T #E8F4E8
+participant ":NotificacionBLL" as N #E8F4E8
+database ":DB" as DB #E8E8F4
+
+E -> F : abrir "Cubrir turno"
+F -> T : ListarPendientesPorRol(rol del empleado)
+T -> DB : TURNO_LISTAR_PENDIENTES_POR_ROL
+F --> E : turnos pendientes de su rol
+E -> F : seleccionar turno + "Tomar turno"
+alt 2a. sin selección
+  F --> E : "Seleccioná un turno de la lista."
+else
+  F -> T : TomarCobertura(turno, empleado)
+  T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
+  alt 3a. supera el límite de horas
+    T --> F : false
+  else
+    T -> DB : TURNO_TOMAR_COBERTURA
+    note right of DB
+      UPDATE ... WHERE ESTADO = 'PendienteCobertura'
+      (atómico: si dos lo toman a la vez,
+      solo uno actualiza la fila)
+    end note
+    alt 4a. otro empleado lo tomó primero
+      T --> F : false
+    else ganó
+      T -> N : Notificar(cada admin, "X tomó el turno...")
+      N -> DB : NOTIFICACION_INSERTAR
+      T --> F : true
+    end
+  end
+  alt false
+    F --> E : "Este turno ya fue cubierto por otra persona\n(o superarías tu límite de horas)."
+  else true
+    F --> E : "¡Listo! El turno quedó asignado a vos."
+  end
+  F -> T : ListarPendientesPorRol(...)
+end
+
+@enduml

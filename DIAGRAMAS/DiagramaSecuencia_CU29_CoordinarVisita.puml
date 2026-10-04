@@ -1,0 +1,56 @@
+@startuml DiagramaSecuencia_CU29_CoordinarVisita
+
+title CU-29 — Coordinar visita técnica — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmCoordinarVisita" as F #FEFECE
+participant ":frmSeleccionarReemplazo" as SR #FEFECE
+participant ":AlertaRevisionBLL" as AB #E8F4E8
+participant ":VisitaTecnicaBLL" as VB #E8F4E8
+participant ":EquipoBLL" as EB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : abrir "Coordinar visita"
+F -> F : fecha propuesta = mañana
+F -> AB : ListarAutorizadas()
+AB -> DB : ALERTA_LISTAR_AUTORIZADAS
+F --> A : alertas autorizadas
+A -> F : seleccionar alerta
+F -> EB : ObtenerPorId(equipoId)
+F -> VB : ObtenerTecnicoHabitual(equipo)
+VB -> DB : USUARIO_OBTENER_POR_ID
+F --> A : "Técnico habitual: X"\n(o "Sin técnico habitual asignado")
+opt 2a. buscar técnico alternativo
+  A -> F : click "Buscar alternativo"
+  F -> VB : ListarTecnicosAlternativos()
+  VB -> DB : VISITA_TECNICOS_ALTERNATIVOS
+  alt no hay alternativos
+    F --> A : "No hay técnicos alternativos registrados..."
+  else
+    F -> SR : ShowDialog(alternativos)
+    A -> SR : elegir técnico
+  end
+end
+A -> F : ajustar fecha + "Confirmar"
+alt 3a. sin técnico elegido
+  F --> A : "Elegí un técnico (habitual o alternativo)..."
+else
+  F -> VB : CoordinarVisita(alertaId, tecnicoId, fecha)
+  VB -> DB : VISITA_INSERTAR (estado "Coordinada")
+  F -> AB : MarcarCoordinada(alerta)
+  AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Coordinada")
+  F --> A : "Solicitud de visita confirmada."
+end
+
+@enduml
