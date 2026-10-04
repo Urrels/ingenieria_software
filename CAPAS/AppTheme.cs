@@ -6,20 +6,20 @@ namespace CAPAS
 {
     internal static class AppTheme
     {
-        internal static readonly Color FondoForm       = Color.FromArgb(251, 247, 238);
-        internal static readonly Color FondoHeader     = Color.FromArgb(230, 232, 210);
-        internal static readonly Color FondoControl    = Color.FromArgb(255, 253, 248);
-        internal static readonly Color FondoGrilla     = Color.FromArgb(255, 253, 248);
-        internal static readonly Color FondoGrillaAlt  = Color.FromArgb(243, 242, 228);
-        internal static readonly Color FondoStatus     = Color.FromArgb(221, 224, 196);
-        internal static readonly Color Acento          = Color.FromArgb( 95, 107,  58);
-        internal static readonly Color AcentoHover     = Color.FromArgb( 74,  85,  48);
-        internal static readonly Color TextoPrincipal  = Color.FromArgb( 58,  53,  38);
-        internal static readonly Color TextoEncabezado = Color.FromArgb( 74,  85,  48);
-        internal static readonly Color TextoSecundario = Color.FromArgb(107, 106,  80);
-        internal static readonly Color Borde           = Color.FromArgb(211, 211, 181);
-        internal static readonly Color Seleccion       = Color.FromArgb(207, 214, 174);
-        internal static readonly Color SeleccionTexto  = Color.FromArgb( 58,  53,  38);
+        internal static readonly Color FondoForm       = Color.FromArgb(255, 255, 255);
+        internal static readonly Color FondoHeader     = Color.FromArgb(232, 240, 251);
+        internal static readonly Color FondoControl    = Color.FromArgb(255, 255, 255);
+        internal static readonly Color FondoGrilla     = Color.FromArgb(255, 255, 255);
+        internal static readonly Color FondoGrillaAlt  = Color.FromArgb(253, 243, 247);
+        internal static readonly Color FondoStatus     = Color.FromArgb(225, 234, 248);
+        internal static readonly Color Acento          = Color.FromArgb( 59, 111, 182);
+        internal static readonly Color AcentoHover     = Color.FromArgb(194,  56, 107);
+        internal static readonly Color TextoPrincipal  = Color.FromArgb( 43,  45,  66);
+        internal static readonly Color TextoEncabezado = Color.FromArgb( 47,  90, 150);
+        internal static readonly Color TextoSecundario = Color.FromArgb(107, 111, 133);
+        internal static readonly Color Borde           = Color.FromArgb(213, 220, 232);
+        internal static readonly Color Seleccion       = Color.FromArgb(248, 215, 227);
+        internal static readonly Color SeleccionTexto  = Color.FromArgb( 43,  45,  66);
 
         internal static readonly Font FontTitulo = new Font("Segoe UI", 11f, FontStyle.Bold);
         internal static readonly Font FontBold   = new Font("Segoe UI", 10f, FontStyle.Bold);

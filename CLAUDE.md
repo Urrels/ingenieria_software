@@ -70,7 +70,7 @@ var skin = MaterialSkinManager.Instance;
 skin.Theme = MaterialSkinManager.Themes.LIGHT;
 skin.ColorScheme = new MaterialColorScheme(
     AppTheme.Acento, AppTheme.AcentoHover, AppTheme.Seleccion,
-    AppTheme.Acento, MaterialTextShade.WHITE);
+    AppTheme.AcentoHover, MaterialTextShade.WHITE);
 ```
 
 **Per-form** — every form's `Load` event must call, in this order:
@@ -79,7 +79,7 @@ MaterialSkinManager.Instance.AddFormToManage(this);
 AppTheme.AplicarTema(this);
 ```
 
-**`AppTheme.AplicarTema(form)`** (`CAPAS/AppTheme.cs`) — applies the corporate palette to Button, TextBox, Label, DataGridView, TreeView, ComboBox, Panel, GroupBox, MenuStrip, StatusStrip, and DateTimePicker controls recursively. Light cream + olive palette (gym branding): `FondoForm=#FBF7EE` (cream), `FondoHeader=#E6E8D2`, `FondoControl=#FFFDF8`, `FondoStatus=#DDE0C4`, accent `#5F6B3A` (olive green), hover `#4A5530` (with white text), selection `#CFD6AE`, text `#3A3526`. The MaterialForm title bar uses the same `AppTheme` colors (custom `Color` overload of `MaterialColorScheme`, since ReaLTaiizor has no olive preset). All colors live in `AppTheme` — never hardcode colors elsewhere; labels always get `TextoPrincipal` (a white label would be invisible on cream).
+**`AppTheme.AplicarTema(form)`** (`CAPAS/AppTheme.cs`) — applies the corporate palette to Button, TextBox, Label, DataGridView, TreeView, ComboBox, Panel, GroupBox, MenuStrip, StatusStrip, and DateTimePicker controls recursively. White + blue/pink palette (gym branding): `FondoForm=#FFFFFF`, `FondoHeader=#E8F0FB` (soft blue), `FondoGrillaAlt=#FDF3F7` (soft pink), `FondoStatus=#E1EAF8`, accent `#3B6FB6` (blue: title bar, buttons, headers), hover `#C2386B` (pink, with white text), selection `#F8D7E3` (light pink), text `#2B2D42`. The MaterialForm title bar uses the same `AppTheme` colors (custom `Color` overload of `MaterialColorScheme`). All colors live in `AppTheme` — never hardcode colors elsewhere; labels always get `TextoPrincipal` (a white label would be invisible on the white background).
 
 **Critical layout constraint** — `MaterialForm` renders its own title bar (~64 px) **inside** the client area at `y=0`. Controls in `.Designer.cs` must have `Location.Y ≥ ~70` or they will be hidden under the title bar. When designing a new form or adjusting an existing one, offset all content controls by at least 70 px from the top of the client area. The `ClientSize.Height` must be increased by the same amount relative to the visible content.
 

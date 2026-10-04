@@ -24,7 +24,7 @@ namespace CAPAS
                 AppTheme.Acento,
                 AppTheme.AcentoHover,
                 AppTheme.Seleccion,
-                AppTheme.Acento,
+                AppTheme.AcentoHover,
                 MaterialTextShade.WHITE
             );
 
