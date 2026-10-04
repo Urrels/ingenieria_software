@@ -2408,7 +2408,11 @@ GO
 INSERT INTO PERMISO (NOMBRE)
 SELECT v.NOMBRE
 FROM (VALUES ('Ver bitácora'), ('Administrar usuarios'), ('Gestión de roles'),
-             ('Gestión de idiomas'), ('Cambiar contraseña'), ('Generar grilla de turnos')) v(NOMBRE)
+             ('Gestión de idiomas'), ('Cambiar contraseña'), ('Generar grilla de turnos'),
+             ('Gestionar mis turnos'), ('Ajustar grilla de turnos'), ('Gestionar franjas horarias'),
+             ('Registrar uso de equipos'), ('Administrar mantenimiento'), ('Realizar revisión técnica'),
+             ('Fichar asistencia'), ('Registrar asistencia de socios'), ('Evaluar cobertura'),
+             ('Ver panel de indicadores')) v(NOMBRE)
 WHERE NOT EXISTS (SELECT 1 FROM PERMISO p WHERE p.NOMBRE = v.NOMBRE)
 GO
 IF NOT EXISTS (SELECT 1 FROM ROL WHERE NOMBRE = 'Administrador')
@@ -2426,11 +2430,18 @@ INSERT INTO ROL_PERMISO (ROL_ID, PERMISO_ID)
 SELECT @rolAdminId, p.ID FROM PERMISO p
 WHERE NOT EXISTS (SELECT 1 FROM ROL_PERMISO rp WHERE rp.ROL_ID = @rolAdminId AND rp.PERMISO_ID = p.ID)
 
-DECLARE @permCambiarPassId INT = (SELECT ID FROM PERMISO WHERE NOMBRE = 'Cambiar contraseña')
 INSERT INTO ROL_PERMISO (ROL_ID, PERMISO_ID)
-SELECT r.ID, @permCambiarPassId FROM ROL r
-WHERE r.NOMBRE IN ('Usuario', 'Sala', 'Recepcion', 'Tecnico')
-  AND NOT EXISTS (SELECT 1 FROM ROL_PERMISO rp WHERE rp.ROL_ID = r.ID AND rp.PERMISO_ID = @permCambiarPassId)
+SELECT r.ID, p.ID
+FROM (VALUES ('Usuario',   'Cambiar contraseña'),
+             ('Sala',      'Cambiar contraseña'), ('Sala', 'Gestionar mis turnos'),
+             ('Sala',      'Fichar asistencia'),  ('Sala', 'Registrar uso de equipos'),
+             ('Recepcion', 'Cambiar contraseña'), ('Recepcion', 'Gestionar mis turnos'),
+             ('Recepcion', 'Fichar asistencia'),  ('Recepcion', 'Registrar uso de equipos'),
+             ('Recepcion', 'Registrar asistencia de socios'),
+             ('Tecnico',   'Cambiar contraseña'), ('Tecnico', 'Realizar revisión técnica')) v(ROL, PERMISO)
+JOIN ROL r ON r.NOMBRE = v.ROL
+JOIN PERMISO p ON p.NOMBRE = v.PERMISO
+WHERE NOT EXISTS (SELECT 1 FROM ROL_PERMISO rp WHERE rp.ROL_ID = r.ID AND rp.PERMISO_ID = p.ID)
 GO
 DECLARE @rolAdminId INT = (SELECT ID FROM ROL WHERE NOMBRE = 'Administrador')
 IF NOT EXISTS (SELECT 1 FROM USUARIO WHERE USUARIO = 'admin')
