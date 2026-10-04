@@ -93,6 +93,7 @@ package "BE" #FEFECE {
     + {abstract} Quitar(n : NodoPermiso) : void
     + {abstract} ObtenerHijos() : IList<NodoPermiso>
     + {abstract} EsHoja() : bool
+    + {abstract} Clonar() : NodoPermiso
     + ToString() : string
   }
 
@@ -103,6 +104,7 @@ package "BE" #FEFECE {
     + Quitar(n : NodoPermiso) : void
     + ObtenerHijos() : IList<NodoPermiso>
     + EsHoja() : bool
+    + Clonar() : NodoPermiso
   }
 
   class Permiso {
@@ -110,6 +112,7 @@ package "BE" #FEFECE {
     + Quitar(n : NodoPermiso) : void
     + ObtenerHijos() : IList<NodoPermiso>
     + EsHoja() : bool
+    + Clonar() : NodoPermiso
   }
 
   NodoPermiso <|-- Rol
@@ -193,6 +196,7 @@ package "DAL" #DAE8FC {
     + Leer(sp : string, params : List<SqlParameter>?) : DataTable
     + CrearParametro(nombre : string, valor : string) : SqlParameter
     + CrearParametro(nombre : string, valor : int) : SqlParameter
+    - {static} CadenaConexion() : string
   }
 
   class UsuarioDAL {
@@ -231,8 +235,8 @@ package "DAL" #DAE8FC {
     - _acceso : Acceso
     + ListarPermisosDeUsuario(usuarioId : int) : List<string>
     + ListarPerfilesPorUsuario(usuarioId : int) : List<int>
-    + BorrarTodos(usuarioId : int) : void
-    + Asignar(usuarioId : int, perfilId : int) : void
+    + ListarRolesDeUsuariosActivos() : Dictionary<int, List<int>>
+    + ReemplazarAsignaciones(usuarioId : int, perfilIds : List<int>) : void
   }
 
   class BitacoraDAL {
@@ -339,14 +343,20 @@ package "BLL" #FFE6CC {
   }
 
   class PerfilBLL {
+    - {static} PermisosDeAdministracion : string[]
     - _dal : PerfilDAL
+    - _usuarioPerfilDal : UsuarioPerfilDAL
+    - _bitacora : BitacoraBLL
     + ObtenerArbol() : List<NodoPermiso>
     + ObtenerPermisosDisponibles() : List<Permiso>
     + ListarRolesParaCombo() : List<Rol>
     + ActualizarPermisosDeRol(rolId : int, permisoIds : List<int>) : void
     + AgregarRol(nombre : string, padreId : int?) : NodoPermiso
+    + DuplicarRol(rolId : int, nuevoNombre : string) : Rol
     + CambiarPadre(rolId : int, nuevoPadreId : int?) : void
     + Eliminar(id : int) : void
+    ~ ValidarQueQuedeAdministracion(rolId : int?, nuevosPermisoIds : List<int>, usuarioId : int?, nuevosRolIds : List<int>) : void
+    ~ {static} PermisoQueSePerderia(...) : string
     - GenerariaCiclo(rolId : int, candidatoPadreId : int, todos : List<NodoPermiso>) : bool
     - EsAncestroDelPadreActual(padreActualId : int?, candidatoPadreId : int, todos : List<NodoPermiso>) : bool
   }
@@ -356,6 +366,7 @@ package "BLL" #FFE6CC {
     - _usuarioDal : UsuarioDAL
     - _integridad : IntegridadBLL
     - _historial : UsuarioHistorialBLL
+    - _bitacora : BitacoraBLL
     + ObtenerPermisos(usuarioId : int) : List<string>
     + ObtenerPerfilesAsignados(usuarioId : int) : List<int>
     + GuardarAsignaciones(usuarioId : int, perfilIds : List<int>) : void
@@ -388,6 +399,18 @@ package "BLL" #FFE6CC {
     + GuardarTraduccion(idiomaId : int, controlId : int, texto : string) : void
   }
 
+  class FachadaIdioma <<facade>> {
+    - _idiomas : IdiomaBLL
+    + IdiomaActivo : IDIOMA
+    + ListarDisponibles() : List<IDIOMA>
+    + Cambiar(idioma : IDIOMA) : void
+    + AplicarPreferencia(usuario : USUARIO) : void
+    + RecargarSiEstaActivo(idiomaId : int) : void
+    + RegistrarClave(clave : string, textoDefault : string) : void
+    + Traducir(clave : string) : string
+    - Aplicar(idioma : IDIOMA) : void
+  }
+
   class UsuarioHistorialBLL {
     - _dal : UsuarioHistorialDAL
     - _usuarioDal : UsuarioDAL
@@ -409,13 +432,23 @@ package "BLL" #FFE6CC {
   LoginBLL --> BitacoraBLL
   LoginBLL --> UsuarioPerfilBLL
   LoginBLL --> UsuarioHistorialBLL
-  LoginBLL --> IdiomaBLL
-  LoginBLL --> IdiomaManager
+  LoginBLL --> FachadaIdioma
+  FachadaIdioma --> IdiomaBLL
+  FachadaIdioma --> IdiomaManager
+  FachadaIdioma --> SessionManager
+  FachadaIdioma --> UsuarioBLL
   PerfilBLL --> PerfilDAL
+  PerfilBLL --> UsuarioPerfilDAL
+  PerfilBLL --> BitacoraBLL
+  PerfilBLL ..> Rol : Clonar()
   UsuarioPerfilBLL --> UsuarioPerfilDAL
   UsuarioPerfilBLL --> UsuarioDAL
   UsuarioPerfilBLL --> IntegridadBLL
   UsuarioPerfilBLL --> UsuarioHistorialBLL
+  UsuarioPerfilBLL --> BitacoraBLL
+  UsuarioPerfilBLL --> PerfilBLL
+  UsuarioBLL --> PerfilBLL
+  UsuarioHistorialBLL --> PerfilBLL
   BitacoraBLL --> BitacoraDAL
   IdiomaBLL --> IdiomaDAL
   UsuarioHistorialBLL --> UsuarioHistorialDAL
@@ -437,69 +470,58 @@ package "CAPAS" #F8CECC {
     + {static} AgregarSelector(form : Form) : void
   }
 
+  class Textos <<static>> {
+    - {static} _registradas : HashSet<string>
+    + {static} T(clave : string, textoDefault : string, params args : object[]) : string
+    + {static} ClaveDesdeTexto(prefijo : string, texto : string) : string
+  }
+
+  class FormBase <<template method>> {
+    # _controles : Dictionary<string, Control>
+    # _defaults : Dictionary<string, string>
+    # InicializarFormulario() : void
+    # AjustarClaves() : void
+    # ActualizarTextosDinamicos() : void
+    + ActualizarIdioma() : void
+    # OnFormClosed(e : FormClosedEventArgs) : void
+    - GuardarDefaults(controles : ControlCollection) : void
+  }
+
   together {
-    class LogIn {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-    }
-    class frmMenu {
-      - _menuItems : Dictionary<string, ToolStripItem>
-      - _menuDefaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-    }
+    class LogIn
     class frmAdminUsuarios {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-      - ActualizarEncabezados() : void
+      # AjustarClaves() : void
+      # ActualizarTextosDinamicos() : void
     }
-    class frmNuevoUsuario {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-    }
-    class frmEditarUsuario {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-    }
-    class frmContraseña {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-    }
+    class frmNuevoUsuario
+    class frmEditarUsuario
+    class frmContraseña
   }
 
   together {
     class frmHistorialUsuario {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-      - ActualizarEncabezados() : void
+      # AjustarClaves() : void
+      # ActualizarTextosDinamicos() : void
     }
     class frmBitacora {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-      - ActualizarEncabezados() : void
+      # AjustarClaves() : void
+      # ActualizarTextosDinamicos() : void
     }
     class frmPerfiles {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
+      # ActualizarTextosDinamicos() : void
+      - btnDuplicarRol_Click(...) : void
     }
-    class frmAsignarPerfiles {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-    }
+    class frmAsignarPerfiles
     class frmIdiomas {
-      - _controles : Dictionary<string, Control>
-      - _defaults : Dictionary<string, string>
-      + ActualizarIdioma() : void
-      - ActualizarEncabezados() : void
+      # ActualizarTextosDinamicos() : void
     }
+  }
+
+  class frmMenu {
+    - _menuItems : Dictionary<string, ToolStripItem>
+    - _menuDefaults : Dictionary<string, string>
+    - _fachadaIdioma : FachadaIdioma
+    + ActualizarIdioma() : void
   }
 
   class frmRestaurarIntegridad {
@@ -508,17 +530,23 @@ package "CAPAS" #F8CECC {
     - _historialBll : UsuarioHistorialBLL
   }
 
-  IObservadorIdioma <|.. LogIn
+  note "Además heredan de FormBase los formularios\nde turnos, equipos y asistencia (26 en total)." as NotaFormBase
+  NotaFormBase .. FormBase
+
+  IObservadorIdioma <|.. FormBase
   IObservadorIdioma <|.. frmMenu
-  IObservadorIdioma <|.. frmAdminUsuarios
-  IObservadorIdioma <|.. frmNuevoUsuario
-  IObservadorIdioma <|.. frmEditarUsuario
-  IObservadorIdioma <|.. frmContraseña
-  IObservadorIdioma <|.. frmHistorialUsuario
-  IObservadorIdioma <|.. frmBitacora
-  IObservadorIdioma <|.. frmPerfiles
-  IObservadorIdioma <|.. frmAsignarPerfiles
-  IObservadorIdioma <|.. frmIdiomas
+  FormBase <|-- LogIn
+  FormBase <|-- frmAdminUsuarios
+  FormBase <|-- frmNuevoUsuario
+  FormBase <|-- frmEditarUsuario
+  FormBase <|-- frmContraseña
+  FormBase <|-- frmHistorialUsuario
+  FormBase <|-- frmBitacora
+  FormBase <|-- frmPerfiles
+  FormBase <|-- frmAsignarPerfiles
+  FormBase <|-- frmIdiomas
+  FormBase ..> IdiomaUIHelper
+  FormBase ..> IdiomaManager
 }
 
 ' ─────────────────────────────────────────
@@ -535,14 +563,16 @@ frmPerfiles --> PerfilBLL
 frmAsignarPerfiles --> UsuarioPerfilBLL
 frmAsignarPerfiles --> PerfilBLL
 frmIdiomas --> IdiomaBLL
+frmIdiomas --> FachadaIdioma
+IdiomaUIHelper --> FachadaIdioma
+Textos --> FachadaIdioma
 frmHistorialUsuario --> UsuarioHistorialBLL
 frmRestaurarIntegridad --> IntegridadBLL
 frmRestaurarIntegridad --> UsuarioBLL
 frmRestaurarIntegridad --> UsuarioHistorialBLL
 frmMenu --> SessionManager
 frmMenu --> IdiomaManager
-frmMenu --> IdiomaBLL
-frmMenu --> UsuarioBLL
+frmMenu --> FachadaIdioma
 frmMenu --> BitacoraBLL
 
 @enduml

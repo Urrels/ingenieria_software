@@ -1,0 +1,95 @@
+@startuml DiagramaClases_Facade
+
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide empty members
+
+title Patrón Facade — Gestión de idiomas (FachadaIdioma)
+
+package "CAPAS" #F8CECC {
+  class IdiomaUIHelper <<Client>>
+  class frmMenu <<Client>>
+  class frmIdiomas <<Client>>
+  class Textos <<Client>>
+}
+
+package "BLL" #FFE6CC {
+  class FachadaIdioma <<Facade>> {
+    - _idiomas : IdiomaBLL
+    --
+    + IdiomaActivo : IDIOMA
+    + ListarDisponibles() : List<IDIOMA>
+    + Cambiar(idioma : IDIOMA)
+    + AplicarPreferencia(usuario : USUARIO)
+    + RecargarSiEstaActivo(idiomaId : int)
+    + RegistrarClave(clave : string, textoDefault : string)
+    + Traducir(clave : string) : string
+    - Aplicar(idioma : IDIOMA)
+  }
+
+  class LoginBLL <<Client>>
+
+  class IdiomaBLL <<Subsystem>> {
+    + ListarHabilitados() : List<IDIOMA>
+    + ObtenerPorId(id : int) : IDIOMA
+    + CargarTraducciones(idiomaId : int) : Dictionary<string, string>
+    + RegistrarControl(clave : string, textoDefault : string)
+  }
+
+  class UsuarioBLL <<Subsystem>> {
+    + ActualizarIdioma(id : int, idiomaId : int)
+  }
+}
+
+package "SeguridadYServicios" #D5E8D4 {
+  class IdiomaManager <<Subsystem>> {
+    + IdiomaActivo : IDIOMA
+    + CambiarIdioma(idioma : IDIOMA, traducciones : Dictionary<string, string>)
+    + Traducir(clave : string) : string
+  }
+
+  class SessionManager <<Subsystem>> {
+    + getUsuario() : USUARIO
+  }
+}
+
+IdiomaUIHelper --> FachadaIdioma : Cambiar()\nListarDisponibles()
+frmMenu --> FachadaIdioma : Cambiar()\nRegistrarClave()
+frmIdiomas --> FachadaIdioma : RecargarSiEstaActivo()
+Textos --> FachadaIdioma : Traducir()\nRegistrarClave()
+LoginBLL --> FachadaIdioma : AplicarPreferencia()
+
+FachadaIdioma --> IdiomaBLL
+FachadaIdioma --> IdiomaManager
+FachadaIdioma --> SessionManager
+FachadaIdioma --> UsuarioBLL
+
+note right of FachadaIdioma
+  **Facade**: punto de entrada único para las
+  operaciones de idioma. Los clientes no conocen
+  cómo colaboran las clases del subsistema.
+  ""Cambiar(idioma)"":
+  1. carga las traducciones (""IdiomaBLL"");
+  2. las aplica y notifica a los formularios
+     (""IdiomaManager.CambiarIdioma"", Observer);
+  3. si hay sesión (""SessionManager""), guarda
+     la preferencia del usuario (""UsuarioBLL"").
+  ""AplicarPreferencia"" solo aplica el idioma
+  guardado si sigue habilitado.
+end note
+
+note bottom of IdiomaManager
+  **Subsistema**: ""IdiomaManager"" y
+  ""SessionManager"" son Singletons;
+  ""IdiomaManager"" es además el Subject
+  del patrón Observer.
+end note
+
+note top of IdiomaUIHelper
+  **Clientes**: antes cada uno repetía
+  la secuencia cargar → aplicar → guardar
+  preferencia. Ahora solo llaman a la fachada.
+end note
+
+@enduml

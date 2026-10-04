@@ -263,12 +263,21 @@ All diagram sources, generated images, and doc-generation scripts live under `DI
 | `DIAGRAMAS/DiagramaClases_Composite.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Composite — árbol de roles/permisos (`NodoPermiso`/`Rol`/`Permiso`), con comentarios |
 | `DIAGRAMAS/DiagramaClases_Observer.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Observer — multiidioma (`IdiomaManager`/`IObservadorIdioma`), con comentarios |
 | `DIAGRAMAS/DiagramaClases_Singleton.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Singleton — `SessionManager`/`IdiomaManager`, con comentarios |
+| `DIAGRAMAS/DiagramaClases_Facade.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Facade — `FachadaIdioma` y el subsistema de idiomas, con comentarios |
+| `DIAGRAMAS/DiagramaClases_Prototype.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Prototype — `NodoPermiso.Clonar()` y "Duplicar rol", con comentarios |
+| `DIAGRAMAS/DiagramaClases_TemplateMethod.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Template Method — `FormBase.InicializarFormulario()` y sus hooks, con comentarios |
 | `DIAGRAMAS/DiagramaComponentes.puml` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
 | `DIAGRAMAS/DiagramaComponentes/DiagramaComponentes - TP_IS.png` | Diagrama de componentes (render) | PNG renderizado del anterior |
 | `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
 | `DIAGRAMAS/DiagramaSecuencia_CU01..CU20_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por cada uno de los 20 casos de uso |
 | `DIAGRAMAS/CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |
 | `DIAGRAMAS/generar_casos_uso_docx.py` | Generador | Regenera `CasosDeUso.docx` desde el dict `CUS` definido en el script |
+
+Sin acceso a kroki.io se puede renderizar localmente con el jar de PlantUML (requiere Java y Graphviz). Los diagramas grandes superan el límite por defecto de 4096 px, por eso se sube `PLANTUML_LIMIT_SIZE`:
+
+```powershell
+java -DPLANTUML_LIMIT_SIZE=16384 -jar plantuml.jar -tpng -pipe < DiagramaClases.puml > DiagramaClases.png
+```
 
 Regenerar un PNG individual (desde `DIAGRAMAS/`):
 

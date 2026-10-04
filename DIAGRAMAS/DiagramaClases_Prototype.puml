@@ -1,0 +1,82 @@
+@startuml DiagramaClases_Prototype
+
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide empty members
+
+title Patrón Prototype — Duplicar rol (BE / BLL)
+
+package "BE" #FEFECE {
+
+  abstract class NodoPermiso <<Prototype>> {
+    + Id : int
+    + Nombre : string
+    + PadreId : int?
+    --
+    + {abstract} Clonar() : NodoPermiso
+    + {abstract} ObtenerHijos() : IList<NodoPermiso>
+    + {abstract} EsHoja() : bool
+  }
+
+  class Rol <<ConcretePrototype>> {
+    + Protegido : bool
+    - _hijos : List<NodoPermiso>
+    --
+    + Clonar() : NodoPermiso
+  }
+
+  class Permiso <<ConcretePrototype>> {
+    + Clonar() : NodoPermiso
+  }
+
+  Rol --|> NodoPermiso
+  Permiso --|> NodoPermiso
+  Rol "1" o-- "0..*" NodoPermiso : _hijos
+}
+
+package "BLL" #FFE6CC {
+  class PerfilBLL <<Client>> {
+    + ObtenerArbol() : List<NodoPermiso>
+    + DuplicarRol(rolId : int, nuevoNombre : string) : Rol
+    - {static} BuscarRol(nodos, rolId : int) : Rol
+  }
+}
+
+package "CAPAS" #F8CECC {
+  class frmPerfiles {
+    - btnDuplicarRol_Click(...)
+  }
+}
+
+frmPerfiles --> PerfilBLL : DuplicarRol()
+PerfilBLL ..> NodoPermiso : Clonar()
+
+note top of NodoPermiso
+  **Prototype**: declara ""Clonar()"", que
+  permite crear un objeto nuevo copiando uno
+  existente sin depender de su clase concreta.
+  Se suma al Composite ya existente.
+end note
+
+note bottom of NodoPermiso
+  **ConcretePrototype**:
+  • ""Rol"" (rama) crea un rol con los mismos datos
+    y clona **recursivamente** cada hijo (copia
+    profunda): modificar la copia no afecta al original.
+  • ""Permiso"" (hoja) devuelve un permiso nuevo con
+    el mismo ""Id"" y ""Nombre"" del catálogo.
+end note
+
+note bottom of PerfilBLL
+  ""DuplicarRol"":
+  1. busca el rol en el árbol (""ObtenerArbol"");
+  2. ""copia = original.Clonar()"";
+  3. cambia el nombre y quita ""Protegido"";
+  4. inserta el rol bajo el mismo padre y guarda
+     los permisos propios de la copia (los sub-roles
+     no se duplican);
+  5. registra ""ROL_DUPLICADO"" en la bitácora.
+end note
+
+@enduml
