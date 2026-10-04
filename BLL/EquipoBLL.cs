@@ -7,6 +7,7 @@ namespace BLL
     {
         private readonly DAL.EquipoDAL _dal = new DAL.EquipoDAL();
         private readonly AlertaRevisionBLL _alertaBLL = new AlertaRevisionBLL();
+        private readonly NotificacionBLL _notificacionBLL = new NotificacionBLL();
 
         public BE.Equipo ObtenerPorId(int id) => _dal.ObtenerPorId(id);
 
@@ -20,7 +21,13 @@ namespace BLL
             _dal.RegistrarUsoLog(equipoId, incremento);
 
             if (!nivelUsoCritico.HasValue)
+            {
+                string nombre = _dal.ObtenerPorId(equipoId)?.Nombre ?? equipoId.ToString();
+                _notificacionBLL.NotificarAdministradores(
+                    $"El equipo '{nombre}' no tiene un nivel de uso crítico configurado. Definilo para que el sistema pueda generar alertas de revisión.",
+                    unaVezPorDia: true);
                 return false;
+            }
 
             if (usoAcumulado >= nivelUsoCritico.Value)
                 _alertaBLL.GenerarAlerta(equipoId);

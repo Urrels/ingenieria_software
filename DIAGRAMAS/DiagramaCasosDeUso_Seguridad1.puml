@@ -1,0 +1,48 @@
+@startuml DiagramaCasosDeUso_Seguridad1
+
+title Sistema de Gestión de Gimnasio — Casos de Uso de Seguridad (1/2): sesión y usuarios
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+skinparam dpi 140
+left to right direction
+
+actor "Usuario" as U
+actor "Administrador" as A
+A -|> U
+
+rectangle "Sesión e integridad" #F4E8E8 {
+  usecase "CU-01 Iniciar sesión" as CU01
+  usecase "CU-02 Restaurar integridad\ndel sistema" as CU02
+  usecase "CU-03 Cerrar sesión" as CU03
+  usecase "CU-04 Cambiar contraseña" as CU04
+  usecase "CU-05 Cambiar idioma" as CU05
+}
+rectangle "Usuarios" #F4E8E8 {
+  usecase "CU-06 Crear usuario" as CU06
+  usecase "CU-07 Eliminar usuario" as CU07
+  usecase "CU-08 Desbloquear usuario" as CU08
+  usecase "CU-09 Asignar perfiles a usuario" as CU09
+  usecase "CU-32 Editar datos de usuario" as CU32
+  usecase "CU-10 Ver historial de usuario" as CU10
+  usecase "CU-11 Restaurar usuario\ndesde historial" as CU11
+}
+
+U --> CU01
+U --> CU03
+U --> CU04
+U --> CU05
+CU02 .> CU01 : <<extend>>
+CU11 .> CU10 : <<extend>>
+CU02 ..> CU11 : <<include>>
+A --> CU02
+A --> CU06
+A --> CU07
+A --> CU08
+A --> CU09
+A --> CU32
+A --> CU10
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml DiagramaSecuencia_CU33_DuplicarRol
+
+title CU-33 — Duplicar rol — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmPerfiles" as F #FEFECE
+participant ":PerfilBLL" as PB #E8F4E8
+participant "original:Rol" as R #E8E8E8
+participant ":BitacoraBLL" as BB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : seleccionar rol + "Duplicar rol"
+alt 1a. sin rol seleccionado
+  F --> A : "Seleccioná un rol."
+else
+  F --> A : InputBox "Nombre del nuevo rol:" ("X (copia)")
+  A -> F : nombre + Aceptar
+  alt 3a. vacío o cancela
+    note right of F : no se crea la copia
+  else
+    F -> PB : DuplicarRol(rolId, nombre)
+    PB -> PB : ObtenerArbol() + BuscarRol(rolId)
+    PB -> R : Clonar()
+    note right of R : patrón Prototype: copia profunda\ndel rol y de sus hijos
+    R --> PB : copia
+    PB -> PB : copia.Nombre = nombre\ncopia.Protegido = false
+    PB -> DB : ROL_INSERTAR(nombre, mismo padre)
+    PB -> DB : GuardarPermisosDeRol(copia.Id, permisos propios)\n(ROL_PERMISO_LIMPIAR + N × INSERTAR)
+    PB -> BB : RegistrarAccion(admin, "ROL_DUPLICADO:nombre")
+    F -> PB : ObtenerArbol()
+    F --> A : árbol con el rol duplicado
+  end
+end
+
+@enduml

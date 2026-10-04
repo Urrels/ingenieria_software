@@ -361,7 +361,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[NOTIFICACION](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
-	[GRILLA_ID] [int] NOT NULL,
+	[GRILLA_ID] [int] NULL,
 	[USUARIO_ID] [int] NOT NULL,
 	[MENSAJE] [varchar](300) NOT NULL,
 	[FECHA_ENVIO] [datetime] NOT NULL,
@@ -722,6 +722,17 @@ CREATE PROCEDURE [dbo].[ALERTA_INSERTAR]
     @equipo_id INT
 AS
 BEGIN
+    -- si el equipo ya tiene una alerta abierta no se genera otra
+    DECLARE @abierta INT = (SELECT TOP 1 ID FROM ALERTA_REVISION
+                            WHERE EQUIPO_ID = @equipo_id
+                              AND ESTADO IN ('Pendiente', 'Autorizada', 'Coordinada')
+                            ORDER BY ID DESC)
+    IF @abierta IS NOT NULL
+    BEGIN
+        SELECT @abierta AS ID
+        RETURN
+    END
+
     INSERT INTO ALERTA_REVISION (EQUIPO_ID, FECHA_GENERACION, ESTADO)
     VALUES (@equipo_id, GETDATE(), 'Pendiente')
     SELECT SCOPE_IDENTITY() AS ID
@@ -1426,7 +1437,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE PROCEDURE [dbo].[INFORME_LISTAR_PENDIENTES_CIERRE]
 AS
-    SELECT i.ID, i.VISITA_ID, i.RESULTADO, i.PENDIENTE_REPUESTO, i.FECHA_EMISION, a.EQUIPO_ID
+    SELECT i.ID, i.VISITA_ID, i.RESULTADO, i.PENDIENTE_REPUESTO, i.FECHA_EMISION, a.ID AS ALERTA_ID, a.EQUIPO_ID
     FROM INFORME_MANTENIMIENTO i
     JOIN VISITA_TECNICA v ON v.ID = i.VISITA_ID
     JOIN ALERTA_REVISION a ON a.ID = v.ALERTA_ID
@@ -1463,7 +1474,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE PROCEDURE [dbo].[NOTIFICACION_INSERTAR]
-    @grilla_id  INT,
+    @grilla_id  INT = NULL,
     @usuario_id INT,
     @mensaje    VARCHAR(300),
     @estado     VARCHAR(20)
@@ -1473,6 +1484,21 @@ BEGIN
     VALUES (@grilla_id, @usuario_id, @mensaje, GETDATE(), @estado)
     SELECT SCOPE_IDENTITY() AS ID
 END
+GO
+/****** Object:  StoredProcedure [dbo].[NOTIFICACION_EXISTE_HOY]    Script Date: 04/10/2026 12:15:33 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[NOTIFICACION_EXISTE_HOY]
+    @usuario_id INT,
+    @mensaje    VARCHAR(300)
+AS
+    SELECT COUNT(*) AS CANTIDAD
+    FROM NOTIFICACION
+    WHERE USUARIO_ID = @usuario_id
+      AND MENSAJE = @mensaje
+      AND CAST(FECHA_ENVIO AS DATE) = CAST(GETDATE() AS DATE)
 GO
 /****** Object:  StoredProcedure [dbo].[NOTIFICACION_LISTAR_POR_USUARIO]    Script Date: 04/10/2026 12:15:33 AM ******/
 SET ANSI_NULLS ON
@@ -1801,6 +1827,18 @@ AS
       AND u.ID NOT IN (
           SELECT USUARIO_ID FROM TURNO
           WHERE GRILLA_ID = @grilla_id AND FRANJA_ID = @franja_id AND USUARIO_ID IS NOT NULL
+      )
+      -- solo quienes declararon disponibilidad para esa franja en la semana de la grilla
+      -- (las dos fechas se llevan a su lunes: 01/01/1900 fue lunes)
+      AND EXISTS (
+          SELECT 1
+          FROM DISPONIBILIDAD d
+          JOIN DISPONIBILIDAD_FRANJA df ON df.DISPONIBILIDAD_ID = d.ID
+          JOIN GRILLA_TURNOS g ON g.ID = @grilla_id
+          WHERE d.USUARIO_ID = u.ID
+            AND df.FRANJA_ID = @franja_id
+            AND DATEADD(DAY, -(DATEDIFF(DAY, '19000101', d.SEMANA) % 7), d.SEMANA)
+              = DATEADD(DAY, -(DATEDIFF(DAY, '19000101', g.SEMANA) % 7), g.SEMANA)
       )
 GO
 /****** Object:  StoredProcedure [dbo].[TURNO_CONTAR_ASIGNADOS_POR_FRANJA]    Script Date: 04/10/2026 12:15:33 AM ******/

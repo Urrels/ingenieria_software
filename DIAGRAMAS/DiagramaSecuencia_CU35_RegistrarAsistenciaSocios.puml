@@ -1,0 +1,38 @@
+@startuml DiagramaSecuencia_CU35_RegistrarAsistenciaSocios
+
+title CU-35 — Registrar asistencia de socios — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Empleado (Recepción)" as E
+participant ":frmRegistrarAsistenciaSocios" as F #FEFECE
+participant ":FranjaHorariaBLL" as FB #E8F4E8
+participant ":HistorialAsistenciaSociosBLL" as HB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+E -> F : abrir "Asistencia de socios"
+F -> FB : ListarTodas()
+FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
+F --> E : fecha de hoy + combo de franjas
+E -> F : elegir franja, fecha y cantidad + "Registrar"
+alt 2a. sin franja
+  F --> E : "Seleccioná una franja."
+else 4a. cantidad inválida
+  F --> E : "Ingresá una cantidad válida de socios."
+else
+  F -> HB : RegistrarAsistencia(franja, fecha, cantidad)
+  HB -> DB : HISTORIAL_ASISTENCIA_INSERTAR
+  F --> E : "Asistencia de socios registrada."
+end
+note over HB, DB : de este historial sale la demanda estimada (CU-21)
+
+@enduml

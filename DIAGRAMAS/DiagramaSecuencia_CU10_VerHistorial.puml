@@ -1,104 +1,50 @@
 @startuml DiagramaSecuencia_CU10_VerHistorial
 
-title CU-10 — Ver Historial de Usuario — Diagrama de Secuencia
+title CU-10 — Ver historial de usuario — Diagrama de Secuencia
 
 skinparam shadowing false
 skinparam roundcorner 6
 skinparam sequenceArrowThickness 1.2
-skinparam ParticipantPadding 14
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
 skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
 hide footbox
-scale 0.85
 
-' ─────────────────────────────────────────
-' Participantes en orden de aparición
-' ─────────────────────────────────────────
-actor       ":Administrador"       as A
-participant ":frmAdminUsuarios"    as FA #FEFECE
-participant ":frmHistorial\nUsuario" as FH #FEFECE
-participant ":UsuarioHistorialBLL" as UH #E8F4E8
-database    ":DB"                  as DB #E8E8F4
+actor ":Administrador" as A
+participant ":frmAdminUsuarios" as F #FEFECE
+participant ":frmHistorialUsuario" as H #FEFECE
+participant ":UsuarioHistorialBLL" as HB #E8F4E8
+database ":DB" as DB #E8E8F4
 
-note over FA
-  Precondición: sesión activa,
-  permiso "Administrar usuarios",
-  el usuario a consultar existe.
-end note
-
-' ─────────────────────────────────────────
-' APERTURA DEL FORMULARIO
-' ─────────────────────────────────────────
-== 1. Apertura del formulario ==
-
-A -> FA : seleccionar usuario en la grilla\n+ click "Historial"
-
-opt 1a. ningún usuario seleccionado
-  FA --> A : "Seleccioná un usuario."
-  note right of FA : el caso de uso termina
-end
-
-FA -> FH : new frmHistorialUsuario(usuario)\n.ShowDialog()
-activate FH
-
-' ─────────────────────────────────────────
-' CARGA DEL HISTORIAL
-' ─────────────────────────────────────────
-== 2. Carga del historial ==
-
-FH -> UH : ObtenerHistorial(usuario.Id)
-UH -> DB : USUARIO_HISTORIAL_LISTAR(usuario.Id)
-DB --> UH : filas ordenadas por fecha
-UH --> FH : List<UsuarioHistorial>
-
-FH -> FH : dgvHistorial.DataSource = lista
-FH -> FH : ocultar columnas técnicas\n(Id, UsuarioId, UsuarioLogin)
-FH -> FH : ActualizarEncabezados()
-note right of FH
-  Fecha, Tipo, Rol, Nombre, Apellido,
-  Teléfono, Email, Bloqueado,
-  Intentos fallidos, Perfiles,
-  Realizado por, Versión origen
-end note
-FH -> FH : btnRollback.Enabled = false
-
-alt 3a. el usuario no tiene historial
-  FH --> A : grilla vacía,\nbotón Rollback deshabilitado
-
-else el usuario tiene historial
-  FH --> A : grilla con las entradas\ndel historial
-
-  ' ─────────────────────────────────────────
-  ' SELECCIÓN DE UNA ENTRADA
-  ' ─────────────────────────────────────────
-  == 3. Selección de una entrada ==
-
-  A -> FH : seleccionar una fila de la grilla
-  FH -> FH : dgvHistorial_SelectionChanged
-
-  alt la entrada es de tipo BAJA
-    FH -> FH : btnRollback.Enabled = false
-    note right of FH
-      RN-03: BAJA captura el último
-      estado conocido antes de eliminar
-      al usuario — no es restaurable.
-    end note
-  else otro tipo (ALTA, BLOQUEO, DESBLOQUEO,\nCAMBIO_CLAVE, ASIGNACION_PERFIL, ROLLBACK)
-    FH -> FH : btnRollback.Enabled = true
-    note right of FH
-      Habilita CU-11 — Restaurar
-      Usuario desde Historial.
-    end note
+A -> F : seleccionar usuario + click "Historial"
+alt 1a. sin selección
+  F --> A : "Seleccioná un usuario."
+else
+  F -> H : new(usuario).ShowDialog()
+  H -> HB : ObtenerHistorialPaginado(id, página 1, 20)
+  HB -> DB : USUARIO_HISTORIAL_LISTAR_PAGINADO
+  DB --> HB : entradas + total
+  HB --> H : PaginaResultado
+  H -> H : mostrar grilla, "Página 1 de N"\nbtnRollback deshabilitado
+  alt 2a. sin historial
+    H --> A : grilla vacía
+  else con historial
+    H --> A : fecha, tipo, rol, bloqueado, intentos,\nperfiles, datos personales, realizado por,\nversión origen
   end
+  opt 3a. navegar páginas
+    A -> H : "Anterior" / "Siguiente"
+    H -> HB : ObtenerHistorialPaginado(id, página, 20)
+  end
+  opt seleccionar una entrada
+    A -> H : seleccionar fila
+    H -> H : btnRollback.Enabled = tipo ≠ BAJA
+    note right of H : continúa en CU-11
+  end
+  A -> H : "Cerrar"
+  F -> F : refrescar grilla de usuarios
 end
-
-' ─────────────────────────────────────────
-' CIERRE
-' ─────────────────────────────────────────
-== 4. Cierre ==
-
-A -> FH : click "Cerrar"
-FH --> FA : (form cerrado)
-deactivate FH
-FA -> FA : CargarUsuarios()
 
 @enduml

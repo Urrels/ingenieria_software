@@ -1,0 +1,58 @@
+@startuml DiagramaCasosDeUso_Negocio
+
+title Sistema de Gestión de Gimnasio — Casos de Uso de los Procesos de Negocio
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam packageStyle rectangle
+skinparam defaultFontSize 12
+skinparam dpi 140
+left to right direction
+
+actor "Administrador" as A
+actor "Empleado\n(Recepción / Sala)" as E
+actor "Técnico" as T
+actor "Sensor IoT" as SI
+
+rectangle "Planificación de horarios" #E8F4E8 {
+  usecase "CU-37 Gestionar franjas horarias" as CU37
+  usecase "CU-22 Registrar disponibilidad" as CU22
+  usecase "CU-21 Generar grilla de turnos" as CU21
+  usecase "CU-24 Comunicar horarios" as CU24
+  usecase "CU-23 Ajustar grilla por ausencia" as CU23
+  usecase "CU-25 Cancelar turno asignado" as CU25
+  usecase "CU-26 Cubrir turno pendiente" as CU26
+}
+
+rectangle "Control operativo" #FEFECE {
+  usecase "CU-34 Fichar asistencia" as CU34
+  usecase "CU-35 Registrar asistencia\nde socios" as CU35
+  usecase "CU-36 Evaluar cobertura" as CU36
+}
+
+rectangle "Mantenimiento de equipamiento" #E8E8F4 {
+  usecase "CU-27 Registrar uso\nde equipamiento" as CU27
+  usecase "CU-28 Evaluar y autorizar\nvisita técnica" as CU28
+  usecase "CU-29 Coordinar visita técnica" as CU29
+  usecase "CU-30 Realizar revisión técnica" as CU30
+  usecase "CU-31 Confirmar cierre\nde mantenimiento" as CU31
+}
+
+A --> CU37
+A --> CU21
+A --> CU24
+A --> CU23
+A --> CU36
+A --> CU28
+A --> CU29
+A --> CU31
+E --> CU22
+E --> CU25
+E --> CU26
+E --> CU34
+E --> CU35
+E --> CU27
+T --> CU30
+CU27 <-- SI
+
+@enduml

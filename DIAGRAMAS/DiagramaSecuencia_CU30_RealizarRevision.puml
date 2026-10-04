@@ -1,0 +1,43 @@
+@startuml DiagramaSecuencia_CU30_RealizarRevision
+
+title CU-30 — Realizar revisión técnica — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Técnico" as T
+participant ":frmRealizarRevision" as F #FEFECE
+participant ":VisitaTecnicaBLL" as VB #E8F4E8
+participant ":InformeMantenimientoBLL" as IB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+T -> F : abrir "Realizar revisión"
+F -> VB : ListarPendientesPorTecnico()
+VB -> DB : VISITA_LISTAR_PENDIENTES_TECNICO
+F --> T : visitas coordinadas
+T -> F : seleccionar visita
+F -> DB : alerta y equipo\n(AlertaRevisionBLL, EquipoBLL)
+F --> T : "Equipo: X\n(uso acumulado: N)"
+T -> F : resultado (+ "Pendiente de\nrepuesto") + "Registrar informe"
+alt 4a. sin visita o sin resultado
+  F --> T : "Seleccioná una visita." /\n"Ingresá el resultado..."
+else
+  F -> IB : RegistrarInforme(visita, alerta,\nresultado, pendienteRepuesto)
+  IB -> DB : INFORME_INSERTAR
+  note right of DB : informe pendiente de cierre;\nvisita → "Realizada"
+  opt 5a. pendiente de repuesto
+    IB -> DB : ALERTA_ACTUALIZAR_ESTADO\n("Pendiente")
+  end
+  IB -> DB : NOTIFICACION_INSERTAR\n(a cada administrador)\n(NotificacionBLL)
+  F --> T : "Informe registrado.\nSe notificó al Administrador."
+end
+
+@enduml

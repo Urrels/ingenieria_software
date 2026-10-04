@@ -1,0 +1,47 @@
+@startuml DiagramaSecuencia_CU34_FicharAsistencia
+
+title CU-34 — Fichar asistencia — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Empleado" as E
+participant ":frmFicharAsistencia" as F #FEFECE
+participant ":AsistenciaPersonalBLL" as AB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+E -> F : abrir "Fichar asistencia"
+F -> AB : TieneIngresoAbierto(usuario)
+AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
+F --> E : estado del día (habilita Ingreso o Egreso)
+alt "Ingreso"
+  E -> F : click "Ingreso"
+  F -> AB : RegistrarIngreso(usuario)
+  AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
+  alt 3a. ya tiene un ingreso abierto
+    F --> E : "Ya tenés un ingreso registrado hoy sin egreso."
+  else
+    AB -> DB : ASISTENCIA_REGISTRAR_INGRESO(hoy, hora actual)
+    F --> E : "Ingreso registrado a las HH:mm."
+  end
+else "Egreso"
+  E -> F : click "Egreso"
+  F -> AB : RegistrarEgreso(usuario)
+  AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
+  alt 5a. no tiene ingreso abierto
+    F --> E : "No tenés un ingreso registrado hoy..."
+  else
+    AB -> DB : ASISTENCIA_REGISTRAR_EGRESO(hora actual)
+    F --> E : "Egreso registrado a las HH:mm."
+  end
+end
+
+@enduml

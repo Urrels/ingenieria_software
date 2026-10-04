@@ -1,0 +1,42 @@
+@startuml DiagramaSecuencia_CU24_ComunicarHorarios
+
+title CU-24 — Comunicar horarios — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmGenerarGrilla" as F #FEFECE
+participant ":GrillaBLL" as G #E8F4E8
+participant ":UsuarioBLL" as UB #E8F4E8
+participant ":NotificacionBLL" as N #E8F4E8
+database ":DB" as DB #E8E8F4
+
+note over F : "Comunicar" solo está habilitado\ncon la grilla en estado "Confirmada"
+A -> F : click "Comunicar"
+F -> G : ComunicarHorarios(grilla)
+G -> DB : GRILLA_TURNOS_POR_EMPLEADO
+DB --> G : turnos agrupados por empleado
+loop por cada empleado con turnos
+  G -> UB : ObtenerPorId(empleadoId)
+  UB -> DB : USUARIO_OBTENER_POR_ID
+  G -> N : Notificar(empleado, grilla,\n"Tenés N turno(s) asignado(s) para la semana del dd/MM.")
+  alt tiene email o teléfono
+    N -> DB : NOTIFICACION_INSERTAR (estado "Enviada")
+  else 4a. sin medio de contacto
+    N -> DB : NOTIFICACION_INSERTAR (estado "Fallida")
+  end
+end
+G -> DB : GRILLA_MARCAR_COMUNICADA
+F --> A : "Horarios comunicados al equipo."
+note over N, DB : cada empleado ve su notificación en "Mis notificaciones"
+
+@enduml

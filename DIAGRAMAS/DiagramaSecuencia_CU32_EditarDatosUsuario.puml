@@ -1,0 +1,44 @@
+@startuml DiagramaSecuencia_CU32_EditarDatosUsuario
+
+title CU-32 — Editar datos de usuario — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmAdminUsuarios" as F #FEFECE
+participant ":frmEditarUsuario" as E #FEFECE
+participant ":UsuarioBLL" as B #E8F4E8
+participant ":UsuarioHistorialBLL" as HB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : seleccionar usuario + "Editar datos"
+alt 1a. sin selección
+  F --> A : "Seleccioná un usuario."
+else
+  F -> E : new(usuario).ShowDialog()
+  E --> A : nombre, apellido, teléfono y email actuales
+  A -> E : modificar datos
+  alt 3a. "Cancelar"
+    E --> F : DialogResult.Cancel
+  else "Aceptar"
+    E --> F : DialogResult.OK
+    F -> B : ActualizarDatos(id, nombre, apellido, teléfono, email)
+    B -> DB : USUARIO_ACTUALIZAR_DATOS
+    B -> HB : RegistrarCambio(id, "EDICION_DATOS", admin)
+    HB -> DB : USUARIO_HISTORIAL_INSERTAR
+    note right of B : no recalcula dígitos verificadores:\nestos datos no forman parte del DVH
+    F -> B : ListarPaginado(...)
+    F --> A : grilla refrescada
+  end
+end
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml DiagramaSecuencia_CU31_ConfirmarCierreMantenimiento
+
+title CU-31 — Confirmar cierre de mantenimiento — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmConfirmarCierreMantenimiento" as F #FEFECE
+participant ":InformeMantenimientoBLL" as IB #E8F4E8
+participant ":EquipoBLL" as EB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : abrir "Confirmar cierre"
+F -> IB : ListarPendientesCierre()
+IB -> DB : INFORME_LISTAR_PENDIENTES_CIERRE
+F --> A : informes pendientes
+A -> F : seleccionar informe
+F -> EB : ObtenerPorId(equipoId)
+F --> A : equipo, estado actual y uso acumulado
+A -> F : click "Confirmar cierre"
+alt 3a. sin selección
+  F --> A : "Seleccioná un informe."
+else
+  alt sin repuesto pendiente
+    F --> A : "¿Confirmar el cierre? Se reiniciará el contador\ny el equipo quedará operativo."
+  else 5a. repuesto pendiente
+    F --> A : "Falta un repuesto: el equipo quedará\n'En mantenimiento'. ¿Confirmar?"
+  end
+  alt 4a. cancela
+    A --> F : No
+  else confirma
+    A --> F : Sí
+    F -> IB : ConfirmarCierre(informe)
+    alt sin repuesto pendiente
+      IB -> EB : ReiniciarContador(equipoId)
+      EB -> DB : EQUIPO_REINICIAR_CONTADOR\n(uso = 0, estado "Operativo")
+      IB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Resuelta")\n(AlertaRevisionBLL)
+    else 5a. repuesto pendiente
+      IB -> EB : MarcarEnMantenimiento(equipoId)
+      EB -> DB : EQUIPO_MARCAR_EN_MANTENIMIENTO
+    end
+    IB -> DB : INFORME_MARCAR_CERRADO
+    F --> A : mensaje de cierre confirmado
+    F -> IB : ListarPendientesCierre()
+  end
+end
+
+@enduml

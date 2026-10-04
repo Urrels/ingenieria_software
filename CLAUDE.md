@@ -281,8 +281,9 @@ All diagram sources, generated images, and doc-generation scripts live under `DI
 | `DIAGRAMAS/DiagramaComponentes.puml` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
 | `DIAGRAMAS/DiagramaComponentes/DiagramaComponentes - TP_IS.png` | Diagrama de componentes (render) | PNG renderizado del anterior |
 | `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
-| `DIAGRAMAS/DiagramaSecuencia_CU01..CU20_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por cada uno de los 20 casos de uso |
-| `DIAGRAMAS/CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |
+| `DIAGRAMAS/DiagramaCasosDeUso_Seguridad1/2.puml`, `_Negocio.puml` / `.png` | Casos de uso | CU-01..CU-37 agrupados por subsistema (seguridad en dos diagramas, procesos de negocio en uno) |
+| `DIAGRAMAS/DiagramaSecuencia_CU01..CU37_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por caso de uso (CU-21 en dos partes: `CU21` propuesta y `CU21b` asignación/confirmación). Alineados con el código: los nombres de SP coinciden con los de `DAL/` |
+| `DIAGRAMAS/CasosDeUso.docx` | Documento unificado | Versión anterior con los 20 CUs de seguridad (no incluye CU-21..CU-37) |
 | `DIAGRAMAS/generar_casos_uso_docx.py` | Generador | Regenera `CasosDeUso.docx` desde el dict `CUS` definido en el script |
 
 Sin acceso a kroki.io se puede renderizar localmente con el jar de PlantUML (requiere Java y Graphviz). Los diagramas grandes superan el límite por defecto de 4096 px, por eso se sube `PLANTUML_LIMIT_SIZE`:
@@ -313,5 +314,5 @@ python generar_casos_uso_docx.py
 
 - **Actores:** solo dos — `Usuario` (base) y `Administrador` (especialización que generaliza a Usuario). Los permisos individuales (*Administrar usuarios*, *Gestión de roles*, *Gestión de idiomas*, *Ver bitácora*, *Cambiar contraseña*) son precondiciones del CU, no actores separados.
 - **Diagramas de secuencia:** nivel UI / BLL / DB. `:DB` consolida todos los DALs como un `database`. Servicios transversales (`:SessionManager`, `:IntegridadBLL`) aparecen solo cuando son relevantes al flujo del actor.
-- **Estilo PlantUML:** sin `box` agrupador; cada participante con color tenue por capa — CAPAS `#FEFECE`, BLL `#E8F4E8`, DAL `#E8E8F4`, Seguridad `#F4E8E8`. Skinparams comunes: `shadowing false`, `roundcorner 6`, `hide footbox`, `scale 0.75–0.85`.
+- **Estilo PlantUML:** sin `box` agrupador; cada participante con color tenue por capa — CAPAS `#FEFECE`, BLL `#E8F4E8`, DAL `#E8E8F4`, Seguridad `#F4E8E8`. Skinparams comunes: `shadowing false`, `roundcorner 6`, `hide footbox`, `dpi 140`, `maxMessageSize 115` (envuelve los mensajes largos para que el diagrama entre legible en una página vertical; con más de 6 participantes conviene mover detalles a notas o partir el diagrama).
 - **CU descriptions:** plantilla Cockburn — ID, actor primario, frecuencia, prioridad, propósito, precondiciones, postcondiciones (éxito y fallo), disparador, flujo principal numerado, flujos alternativos (`Xa`, `Xb`, etc.), excepciones, reglas de negocio y relaciones (`«include»` / `«extend»`).
