@@ -3,7 +3,7 @@
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Bundle Name="Gestión de gimnasio"
           Manufacturer="TP Ingeniería de Software"
-          Version="1.0.1"
+          Version="1.0.2"
           UpgradeCode="07C59D9F-3B4F-40BA-931A-303F319BD1B9">
 
     <BootstrapperApplication>
