@@ -150,9 +150,9 @@ namespace CAPAS
 
             btn.MouseEnter += (s, e) =>
             {
-                btn.BackColor = AppTheme.FondoHeader;
+                btn.BackColor = AppTheme.AcentoHover;
                 btn.ForeColor = Color.White;
-                btn.FlatAppearance.BorderColor = AppTheme.FondoHeader;
+                btn.FlatAppearance.BorderColor = AppTheme.AcentoHover;
             };
             btn.MouseLeave += (s, e) =>
             {

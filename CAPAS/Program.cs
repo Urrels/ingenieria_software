@@ -19,12 +19,12 @@ namespace CAPAS
             Application.SetCompatibleTextRenderingDefault(false);
 
             var skin = MaterialSkinManager.Instance;
-            skin.Theme = MaterialSkinManager.Themes.DARK;
+            skin.Theme = MaterialSkinManager.Themes.LIGHT;
             skin.ColorScheme = new MaterialColorScheme(
-                MaterialPrimary.Grey800,
-                MaterialPrimary.Grey900,
-                MaterialPrimary.Grey600,
-                MaterialAccent.Orange200,
+                AppTheme.Acento,
+                AppTheme.AcentoHover,
+                AppTheme.Seleccion,
+                AppTheme.Acento,
                 MaterialTextShade.WHITE
             );
 

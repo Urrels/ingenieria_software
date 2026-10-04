@@ -6,19 +6,20 @@ namespace CAPAS
 {
     internal static class AppTheme
     {
-        internal static readonly Color FondoForm      = Color.FromArgb( 25,  23,  36);
-        internal static readonly Color FondoHeader    = Color.FromArgb( 38,  35,  58);
-        internal static readonly Color FondoControl   = Color.FromArgb( 31,  29,  46);
-        internal static readonly Color FondoGrilla    = Color.FromArgb( 31,  29,  46);
-        internal static readonly Color FondoGrillaAlt = Color.FromArgb( 38,  35,  58);
-        internal static readonly Color Acento         = Color.FromArgb(196, 167, 231);
-        internal static readonly Color AcentoHover    = Color.FromArgb(235, 188, 186);
-        internal static readonly Color TextoPrincipal  = Color.FromArgb(224, 222, 244);
-        internal static readonly Color TextoEncabezado = Color.FromArgb(196, 167, 231);
-        internal static readonly Color TextoSecundario = Color.FromArgb(144, 140, 170);
-        internal static readonly Color Borde          = Color.FromArgb(110, 106, 134);
-        internal static readonly Color Seleccion      = Color.FromArgb( 49, 116, 143);
-        internal static readonly Color SeleccionTexto = Color.FromArgb(224, 222, 244);
+        internal static readonly Color FondoForm       = Color.FromArgb(251, 247, 238);
+        internal static readonly Color FondoHeader     = Color.FromArgb(230, 232, 210);
+        internal static readonly Color FondoControl    = Color.FromArgb(255, 253, 248);
+        internal static readonly Color FondoGrilla     = Color.FromArgb(255, 253, 248);
+        internal static readonly Color FondoGrillaAlt  = Color.FromArgb(243, 242, 228);
+        internal static readonly Color FondoStatus     = Color.FromArgb(221, 224, 196);
+        internal static readonly Color Acento          = Color.FromArgb( 95, 107,  58);
+        internal static readonly Color AcentoHover     = Color.FromArgb( 74,  85,  48);
+        internal static readonly Color TextoPrincipal  = Color.FromArgb( 58,  53,  38);
+        internal static readonly Color TextoEncabezado = Color.FromArgb( 74,  85,  48);
+        internal static readonly Color TextoSecundario = Color.FromArgb(107, 106,  80);
+        internal static readonly Color Borde           = Color.FromArgb(211, 211, 181);
+        internal static readonly Color Seleccion       = Color.FromArgb(207, 214, 174);
+        internal static readonly Color SeleccionTexto  = Color.FromArgb( 58,  53,  38);
 
         internal static readonly Font FontTitulo = new Font("Segoe UI", 11f, FontStyle.Bold);
         internal static readonly Font FontBold   = new Font("Segoe UI", 10f, FontStyle.Bold);
@@ -81,11 +82,6 @@ namespace CAPAS
                 }
                 if (c is Label lbl)
                 {
-                    if (lbl.ForeColor == Color.White)
-                    {
-                        lbl.Font = lbl.Font != null && lbl.Font.Bold ? FontBold : FontNormal;
-                        continue;
-                    }
                     lbl.ForeColor = TextoPrincipal;
                     lbl.BackColor = fondoPadre;
                     bool bold   = lbl.Font != null && lbl.Font.Bold;
@@ -135,9 +131,9 @@ namespace CAPAS
 
             btn.MouseEnter += (s, e) =>
             {
-                btn.BackColor = FondoHeader;
+                btn.BackColor = AcentoHover;
                 btn.ForeColor = Color.White;
-                btn.FlatAppearance.BorderColor = FondoHeader;
+                btn.FlatAppearance.BorderColor = AcentoHover;
             };
             btn.MouseLeave += (s, e) =>
             {
@@ -221,8 +217,7 @@ namespace CAPAS
 
         internal static void EstilizarStatusStrip(StatusStrip ss)
         {
-            Color fondoStatus = Color.FromArgb(144, 140, 170);
-            ss.BackColor  = fondoStatus;
+            ss.BackColor  = FondoStatus;
             ss.ForeColor  = TextoSecundario;
             ss.Font       = FontNormal;
             ss.RenderMode = ToolStripRenderMode.Professional;
@@ -230,7 +225,7 @@ namespace CAPAS
 
             foreach (ToolStripItem item in ss.Items)
             {
-                item.BackColor = fondoStatus;
+                item.BackColor = FondoStatus;
                 item.ForeColor = TextoSecundario;
                 item.Font      = FontNormal;
                 if (item is ToolStripComboBox tscbo)
@@ -261,10 +256,12 @@ namespace CAPAS
 
         protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
         {
-            bool sobreAzul = e.Item.BackColor == AppTheme.FondoHeader
-                          || e.Item.BackColor == AppTheme.AcentoHover
-                          || e.Item.Selected;
-            e.TextColor = sobreAzul ? Color.White : AppTheme.TextoPrincipal;
+            if (e.Item.Selected || e.Item.BackColor == AppTheme.AcentoHover)
+                e.TextColor = Color.White;
+            else if (e.Item.BackColor == AppTheme.FondoHeader)
+                e.TextColor = AppTheme.TextoEncabezado;
+            else
+                e.TextColor = AppTheme.TextoPrincipal;
             base.OnRenderItemText(e);
         }
     }
@@ -284,8 +281,8 @@ namespace CAPAS
         public override Color MenuItemPressedGradientEnd    => AppTheme.Acento;
         public override Color SeparatorLight               => AppTheme.Borde;
         public override Color SeparatorDark                => AppTheme.Borde;
-        public override Color StatusStripGradientBegin     => Color.FromArgb(144, 140, 170);
-        public override Color StatusStripGradientEnd       => Color.FromArgb(144, 140, 170);
+        public override Color StatusStripGradientBegin     => AppTheme.FondoStatus;
+        public override Color StatusStripGradientEnd       => AppTheme.FondoStatus;
         public override Color MenuStripGradientBegin       => AppTheme.FondoHeader;
         public override Color MenuStripGradientEnd         => AppTheme.FondoHeader;
     }
