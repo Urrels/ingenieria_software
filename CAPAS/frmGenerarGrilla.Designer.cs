@@ -134,7 +134,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmGenerarGrilla";
             this.Load += new System.EventHandler(this.frmGenerarGrilla_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmGenerarGrilla_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

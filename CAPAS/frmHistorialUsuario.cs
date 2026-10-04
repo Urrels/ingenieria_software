@@ -1,20 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmHistorialUsuario : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmHistorialUsuario : FormBase
     {
         private const int TAMANIO_PAGINA = 20;
 
         private readonly BE.USUARIO _usuario;
         private readonly BLL.UsuarioHistorialBLL _bll = new BLL.UsuarioHistorialBLL();
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private int _paginaActual = 1;
         private int _totalPaginas = 1;
@@ -30,22 +25,24 @@ namespace CAPAS
 
         private void frmHistorialUsuario_Load(object sender, EventArgs e)
         {
-            GuardarDefaults(this.Controls);
+            InicializarFormulario();
+            CargarHistorial();
+            ReposicionarLayout();
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
+        }
+
+        protected override void AjustarClaves()
+        {
             _controles.Remove("lblTitulo");
             _defaults.Remove("lblTitulo");
             _controles.Remove("lblPagina");
             _defaults.Remove("lblPagina");
             _controles["lblTitulo_HistorialUsuarios"] = lblTitulo;
             _defaults["lblTitulo_HistorialUsuarios"] = lblTitulo.Text;
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            CargarHistorial();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-            ReposicionarLayout();
         }
 
         private void ReposicionarLayout()
@@ -77,22 +74,6 @@ namespace CAPAS
             btnCerrar.Left = w - btnCerrar.Width - 40;
         }
 
-        private void frmHistorialUsuario_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-            ActualizarEncabezados();
-        }
-
         private void ActualizarEncabezados()
         {
             if (dgvHistorial.Columns.Count == 0) return;
@@ -121,19 +102,6 @@ namespace CAPAS
                 dgvHistorial.Columns["Telefono"].HeaderText = mgr.Traducir("colhdr_Telefono") ?? "Teléfono";
             if (dgvHistorial.Columns["Email"] != null)
                 dgvHistorial.Columns["Email"].HeaderText = mgr.Traducir("colhdr_Email") ?? "Email";
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void CargarHistorial()
@@ -203,12 +171,12 @@ namespace CAPAS
 
             if (sel.TipoCambio == "ROLLBACK")
             {
-                MsgBox.Show("No se puede restaurar una versión que ya es un rollback.",
+                MsgBox.Show(Textos.T("msg_NoSePuedeRestaurarUnaVersionQueYaEsUnRollback", "No se puede restaurar una versión que ya es un rollback."),
                     "Operación no permitida", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            string msg = string.Format(
+            string msg = Textos.T("msg_ConfirmarRollback",
                 "¿Restaurar el estado del usuario '{0}' a la versión del {1:dd/MM/yyyy HH:mm}?\n\n" +
                 "Tipo de cambio registrado: {2}\n\n" +
                 "Nota: la contraseña NO se restaurará (se mantendrá la actual).",
@@ -222,7 +190,7 @@ namespace CAPAS
             {
                 string admin = SeguridadYServicios.SessionManager.getInstance().getUsuario().Usuario;
                 _bll.Rollback(sel.Id, admin);
-                MsgBox.Show("Estado restaurado correctamente.", "Éxito",
+                MsgBox.Show(Textos.T("msg_EstadoRestauradoCorrectamente", "Estado restaurado correctamente."), "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 CargarHistorial();
             }

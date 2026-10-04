@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmConfirmarCierreMantenimiento : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmConfirmarCierreMantenimiento : FormBase
     {
         private readonly BLL.InformeMantenimientoBLL _informeBLL = new BLL.InformeMantenimientoBLL();
         private readonly BLL.EquipoBLL _equipoBLL = new BLL.EquipoBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private List<BE.InformeMantenimiento> _informes;
 
@@ -25,14 +21,7 @@ namespace CAPAS
         {
             CargarInformes();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void CargarInformes()
@@ -52,34 +41,6 @@ namespace CAPAS
             }
         }
 
-        private void frmConfirmarCierreMantenimiento_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
-        }
-
         private void dgvInformes_SelectionChanged(object sender, EventArgs e)
         {
             var informe = dgvInformes.CurrentRow?.DataBoundItem as BE.InformeMantenimiento;
@@ -95,13 +56,13 @@ namespace CAPAS
         {
             if (!(dgvInformes.CurrentRow?.DataBoundItem is BE.InformeMantenimiento informe))
             {
-                MsgBox.Show("Seleccioná un informe.", "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                MsgBox.Show(Textos.T("msg_SeleccionaUnInforme", "Seleccioná un informe."), "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             string mensajeConfirmacion = informe.PendienteRepuesto
-                ? "Este informe indica que falta un repuesto. El equipo quedará marcado 'En mantenimiento' y NO se reiniciará el contador de uso. ¿Confirmar de todas formas?"
-                : "¿Confirmar el cierre? Se reiniciará el contador de uso y el equipo quedará operativo.";
+                ? Textos.T("msg_ConfirmarCierreConRepuestoPendiente", "Este informe indica que falta un repuesto. El equipo quedará marcado 'En mantenimiento' y NO se reiniciará el contador de uso. ¿Confirmar de todas formas?")
+                : Textos.T("msg_ConfirmarCierre", "¿Confirmar el cierre? Se reiniciará el contador de uso y el equipo quedará operativo.");
 
             if (MsgBox.Show(mensajeConfirmacion, "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
@@ -110,8 +71,8 @@ namespace CAPAS
 
             MsgBox.Show(
                 informe.PendienteRepuesto
-                    ? "Equipo marcado como 'En mantenimiento'."
-                    : "Cierre confirmado. Equipo operativo con el contador reiniciado.",
+                    ? Textos.T("msg_EquipoMarcadoEnMantenimiento", "Equipo marcado como 'En mantenimiento'.")
+                    : Textos.T("msg_CierreConfirmadoEquipoOperativo", "Cierre confirmado. Equipo operativo con el contador reiniciado."),
                 "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
 
             CargarInformes();

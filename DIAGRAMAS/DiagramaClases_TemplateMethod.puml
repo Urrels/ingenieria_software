@@ -1,0 +1,86 @@
+@startuml DiagramaClases_TemplateMethod
+
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide empty members
+
+title Patrón Template Method — Formulario base (CAPAS)
+
+package "ReaLTaiizor" #EEEEEE {
+  class MaterialForm
+}
+
+package "SeguridadYServicios" #D5E8D4 {
+  interface IObservadorIdioma {
+    + ActualizarIdioma()
+  }
+}
+
+package "CAPAS" #F8CECC {
+
+  class FormBase <<AbstractClass>> {
+    # _controles : Dictionary<string, Control>
+    # _defaults : Dictionary<string, string>
+    --
+    # InicializarFormulario()
+    # AjustarClaves()
+    # ActualizarTextosDinamicos()
+    + ActualizarIdioma()
+    # OnFormClosed(e : FormClosedEventArgs)
+    - GuardarDefaults(controles : ControlCollection)
+  }
+
+  class frmBitacora <<ConcreteClass>> {
+    # AjustarClaves()
+    # ActualizarTextosDinamicos()
+  }
+
+  class frmPerfiles <<ConcreteClass>> {
+    # ActualizarTextosDinamicos()
+  }
+
+  class LogIn <<ConcreteClass>>
+
+  MaterialForm <|-- FormBase
+  IObservadorIdioma <|.. FormBase
+  FormBase <|-- frmBitacora
+  FormBase <|-- frmPerfiles
+  FormBase <|-- LogIn
+}
+
+note right of FormBase
+  **Template Method**: ""InicializarFormulario()""
+  define la secuencia fija que antes se copiaba
+  en cada formulario:
+  1. ""GuardarDefaults(Controls)""
+  2. ""AjustarClaves()""  ← hook
+  3. registra la clave del título
+  4. ""IdiomaManager.Registrar(this)""
+  5. ""ActualizarIdioma()"" → ""ActualizarTextosDinamicos()""  ← hook
+  6. ""IdiomaUIHelper.AgregarSelector(this)""
+  7. skin + ""AppTheme.AplicarTema(this)""
+  ""OnFormClosed"" desregistra el formulario
+  del Observer automáticamente.
+end note
+
+note bottom of frmBitacora
+  Redefine ""AjustarClaves()"" para evitar
+  claves repetidas (""lblTitulo_Bitacora"") y
+  ""ActualizarTextosDinamicos()"" para traducir
+  los encabezados de la grilla.
+end note
+
+note bottom of frmPerfiles
+  ""ActualizarTextosDinamicos()"" recarga el
+  árbol de roles con los prefijos traducidos.
+end note
+
+note bottom of LogIn
+  No redefine ningún hook: usa la
+  secuencia tal cual. Así son 26
+  formularios en total (todos salvo
+  ""frmMenu"").
+end note
+
+@enduml

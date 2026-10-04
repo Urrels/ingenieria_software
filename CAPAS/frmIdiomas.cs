@@ -2,17 +2,13 @@ using BE;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmIdiomas : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmIdiomas : FormBase
     {
         private readonly BLL.IdiomaBLL _bll = new BLL.IdiomaBLL();
         private IDIOMA _idiomaSeleccionado;
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmIdiomas()
         {
@@ -21,44 +17,13 @@ namespace CAPAS
 
         private void frmIdiomas_Load(object sender, EventArgs e)
         {
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             CargarIdiomas();
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
-        private void frmIdiomas_FormClosed(object sender, FormClosedEventArgs e)
+        protected override void ActualizarTextosDinamicos()
         {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
             ActualizarEncabezados();
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void ActualizarEncabezados()
@@ -129,7 +94,7 @@ namespace CAPAS
         private void btnAgregarIdioma_Click(object sender, System.EventArgs e)
         {
             string nombre = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nombre del nuevo idioma:", "Agregar idioma");
+                Textos.T("input_NombreDelNuevoIdioma", "Nombre del nuevo idioma:"), Textos.T("input_AgregarIdioma", "Agregar idioma"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
 
             _bll.Crear(nombre, false);
@@ -140,27 +105,27 @@ namespace CAPAS
         {
             if (_idiomaSeleccionado == null)
             {
-                MsgBox.Show("Seleccioná un idioma.", "Aviso",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnIdioma", "Seleccioná un idioma."), "Aviso",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (_idiomaSeleccionado.Predeterminado)
             {
-                MsgBox.Show("No se puede eliminar el idioma predeterminado del sistema.", "Aviso",
+                MsgBox.Show(Textos.T("msg_NoSePuedeEliminarElIdiomaPredeterminadoDelSistema", "No se puede eliminar el idioma predeterminado del sistema."), "Aviso",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (_bll.EstaEnUso(_idiomaSeleccionado.Id))
             {
-                MsgBox.Show("No se puede eliminar un idioma que está en uso por algún usuario.", "Aviso",
+                MsgBox.Show(Textos.T("msg_NoSePuedeEliminarUnIdiomaQueEstaEnUsoPorAlgunUsuario", "No se puede eliminar un idioma que está en uso por algún usuario."), "Aviso",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (MsgBox.Show(
-                    $"¿Eliminar el idioma '{_idiomaSeleccionado.Nombre}'? Se borrarán todas sus traducciones.",
+                    Textos.T("msg_EliminarElIdiomaSeBorraranTodasSusTraducciones", "¿Eliminar el idioma '{0}'? Se borrarán todas sus traducciones.", _idiomaSeleccionado.Nombre),
                     "Confirmar eliminación",
                     MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
@@ -183,13 +148,14 @@ namespace CAPAS
         {
             if (_idiomaSeleccionado == null)
             {
-                MsgBox.Show("Seleccioná un idioma.", "Aviso",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnIdioma", "Seleccioná un idioma."), "Aviso",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             string nuevoNombre = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nuevo nombre:", "Renombrar idioma", _idiomaSeleccionado.Nombre);
+                Textos.T("input_NuevoNombre", "Nuevo nombre:"), Textos.T("input_RenombrarIdioma", "Renombrar idioma"),
+                _idiomaSeleccionado.Nombre);
 
             if (string.IsNullOrWhiteSpace(nuevoNombre)) return;
             if (nuevoNombre == _idiomaSeleccionado.Nombre) return;
@@ -202,7 +168,7 @@ namespace CAPAS
         {
             if (_idiomaSeleccionado == null)
             {
-                MsgBox.Show("Seleccioná un idioma.", "Aviso",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnIdioma", "Seleccioná un idioma."), "Aviso",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -231,15 +197,10 @@ namespace CAPAS
                 _bll.GuardarTraduccion(_idiomaSeleccionado.Id, control.Id, control.TextoTraduccion);
             }
 
-            MsgBox.Show("Traducciones guardadas.", "Éxito",
+            MsgBox.Show(Textos.T("msg_TraduccionesGuardadas", "Traducciones guardadas."), "Éxito",
                 MsgBox.Botones.OK, MsgBox.Icono.Exito);
 
-            var mgr = SeguridadYServicios.IdiomaManager.getInstance();
-            if (mgr.IdiomaActivo != null && mgr.IdiomaActivo.Id == _idiomaSeleccionado.Id)
-            {
-                var traducciones = _bll.CargarTraducciones(_idiomaSeleccionado.Id);
-                mgr.CambiarIdioma(_idiomaSeleccionado, traducciones);
-            }
+            new BLL.FachadaIdioma().RecargarSiEstaActivo(_idiomaSeleccionado.Id);
         }
 
         private void btnCerrar_Click(object sender, System.EventArgs e)

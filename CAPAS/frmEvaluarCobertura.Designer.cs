@@ -109,7 +109,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmEvaluarCobertura";
             this.Load += new System.EventHandler(this.frmEvaluarCobertura_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmEvaluarCobertura_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvResultados)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -10,7 +10,7 @@ namespace CAPAS
         {
             if (grilla.Rows.Count == 0)
             {
-                MsgBox.Show("No hay datos para exportar.", "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                MsgBox.Show(Textos.T("msg_NoHayDatosParaExportar", "No hay datos para exportar."), "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -55,11 +55,11 @@ namespace CAPAS
                         libro.SaveAs(dialogo.FileName);
                     }
 
-                    MsgBox.Show("Exportación completada.", "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+                    MsgBox.Show(Textos.T("msg_ExportacionCompletada", "Exportación completada."), "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 }
                 catch (Exception ex)
                 {
-                    MsgBox.Show("No se pudo exportar: " + ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
+                    MsgBox.Show(Textos.T("msg_NoSePudoExportar", "No se pudo exportar: {0}", ex.Message), "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
                 }
             }
         }

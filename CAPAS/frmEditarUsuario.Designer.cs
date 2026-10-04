@@ -141,7 +141,6 @@ namespace CAPAS
             this.Name = "frmEditarUsuario";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Editar datos";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmEditarUsuario_FormClosed);
             this.Load += new System.EventHandler(this.frmEditarUsuario_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

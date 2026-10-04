@@ -84,7 +84,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmFicharAsistencia";
             this.Load += new System.EventHandler(this.frmFicharAsistencia_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmFicharAsistencia_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

@@ -121,7 +121,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmRealizarRevision";
             this.Load += new System.EventHandler(this.frmRealizarRevision_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmRealizarRevision_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvVisitas)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

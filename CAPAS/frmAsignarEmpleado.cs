@@ -48,7 +48,7 @@ namespace CAPAS
         {
             if (!(lstEmpleados.SelectedItem is BE.USUARIO seleccionado))
             {
-                MsgBox.Show("Seleccioná un empleado.", "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                MsgBox.Show(Textos.T("msg_SeleccionaUnEmpleado", "Seleccioná un empleado."), "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace CAPAS
             if (!asignado)
             {
                 MsgBox.Show(
-                    $"{seleccionado.Usuario} superaría su límite de horas semanales con este turno. Elegí otro empleado.",
+                    Textos.T("msg_SuperariaSuLimiteDeHorasSemanalesConEsteTurnoElegiOtroEmplea", "{0} superaría su límite de horas semanales con este turno. Elegí otro empleado.", seleccionado.Usuario),
                     "Límite de horas superado", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -68,7 +68,7 @@ namespace CAPAS
 
         private void btnSinCobertura_Click(object sender, EventArgs e)
         {
-            if (MsgBox.Show("¿Marcar esta franja como déficit de cobertura?", "Confirmar",
+            if (MsgBox.Show(Textos.T("msg_MarcarEstaFranjaComoDeficitDeCobertura", "¿Marcar esta franja como déficit de cobertura?"), "Confirmar",
                 MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 

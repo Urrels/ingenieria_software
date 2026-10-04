@@ -27,5 +27,13 @@ namespace BE
         {
             return false;
         }
+
+        public override NodoPermiso Clonar()
+        {
+            Rol copia = new Rol { Id = Id, Nombre = Nombre, PadreId = PadreId, Protegido = Protegido };
+            foreach (NodoPermiso hijo in _hijos)
+                copia.Agregar(hijo.Clonar());
+            return copia;
+        }
     }
 }

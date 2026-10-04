@@ -125,7 +125,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmRegistrarAsistenciaSocios";
             this.Load += new System.EventHandler(this.frmRegistrarAsistenciaSocios_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmRegistrarAsistenciaSocios_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

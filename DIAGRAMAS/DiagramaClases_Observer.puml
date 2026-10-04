@@ -28,17 +28,27 @@ package "SeguridadYServicios" #F4E8E8 {
 
 package "CAPAS" #FEFECE {
 
-  class "frmMenu / LogIn / etc." as FormConcreto <<ConcreteObserver, Form>> {
-    - _controles : Dictionary<string,Control>
-    - _defaults : Dictionary<string,string>
+  class FormBase <<ConcreteObserver, Form>> {
+    # _controles : Dictionary<string,Control>
+    # _defaults : Dictionary<string,string>
     --
+    # InicializarFormulario()
     + ActualizarIdioma()
-    - ActualizarEncabezados()
+    # ActualizarTextosDinamicos()
+    # OnFormClosed(e)
+  }
+
+  class "LogIn / frmBitacora / frmPerfiles / ... (26)" as FormsConcretos <<Form>>
+
+  class frmMenu <<ConcreteObserver, Form>> {
+    + ActualizarIdioma()
   }
 }
 
 IdiomaManager "1" o-- "0..*" IObservadorIdioma : _observers
-FormConcreto ..|> IObservadorIdioma
+FormBase ..|> IObservadorIdioma
+frmMenu ..|> IObservadorIdioma
+FormsConcretos --|> FormBase
 
 ' ─────────────────────────────────────────
 ' Comentarios sobre la implementación del patrón
@@ -64,19 +74,20 @@ note top of IObservadorIdioma
   para refrescar sus controles.
 end note
 
-note bottom of FormConcreto
-  **ConcreteObserver**: cada Form que debe
-  reaccionar al cambio de idioma:
-  - en ""Load"": ""IdiomaManager.getInstance()
-    .Registrar(this)"" y luego ""ActualizarIdioma()""
-    (para aplicar el idioma activo al abrir).
-  - en ""FormClosed"": ""...Desregistrar(this)""
+note bottom of FormBase
+  **ConcreteObserver** (común a 26 formularios):
+  - ""InicializarFormulario()"" (llamado en ""Load"")
+    hace ""IdiomaManager.getInstance().Registrar(this)""
+    y luego ""ActualizarIdioma()"" (aplica el idioma
+    activo al abrir).
+  - ""OnFormClosed"" hace ""...Desregistrar(this)""
     para no quedar referenciado tras cerrarse.
-  ""ActualizarIdioma()"" recorre ""_controles"" y
-  aplica ""Traducir(clave) ?? _defaults[clave]"".
-  Si el Form tiene ""DataGridView"", también llama
-  ""ActualizarEncabezados()"" (los encabezados de
-  columna no están en ""Controls"").
+  ""ActualizarIdioma()"" recorre ""_controles"",
+  aplica ""Traducir(clave) ?? _defaults[clave]"" y
+  llama al hook ""ActualizarTextosDinamicos()""
+  (encabezados de grillas, árbol de roles).
+  ""frmMenu"" implementa la interfaz por su cuenta
+  porque traduce ítems de menú, no controles.
 end note
 
 note as N_notificar
@@ -93,8 +104,8 @@ note as N_flujo
   patrón, pero da contexto): el usuario elige
   un idioma en el selector agregado por
   ""IdiomaUIHelper.AgregarSelector(form)"" → CAPAS
-  llama ""IdiomaBLL.CargarTraducciones(idiomaId)""
-  → pasa el diccionario a
+  llama ""FachadaIdioma.Cambiar(idioma)"" (Facade),
+  que carga las traducciones y llama a
   ""IdiomaManager.CambiarIdioma(idioma, dict)"".
 end note
 IdiomaManager .. N_flujo

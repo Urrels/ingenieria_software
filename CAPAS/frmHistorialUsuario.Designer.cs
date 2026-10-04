@@ -131,7 +131,6 @@ namespace CAPAS
             this.Name = "frmHistorialUsuario";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Historial de usuario";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmHistorialUsuario_FormClosed);
             this.Load += new System.EventHandler(this.frmHistorialUsuario_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvHistorial)).EndInit();
             this.panelInferior.ResumeLayout(false);

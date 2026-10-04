@@ -110,7 +110,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmAjustarPorAusencia";
             this.Load += new System.EventHandler(this.frmAjustarPorAusencia_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmAjustarPorAusencia_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

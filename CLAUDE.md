@@ -22,7 +22,7 @@ Run the full script against the local SQL Server instance (Windows Auth, databas
 sqlcmd -S . -d BDCAPAS -E -i "DAL\script.sql"
 ```
 
-Then run, in order, `DAL\nuevoScript.sql` (ROL/PERMISO migration) and `DAL\mejoras_idiomas_perfiles.sql` (transactional `IDIOMA_ELIMINAR`, `USUARIO_PERFIL_LISTAR_ACTIVOS`; idempotent).
+Then run, in order, `DAL\nuevoScript.sql` (ROL/PERMISO migration) and `DAL\mejoras_idiomas_perfiles.sql` (transactional `IDIOMA_ELIMINAR`, `USUARIO_PERFIL_LISTAR_ACTIVOS`, and English/Portuguese translations for message keys — insert-only, never overwrites translations edited from `frmIdiomas`; idempotent; saved as UTF-8 with BOM so `sqlcmd` reads accents correctly).
 
 `script.sql` is append-only and mostly idempotent: `CONTROL_REGISTRAR` and `TRADUCCION_GUARDAR` are upserts, but early `CREATE TABLE` / `CREATE PROCEDURE` blocks will error if objects already exist (harmless — the rest of the batch still runs). Later blocks use `IF OBJECT_ID ... DROP` before recreating, so they are fully idempotent.
 
@@ -48,7 +48,7 @@ CAPAS (UI/WinForms)
 
 **BE** — Plain entity classes (`USUARIO`, `BITACORA`, `IDIOMA`, `CONTROL_IDIOMA`, `NodoPermiso`, `Rol`, `Permiso`, `UsuarioHistorial`, etc.) plus the `LoginResultado` enum. No logic. `USUARIO` has a `DVH int` property (the only integrity-protected entity). `NodoPermiso.ToString()` returns `Nombre` (used by `CheckedListBox` in `frmPerfiles`).
 
-**DAL** — All DB access goes through `Acceso` (internal), which uses stored procedures exclusively — never inline SQL. `SqlParameter` objects are mandatory to prevent SQL injection. Connection string is in `Acceso.cs` targeting `BDCAPAS` on the local SQL Server instance.
+**DAL** — All DB access goes through `Acceso` (internal), which uses stored procedures exclusively — never inline SQL. `SqlParameter` objects are mandatory to prevent SQL injection. The connection string is read from `CAPAS/App.config` (`<connectionStrings>`, name `BDCAPAS`) via `ConfigurationManager`; `Acceso` throws a clear `InvalidOperationException` if it is missing. `Acceso.Cerrar()` and `DeshacerTX()` are null-safe so a failed `Abrir()` never masks the original exception.
 
 **BLL** — Thin orchestration layer. Creates DAL instances directly (`new DAL.UsuarioDAL()`). No direct DB calls.
 
@@ -75,11 +75,7 @@ skin.ColorScheme = new MaterialColorScheme(
     AppTheme.AcentoHover, MaterialTextShade.WHITE);
 ```
 
-**Per-form** — every form's `Load` event must call, in this order:
-```csharp
-MaterialSkinManager.Instance.AddFormToManage(this);
-AppTheme.AplicarTema(this);
-```
+**Per-form** — `FormBase.InicializarFormulario()` calls, as its last two steps, `MaterialSkinManager.Instance.AddFormToManage(this)` and `AppTheme.AplicarTema(this)` (see "Adding a new form"). `frmMenu` is the only form not derived from `FormBase` and calls them itself.
 
 **`AppTheme.AplicarTema(form)`** (`CAPAS/AppTheme.cs`) — applies the corporate palette to Button, TextBox, Label, DataGridView, TreeView, ComboBox, Panel, GroupBox, MenuStrip, StatusStrip, and DateTimePicker controls recursively. White + blue/pink palette (gym branding): `FondoForm=#FFFFFF`, `FondoHeader=#E8F0FB` (soft blue), `FondoGrillaAlt=#FDF3F7` (soft pink), `FondoStatus=#E1EAF8`, accent `#3B6FB6` (blue: title bar, buttons, headers), hover `#C2386B` (pink, with white text), selection `#F8D7E3` (light pink), text `#2B2D42`. The MaterialForm title bar uses the same `AppTheme` colors (custom `Color` overload of `MaterialColorScheme`). All colors live in `AppTheme` — never hardcode colors elsewhere; labels always get `TextoPrincipal` (a white label would be invisible on the white background).
 
@@ -123,7 +119,13 @@ The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_I
 
 **Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → joins `USUARIO_PERFIL → ROL_PERMISO → PERMISO` for the user's own roles (no inheritance, see above) to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`. **Never check `USUARIO.Rol` to control visibility** — it is a legacy field not aligned with the permission system (the old `SessionManager.EsAdmin()` helper that did this was removed).
 
-**Observer (multi-language)** — `IdiomaManager` is the Subject. Forms are Observers. Each form has its own language selector added dynamically by `IdiomaUIHelper.AgregarSelector(form)` (called at the end of every form's `Load`), because `ShowDialog()` disables the parent form. On change: CAPAS calls `BLL.IdiomaBLL.CargarTraducciones(idiomaId)`, then passes the dictionary to `IdiomaManager.CambiarIdioma()`, which calls `Notificar()` → `ActualizarIdioma()` on every registered form. Forms fall back to their design-time text when a key has no translation.
+**Observer (multi-language)** — `IdiomaManager` is the Subject. Forms are Observers (`FormBase` implements `IObservadorIdioma`). Each form has its own language selector added dynamically by `IdiomaUIHelper.AgregarSelector(form)` (called by `FormBase.InicializarFormulario()`), because `ShowDialog()` disables the parent form. On change the UI calls `FachadaIdioma.Cambiar(idioma)`, which loads the translations and passes them to `IdiomaManager.CambiarIdioma()`, which calls `Notificar()` → `ActualizarIdioma()` on every registered form. Forms fall back to their design-time text when a key has no translation.
+
+**Facade (`BLL.FachadaIdioma`)** — single entry point for language operations, hiding `IdiomaBLL`, `IdiomaManager`, `SessionManager` and `UsuarioBLL`. `Cambiar(idioma)` applies a language and, if there is a session, saves it as the user's preference; `AplicarPreferencia(usuario)` (used by `LoginBLL`) applies the saved language only if it is still enabled; `RecargarSiEstaActivo(idiomaId)` (used by `frmIdiomas` after saving translations); `ListarDisponibles()`, `IdiomaActivo`, `Traducir(clave)`, `RegistrarClave(clave, textoDefault)`. UI code must not call `IdiomaManager.CambiarIdioma` or `IdiomaBLL.CargarTraducciones` directly.
+
+**Template Method (`CAPAS.FormBase`)** — base class (derives from `MaterialForm`, implements `IObservadorIdioma`) for every form except `frmMenu`. Owns `_controles`/`_defaults`, `GuardarDefaults`, `ActualizarIdioma`, and unregisters from `IdiomaManager` in `OnFormClosed`. `InicializarFormulario()` runs the fixed sequence (GuardarDefaults → `AjustarClaves()` hook → title-bar key → `Registrar` → `ActualizarIdioma()` → `AgregarSelector` → skin → theme). Hooks: `AjustarClaves()` (rename colliding keys) and `ActualizarTextosDinamicos()` (grid headers, tree refresh — called at the end of every `ActualizarIdioma()`).
+
+**Translated messages (`CAPAS.Textos`)** — every `MsgBox.Show` message and `InputBox` prompt goes through `Textos.T("msg_Clave", "texto en español", args...)`: returns the active language's translation or the Spanish default, applying `string.Format` with `args` (falls back to the default if a translation has a broken placeholder). The first time a key is used in a session it is registered in `CONTROL_IDIOMA` (`CONTROL_REGISTRAR`, insert-only), so it appears in `frmIdiomas` ready to translate. `MsgBox` translates titles itself (key `tit_` + CamelCase of the Spanish title, via `Textos.ClaveDesdeTexto`) and its buttons (`btnmsg_Si`, `btnmsg_No`, `btnmsg_Aceptar`). English/Portuguese translations for all current keys are seeded by `DAL/mejoras_idiomas_perfiles.sql`. Messages that come from BLL exceptions (`ex.Message`) or `ValidadorContrasena` are still Spanish-only.
 
 **`IDIOMA.PREDETERMINADO`** — `BIT` column marking the system's default language (`Español`, seeded via `UPDATE IDIOMA SET PREDETERMINADO = 1 WHERE NOMBRE = 'Español'`). A language can be neither **deleted** nor **disabled** in two cases, each with its own message:
 1. It is the default language (`Predeterminado == true`).
@@ -131,23 +133,26 @@ The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_I
 
 The rules are enforced in three layers: `frmIdiomas` pre-checks before asking for confirmation; `IdiomaBLL.Eliminar` / `IdiomaBLL.ActualizarEstado(id, false)` throw `InvalidOperationException` as a backstop (caught by the UI); and the SP `IDIOMA_ELIMINAR` re-checks both conditions (`THROW 50001/50002`) and deletes `TRADUCCION` + `IDIOMA` inside a transaction, so translations are never lost on a failed delete. `LoginBLL` only applies a user's saved language if it is still `Habilitado`.
 
-**Per-user language preference (`USUARIO.IDIOMA_ID`)** — nullable FK to `IDIOMA(ID)` (`FK_USUARIO_IDIOMA`); `NULL` means "no preference saved yet". Three write sites call `UsuarioBLL.ActualizarIdioma(usuarioId, idiomaId)` (SP `USUARIO_ACTUALIZAR_IDIOMA`) whenever a logged-in user changes language: `IdiomaUIHelper.AgregarSelector`'s combo handler and `frmMenu.cboIdiomaStatus_SelectedIndexChanged` (both guarded by `SessionManager.getInstance().getUsuario() != null` — the pre-login `LogIn` selector does not persist). On successful login, `LoginBLL.AutenticarUsuario` reads `u.IdiomaId` (now returned by `USUARIO_LOGIN`); if set, it loads the `IDIOMA` (`IdiomaBLL.ObtenerPorId`, SP `IDIOMA_OBTENER_POR_ID`) and its translations and calls `IdiomaManager.CambiarIdioma(...)` directly — this happens *before* `frmMenu` is constructed, so the menu loads already translated. `BE.USUARIO.IdiomaId` (`int?`) is hidden from `dgvUsuarios` in `frmAdminUsuarios` (not user-relevant in that grid).
+**Per-user language preference (`USUARIO.IDIOMA_ID`)** — nullable FK to `IDIOMA(ID)` (`FK_USUARIO_IDIOMA`); `NULL` means "no preference saved yet". Both language selectors (`IdiomaUIHelper.AgregarSelector`'s combo and `frmMenu.cboIdiomaStatus`) call `FachadaIdioma.Cambiar(idioma)`, which persists the choice through `UsuarioBLL.ActualizarIdioma` (SP `USUARIO_ACTUALIZAR_IDIOMA`) only when there is a logged-in user — the pre-login `LogIn` selector does not persist. On successful login, `LoginBLL.AutenticarUsuario` calls `FachadaIdioma.AplicarPreferencia(u)` (`u.IdiomaId` is returned by `USUARIO_LOGIN`; the language is loaded with SP `IDIOMA_OBTENER_POR_ID`) — this happens *before* `frmMenu` is constructed, so the menu loads already translated. `BE.USUARIO.IdiomaId` (`int?`) is hidden from `dgvUsuarios` in `frmAdminUsuarios` (not user-relevant in that grid).
 
-Two categories of UI text are **not** captured by `GuardarDefaults(this.Controls)` and need explicit handling:
-- **Form title bar**: register with `_controles[this.Name] = this; _defaults[this.Name] = this.Text;` after `GuardarDefaults`.
-- **DataGridView column headers**: not in `Controls` collection; translate in a separate `ActualizarEncabezados()` method called from both `ActualizarIdioma()` and after any `DataSource` assignment. Use keys like `colhdr_Id`, `colhdr_Usuario`, etc.
+The form title bar is registered automatically by `FormBase` (key = form `Name`). **DataGridView column headers** are not in the `Controls` collection: translate them in an `ActualizarEncabezados()` method, called from the `ActualizarTextosDinamicos()` override and after any `DataSource` assignment. Use keys like `colhdr_Id`, `colhdr_Usuario`, etc.
 
-**Key collision between forms** — if two forms have a control with the same `Name`, fix by removing the generic key and registering a form-specific one in `Load`:
+**Key collision between forms** — if two forms have a control with the same `Name`, override `AjustarClaves()` to remove the generic key and register a form-specific one:
 ```csharp
-_controles.Remove("lblTitulo");
-_defaults.Remove("lblTitulo");
-_controles["lblTitulo_Bitacora"] = lblTitulo;
-_defaults["lblTitulo_Bitacora"]  = lblTitulo.Text;
+protected override void AjustarClaves()
+{
+    _controles.Remove("lblTitulo");
+    _defaults.Remove("lblTitulo");
+    _controles["lblTitulo_Bitacora"] = lblTitulo;
+    _defaults["lblTitulo_Bitacora"]  = lblTitulo.Text;
+}
 ```
 
 **Dynamic content (TreeView, generated text)** — controls whose text is built at runtime (e.g., node prefixes `"[Rol] "`, `"[Permiso] "`) are not in `_controles`. Call `IdiomaManager.getInstance().Traducir(key)` directly. Translation keys: `prefijo_Rol`, `prefijo_Permiso`.
 
 **Singleton** — Both `SessionManager` and `IdiomaManager` use double-checked locking.
+
+**Prototype (duplicate role)** — `NodoPermiso.Clonar()` is abstract; `Rol.Clonar()` deep-copies the role and recursively clones its children, `Permiso.Clonar()` copies the leaf. `PerfilBLL.DuplicarRol(rolId, nuevoNombre)` clones the role from the tree, renames it, clears `Protegido`, inserts it under the same parent and saves the clone's own permissions (sub-roles are not duplicated); logged as `ROL_DUPLICADO:`. UI: "Duplicar rol" button in `frmPerfiles` (enabled only when a role is selected).
 
 ## Dígitos verificadores de integridad
 
@@ -239,20 +244,13 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 
 ## Adding a new form with language support
 
-1. Inherit from `ReaLTaiizor.Forms.MaterialForm` (not `Form`). Add `using ReaLTaiizor.Forms; using ReaLTaiizor.Manager;` at the top.
-2. Implement `SeguridadYServicios.IObservadorIdioma`.
-3. Add `Dictionary<string, Control> _controles` and `Dictionary<string, string> _defaults` fields.
-4. In `Load`:
-   - Call `GuardarDefaults(this.Controls)`.
-   - Add `_controles[this.Name] = this; _defaults[this.Name] = this.Text;` (registers the title bar).
-   - Call `IdiomaManager.getInstance().Registrar(this)`, then `ActualizarIdioma()`.
-   - Call `IdiomaUIHelper.AgregarSelector(this)` **before** the two lines below.
-   - Call `MaterialSkinManager.Instance.AddFormToManage(this);` then `AppTheme.AplicarTema(this);` **last**.
-5. Wire `FormClosed` → `IdiomaManager.getInstance().Desregistrar(this)`.
-6. `ActualizarIdioma()` iterates `_controles` and applies `Traducir(key) ?? _defaults[key]`. If the form has DataGridViews, also call `ActualizarEncabezados()`.
-7. In `.Designer.cs`: place all content controls at `Location.Y ≥ 70` to clear the ~64 px MaterialForm title bar. Set `ClientSize.Height` to accommodate the shifted layout. Add `Load` and `FormClosed` event wiring.
-8. Add the `.cs` and `.Designer.cs` entries to `CAPAS/UI.csproj`.
-9. Append `EXEC CONTROL_REGISTRAR` calls to `DAL/script.sql` for all new control keys and form name, plus `EXEC TRADUCCION_GUARDAR` for each supported language, then re-run the script.
+1. Inherit from `CAPAS.FormBase` (which already derives from `MaterialForm` and implements `IObservadorIdioma`).
+2. In the `Load` handler, put form-specific setup that must happen first (data that `ActualizarTextosDinamicos` needs, default values), then call `InicializarFormulario();`, then anything that should run after the theme (e.g., layout adjustments).
+3. Override `ActualizarTextosDinamicos()` if the form has DataGridView headers or other runtime text, and `AjustarClaves()` if a control name collides with another form's.
+4. Use `Textos.T("msg_...", "texto")` for every `MsgBox.Show` message and `InputBox` prompt.
+5. In `.Designer.cs`: place all content controls at `Location.Y ≥ 70` to clear the ~64 px MaterialForm title bar. Set `ClientSize.Height` to accommodate the shifted layout. Wire only `Load` (unregistering on close is handled by `FormBase`).
+6. Add the `.cs` and `.Designer.cs` entries to `CAPAS/UI.csproj`.
+7. Register the new control keys and form name in `CONTROL_IDIOMA` (`CONTROL_REGISTRAR`) with their translations (`TRADUCCION_GUARDAR`), or translate them from `frmIdiomas` once registered. Message keys from `Textos.T` register themselves.
 
 ## Documentation artifacts
 
@@ -265,12 +263,21 @@ All diagram sources, generated images, and doc-generation scripts live under `DI
 | `DIAGRAMAS/DiagramaClases_Composite.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Composite — árbol de roles/permisos (`NodoPermiso`/`Rol`/`Permiso`), con comentarios |
 | `DIAGRAMAS/DiagramaClases_Observer.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Observer — multiidioma (`IdiomaManager`/`IObservadorIdioma`), con comentarios |
 | `DIAGRAMAS/DiagramaClases_Singleton.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Singleton — `SessionManager`/`IdiomaManager`, con comentarios |
+| `DIAGRAMAS/DiagramaClases_Facade.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Facade — `FachadaIdioma` y el subsistema de idiomas, con comentarios |
+| `DIAGRAMAS/DiagramaClases_Prototype.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Prototype — `NodoPermiso.Clonar()` y "Duplicar rol", con comentarios |
+| `DIAGRAMAS/DiagramaClases_TemplateMethod.puml` / `.png` / `.svg` | Diagrama de clases (patrón) | Template Method — `FormBase.InicializarFormulario()` y sus hooks, con comentarios |
 | `DIAGRAMAS/DiagramaComponentes.puml` | Diagrama de componentes | Proyectos del .sln (BE, DAL, BLL, SeguridadYServicios, CAPAS), interfaces entre capas y BDCAPAS |
 | `DIAGRAMAS/DiagramaComponentes/DiagramaComponentes - TP_IS.png` | Diagrama de componentes (render) | PNG renderizado del anterior |
 | `DIAGRAMAS/DiagramaSecuencia_LoginIntegridad.puml` / `.png` | Secuencia (detallado) | Versión técnica del login + integridad, incluye Hasher, DALs, etc. |
 | `DIAGRAMAS/DiagramaSecuencia_CU01..CU20_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por cada uno de los 20 casos de uso |
 | `DIAGRAMAS/CasosDeUso.docx` | Documento unificado | Los 20 CUs en un solo Word |
 | `DIAGRAMAS/generar_casos_uso_docx.py` | Generador | Regenera `CasosDeUso.docx` desde el dict `CUS` definido en el script |
+
+Sin acceso a kroki.io se puede renderizar localmente con el jar de PlantUML (requiere Java y Graphviz). Los diagramas grandes superan el límite por defecto de 4096 px, por eso se sube `PLANTUML_LIMIT_SIZE`:
+
+```powershell
+java -DPLANTUML_LIMIT_SIZE=16384 -jar plantuml.jar -tpng -pipe < DiagramaClases.puml > DiagramaClases.png
+```
 
 Regenerar un PNG individual (desde `DIAGRAMAS/`):
 

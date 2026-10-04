@@ -30,16 +30,7 @@ namespace BLL
                 SessionManager.getInstance().setPermisos(permisos);
                 _bitacora.RegistrarLogin(usuario);
 
-                if (u.IdiomaId.HasValue)
-                {
-                    var idiomaBll = new IdiomaBLL();
-                    IDIOMA idioma = idiomaBll.ObtenerPorId(u.IdiomaId.Value);
-                    if (idioma != null && idioma.Habilitado)
-                    {
-                        var traducciones = idiomaBll.CargarTraducciones(idioma.Id);
-                        IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);
-                    }
-                }
+                new FachadaIdioma().AplicarPreferencia(u);
 
                 return LoginResultado.Exito;
             }

@@ -62,6 +62,34 @@ namespace BLL
             return new Rol { Id = id, Nombre = nombre, PadreId = padreId };
         }
 
+        public Rol DuplicarRol(int rolId, string nuevoNombre)
+        {
+            Rol original = BuscarRol(ObtenerArbol(), rolId)
+                ?? throw new InvalidOperationException("El rol a duplicar no existe.");
+
+            Rol copia = (Rol)original.Clonar();
+            copia.Nombre = nuevoNombre;
+            copia.Protegido = false;
+            copia.Id = _dal.Insertar(copia.Nombre, copia.PadreId);
+
+            List<int> permisos = copia.ObtenerHijos().Where(h => h.EsHoja()).Select(h => h.Id).ToList();
+            _dal.GuardarPermisosDeRol(copia.Id, permisos);
+            _bitacora.RegistrarAccion(UsuarioActual(), "ROL_DUPLICADO:" + nuevoNombre);
+            return copia;
+        }
+
+        private static Rol BuscarRol(IEnumerable<NodoPermiso> nodos, int rolId)
+        {
+            foreach (NodoPermiso nodo in nodos)
+            {
+                if (!(nodo is Rol rol)) continue;
+                if (rol.Id == rolId) return rol;
+                Rol encontrado = BuscarRol(rol.ObtenerHijos(), rolId);
+                if (encontrado != null) return encontrado;
+            }
+            return null;
+        }
+
         public void CambiarPadre(int rolId, int? nuevoPadreId)
         {
             if (nuevoPadreId.HasValue)

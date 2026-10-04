@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmCoordinarVisita : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmCoordinarVisita : FormBase
     {
         private readonly BLL.AlertaRevisionBLL _alertaBLL = new BLL.AlertaRevisionBLL();
         private readonly BLL.EquipoBLL _equipoBLL = new BLL.EquipoBLL();
         private readonly BLL.VisitaTecnicaBLL _visitaBLL = new BLL.VisitaTecnicaBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private List<BE.AlertaRevision> _alertas;
         private BE.USUARIO _tecnicoSeleccionado;
@@ -28,14 +24,7 @@ namespace CAPAS
             dtpFecha.Value = DateTime.Today.AddDays(1);
             CargarAlertas();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void CargarAlertas()
@@ -56,38 +45,10 @@ namespace CAPAS
             _tecnicoSeleccionado = null;
         }
 
-        private void frmCoordinarVisita_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
-        }
-
         private BE.AlertaRevision ObtenerAlertaSeleccionada()
         {
             if (dgvAlertas.CurrentRow?.DataBoundItem is BE.AlertaRevision alerta) return alerta;
-            MsgBox.Show("Seleccioná una alerta.", "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+            MsgBox.Show(Textos.T("msg_SeleccionaUnaAlerta", "Seleccioná una alerta."), "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
             return null;
         }
 
@@ -109,7 +70,7 @@ namespace CAPAS
             var alternativos = _visitaBLL.ListarTecnicosAlternativos();
             if (alternativos.Count == 0)
             {
-                MsgBox.Show("No hay técnicos alternativos registrados en el sistema.", "Atención",
+                MsgBox.Show(Textos.T("msg_NoHayTecnicosAlternativosRegistradosEnElSistema", "No hay técnicos alternativos registrados en el sistema."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -129,7 +90,7 @@ namespace CAPAS
 
             if (_tecnicoSeleccionado == null)
             {
-                MsgBox.Show("Elegí un técnico (habitual o alternativo) antes de confirmar.", "Atención",
+                MsgBox.Show(Textos.T("msg_ElegiUnTecnicoHabitualOAlternativoAntesDeConfirmar", "Elegí un técnico (habitual o alternativo) antes de confirmar."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -137,7 +98,7 @@ namespace CAPAS
             _visitaBLL.CoordinarVisita(alerta.Id, _tecnicoSeleccionado.Id, dtpFecha.Value);
             _alertaBLL.MarcarCoordinada(alerta);
 
-            MsgBox.Show("Solicitud de visita confirmada.", "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+            MsgBox.Show(Textos.T("msg_SolicitudDeVisitaConfirmada", "Solicitud de visita confirmada."), "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
             CargarAlertas();
         }
 

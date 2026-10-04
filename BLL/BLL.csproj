@@ -56,6 +56,7 @@
     <Compile Include="NotificacionBLL.cs" />
     <Compile Include="TurnoBLL.cs" />
     <Compile Include="UsuarioHistorialBLL.cs" />
+    <Compile Include="FachadaIdioma.cs" />
     <Compile Include="IdiomaBLL.cs" />
     <Compile Include="LoginBLL.cs" />
     <Compile Include="PerfilBLL.cs" />

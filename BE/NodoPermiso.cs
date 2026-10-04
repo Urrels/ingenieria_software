@@ -13,6 +13,7 @@ namespace BE
         public abstract void Quitar(NodoPermiso nodo);
         public abstract IList<NodoPermiso> ObtenerHijos();
         public abstract bool EsHoja();
+        public abstract NodoPermiso Clonar();
 
         public override string ToString() => Nombre;
     }

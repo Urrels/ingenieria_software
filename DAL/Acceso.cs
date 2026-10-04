@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DAL
 {
@@ -13,18 +11,18 @@ namespace DAL
         private SqlConnection conexion;
         private SqlTransaction transaccion;
 
+        private const string NombreCadenaConexion = "BDCAPAS";
+
         public void Abrir()
         {
-            conexion = new SqlConnection();
-            conexion.ConnectionString = "Server=localhost\\SQLEXPRESS01; Database=BDCAPAS; Trusted_Connection=True";
+            conexion = new SqlConnection(CadenaConexion());
             conexion.Open();
         }
 
         public void Cerrar()
         {
-            conexion.Close();
+            conexion?.Close();
             conexion = null;
-            GC.Collect();
         }
 
         public void IniciarTx()
@@ -40,8 +38,18 @@ namespace DAL
 
         public void DeshacerTX()
         {
+            if (transaccion == null) return;
             transaccion.Rollback();
             transaccion = null;
+        }
+
+        private static string CadenaConexion()
+        {
+            ConnectionStringSettings configuracion = ConfigurationManager.ConnectionStrings[NombreCadenaConexion];
+            if (configuracion == null)
+                throw new InvalidOperationException(
+                    $"Falta la cadena de conexión '{NombreCadenaConexion}' en App.config.");
+            return configuracion.ConnectionString;
         }
 
 

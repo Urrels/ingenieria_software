@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmDashboard : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmDashboard : FormBase
     {
         private readonly BLL.EquipoBLL _equipoBLL = new BLL.EquipoBLL();
         private readonly BLL.EvaluacionCoberturaBLL _evaluacionBLL = new BLL.EvaluacionCoberturaBLL();
         private readonly BLL.HistorialAsistenciaSociosBLL _historialBLL = new BLL.HistorialAsistenciaSociosBLL();
         private readonly BLL.FranjaHorariaBLL _franjaBLL = new BLL.FranjaHorariaBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private Chart _chartCobertura;
         private Chart _chartEquipos;
@@ -34,14 +30,7 @@ namespace CAPAS
             CargarFranjasCombo();
             CargarTodo();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void ArmarCharts()
@@ -151,34 +140,6 @@ namespace CAPAS
         private void cboFranjaAsistencia_SelectedIndexChanged(object sender, EventArgs e)
         {
             CargarChartAsistencia();
-        }
-
-        private void frmDashboard_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void btnActualizar_Click(object sender, EventArgs e)

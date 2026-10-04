@@ -84,7 +84,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmRegistrarUsoMaquina";
             this.Load += new System.EventHandler(this.frmRegistrarUsoMaquina_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmRegistrarUsoMaquina_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

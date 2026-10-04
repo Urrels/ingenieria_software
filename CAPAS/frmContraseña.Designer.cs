@@ -143,7 +143,6 @@ namespace CAPAS
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "frmContraseña";
             this.Text = "Cambiar Contraseña";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmContraseña_FormClosed);
             this.Load += new System.EventHandler(this.frmContraseña_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

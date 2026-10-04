@@ -12,6 +12,7 @@ namespace CAPAS
         private readonly Dictionary<string, ToolStripItem> _menuItems = new Dictionary<string, ToolStripItem>();
         private readonly Dictionary<string, string> _menuDefaults = new Dictionary<string, string>();
         private bool _cargandoIdiomas;
+        private readonly BLL.FachadaIdioma _fachadaIdioma = new BLL.FachadaIdioma();
 
         public frmMenu()
         {
@@ -81,7 +82,7 @@ namespace CAPAS
         {
             _cargandoIdiomas = true;
             cboIdiomaStatus.Items.Clear();
-            foreach (IDIOMA idioma in new BLL.IdiomaBLL().ListarHabilitados())
+            foreach (IDIOMA idioma in _fachadaIdioma.ListarDisponibles())
                 cboIdiomaStatus.Items.Add(idioma);
             cboIdiomaStatus.SelectedIndex = -1;
             _cargandoIdiomas = false;
@@ -92,17 +93,10 @@ namespace CAPAS
             if (_cargandoIdiomas) return;
             if (!(cboIdiomaStatus.SelectedItem is IDIOMA idioma)) return;
 
-            var bll = new BLL.IdiomaBLL();
-
             foreach (var kvp in _menuDefaults)
-                bll.RegistrarControl(kvp.Key, "[" + kvp.Value + "]");
+                _fachadaIdioma.RegistrarClave(kvp.Key, "[" + kvp.Value + "]");
 
-            var traducciones = bll.CargarTraducciones(idioma.Id);
-            SeguridadYServicios.IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);
-
-            BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-            if (usuario != null)
-                new BLL.UsuarioBLL().ActualizarIdioma(usuario.Id, idioma.Id);
+            _fachadaIdioma.Cambiar(idioma);
         }
 
         private void misNotificacionesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -139,7 +133,7 @@ namespace CAPAS
         {
             if (!SeguridadYServicios.SessionManager.getInstance().TienePermiso("Generar grilla de turnos"))
             {
-                MsgBox.Show("No tenés permiso para acceder a esta función.", "Atención",
+                MsgBox.Show(Textos.T("msg_NoTenesPermisoParaAccederAEstaFuncion", "No tenés permiso para acceder a esta función."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }

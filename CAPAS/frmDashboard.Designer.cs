@@ -113,7 +113,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmDashboard";
             this.Load += new System.EventHandler(this.frmDashboard_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmDashboard_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmFicharAsistencia : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmFicharAsistencia : FormBase
     {
         private readonly BLL.AsistenciaPersonalBLL _asistenciaBLL = new BLL.AsistenciaPersonalBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmFicharAsistencia()
         {
@@ -22,14 +17,7 @@ namespace CAPAS
         {
             ActualizarEstado();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void ActualizarEstado()
@@ -45,34 +33,6 @@ namespace CAPAS
             btnEgreso.Enabled = tieneAbierto;
         }
 
-        private void frmFicharAsistencia_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
-        }
-
         private void btnIngreso_Click(object sender, EventArgs e)
         {
             BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
@@ -80,12 +40,12 @@ namespace CAPAS
 
             if (!ok)
             {
-                MsgBox.Show("Ya tenés un ingreso registrado hoy sin egreso.", "Atención",
+                MsgBox.Show(Textos.T("msg_YaTenesUnIngresoRegistradoHoySinEgreso", "Ya tenés un ingreso registrado hoy sin egreso."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
             }
             else
             {
-                MsgBox.Show($"Ingreso registrado a las {DateTime.Now:HH:mm}.", "Éxito",
+                MsgBox.Show(Textos.T("msg_IngresoRegistradoALas", "Ingreso registrado a las {0:HH:mm}.", DateTime.Now), "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
             }
             ActualizarEstado();
@@ -98,12 +58,12 @@ namespace CAPAS
 
             if (!ok)
             {
-                MsgBox.Show("No tenés un ingreso registrado hoy. Registrá el ingreso primero.",
+                MsgBox.Show(Textos.T("msg_NoTenesUnIngresoRegistradoHoyRegistraElIngresoPrimero", "No tenés un ingreso registrado hoy. Registrá el ingreso primero."),
                     "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
             }
             else
             {
-                MsgBox.Show($"Egreso registrado a las {DateTime.Now:HH:mm}.", "Éxito",
+                MsgBox.Show(Textos.T("msg_EgresoRegistradoALas", "Egreso registrado a las {0:HH:mm}.", DateTime.Now), "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
             }
             ActualizarEstado();

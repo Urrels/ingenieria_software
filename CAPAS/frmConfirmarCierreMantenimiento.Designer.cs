@@ -87,7 +87,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmConfirmarCierreMantenimiento";
             this.Load += new System.EventHandler(this.frmConfirmarCierreMantenimiento_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmConfirmarCierreMantenimiento_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvInformes)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -46,8 +46,9 @@ namespace CAPAS
                 if (historial.Count == 0)
                 {
                     MsgBox.Show(
-                        $"El usuario '{usuario.Usuario}' no tiene historial de cambios registrado.\n\n" +
-                        "No es posible restaurarlo desde historial. Use 'Recalcular y continuar'.",
+                        Textos.T("msg_UsuarioSinHistorial",
+                            "El usuario '{0}' no tiene historial de cambios registrado.\n\nNo es posible restaurarlo desde historial. Use 'Recalcular y continuar'.",
+                            usuario.Usuario),
                         "Sin historial",
                         MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                     continue;

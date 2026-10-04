@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmContraseña : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmContraseña : FormBase
     {
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmContraseña()
         {
@@ -22,42 +17,7 @@ namespace CAPAS
             txtNuevaPass.PasswordChar = '*';
             txtConfPass.PasswordChar = '*';
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void frmContraseña_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
+            InicializarFormulario();
         }
 
         private void btnContinuar_Click(object sender, EventArgs e)
@@ -68,14 +28,14 @@ namespace CAPAS
 
             if (string.IsNullOrEmpty(passActual) || string.IsNullOrEmpty(nuevaPass) || string.IsNullOrEmpty(confPass))
             {
-                MsgBox.Show("Completá todos los campos.", "Atención",
+                MsgBox.Show(Textos.T("msg_CompletaTodosLosCampos", "Completá todos los campos."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (nuevaPass != confPass)
             {
-                MsgBox.Show("Las contraseñas no coinciden.", "Error",
+                MsgBox.Show(Textos.T("msg_LasContrasenasNoCoinciden", "Las contraseñas no coinciden."), "Error",
                     MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
@@ -93,20 +53,20 @@ namespace CAPAS
 
             if (!bll.VerificarContrasena(usuario, passActual))
             {
-                MsgBox.Show("La contraseña actual es incorrecta.", "Error",
+                MsgBox.Show(Textos.T("msg_LaContrasenaActualEsIncorrecta", "La contraseña actual es incorrecta."), "Error",
                     MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
 
             if (bll.CambiarContrasena(usuario, nuevaPass))
             {
-                MsgBox.Show("Contraseña cambiada exitosamente.", "Éxito",
+                MsgBox.Show(Textos.T("msg_ContrasenaCambiadaExitosamente", "Contraseña cambiada exitosamente."), "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 this.Close();
             }
             else
             {
-                MsgBox.Show("Error al cambiar la contraseña.", "Error",
+                MsgBox.Show(Textos.T("msg_ErrorAlCambiarLaContrasena", "Error al cambiar la contraseña."), "Error",
                     MsgBox.Botones.OK, MsgBox.Icono.Error);
             }
         }

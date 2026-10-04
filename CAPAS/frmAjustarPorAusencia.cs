@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmAjustarPorAusencia : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmAjustarPorAusencia : FormBase
     {
         private readonly BLL.GrillaBLL _grillaBLL = new BLL.GrillaBLL();
         private readonly BLL.TurnoBLL _turnoBLL = new BLL.TurnoBLL();
@@ -15,8 +13,6 @@ namespace CAPAS
         private readonly BLL.FranjaHorariaBLL _franjaBLL = new BLL.FranjaHorariaBLL();
         private readonly BLL.UsuarioBLL _usuarioBLL = new BLL.UsuarioBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private BE.GrillaDeTurnos _grilla;
         private List<TurnoFilaVM> _filas;
@@ -30,42 +26,7 @@ namespace CAPAS
         {
             dtpSemana.Value = DateTime.Today;
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void frmAjustarPorAusencia_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
+            InicializarFormulario();
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)
@@ -78,7 +39,7 @@ namespace CAPAS
 
             if (_grilla == null)
             {
-                MsgBox.Show("No hay ninguna grilla generada para esa semana.", "Atención",
+                MsgBox.Show(Textos.T("msg_NoHayNingunaGrillaGeneradaParaEsaSemana", "No hay ninguna grilla generada para esa semana."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 dgvTurnos.DataSource = null;
                 return;
@@ -86,7 +47,7 @@ namespace CAPAS
 
             if (_grilla.Estado != "Confirmada" && _grilla.Estado != "Comunicada")
             {
-                MsgBox.Show("La grilla de esa semana todavía no está confirmada.", "Atención",
+                MsgBox.Show(Textos.T("msg_LaGrillaDeEsaSemanaTodaviaNoEstaConfirmada", "La grilla de esa semana todavía no está confirmada."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 dgvTurnos.DataSource = null;
                 return;
@@ -137,14 +98,14 @@ namespace CAPAS
 
             if (!fila.Turno.UsuarioId.HasValue)
             {
-                MsgBox.Show("Este turno no tiene un empleado asignado para reemplazar.", "Atención",
+                MsgBox.Show(Textos.T("msg_EsteTurnoNoTieneUnEmpleadoAsignadoParaReemplazar", "Este turno no tiene un empleado asignado para reemplazar."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             BE.USUARIO empleadoAusente = _usuarioBLL.ObtenerPorId(fila.Turno.UsuarioId.Value);
 
-            if (MsgBox.Show($"¿{empleadoAusente.Nombre} {empleadoAusente.Apellido} avisó una ausencia para este turno?",
+            if (MsgBox.Show(Textos.T("msg_AvisoUnaAusenciaParaEsteTurno", "¿{0} {1} avisó una ausencia para este turno?", empleadoAusente.Nombre, empleadoAusente.Apellido),
                 "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
@@ -154,8 +115,8 @@ namespace CAPAS
 
             if (compatibles.Count == 0)
             {
-                MsgBox.Show("No hay ningún empleado disponible compatible con el rol y la franja.\n" +
-                            "El turno queda marcado como sin cobertura.", "Sin cobertura",
+                MsgBox.Show(Textos.T("msg_SinCompatiblesTurnoMarcadoSinCobertura",
+                            "No hay ningún empleado disponible compatible con el rol y la franja.\nEl turno queda marcado como sin cobertura."), "Sin cobertura",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 _turnoBLL.MarcarDeficitCobertura(fila.Turno);
                 CargarFilas();
@@ -171,7 +132,7 @@ namespace CAPAS
 
                 if (!ok)
                 {
-                    MsgBox.Show($"{nuevoEmpleado.Usuario} superaría su límite de horas semanales. Elegí otro empleado.",
+                    MsgBox.Show(Textos.T("msg_SuperariaSuLimiteDeHorasSemanalesElegiOtroEmpleado", "{0} superaría su límite de horas semanales. Elegí otro empleado.", nuevoEmpleado.Usuario),
                         "Límite de horas superado", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                     return;
                 }
@@ -184,7 +145,7 @@ namespace CAPAS
                     $"{fila.Franja.HoraInicio:hh\\:mm}-{fila.Franja.HoraFin:hh\\:mm} fue reasignado por tu ausencia.";
                 _notificacionBLL.Notificar(empleadoAusente, _grilla.Id, mensajeReemplazado);
 
-                MsgBox.Show("Turno reasignado y ambos empleados notificados.", "Éxito",
+                MsgBox.Show(Textos.T("msg_TurnoReasignadoYAmbosEmpleadosNotificados", "Turno reasignado y ambos empleados notificados."), "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 CargarFilas();
             }
@@ -196,8 +157,8 @@ namespace CAPAS
 
             if (compatibles.Count == 0)
             {
-                MsgBox.Show("No hay ningún empleado disponible compatible con el rol y la franja.\n" +
-                            "El turno sigue sin cobertura.", "Sin cobertura",
+                MsgBox.Show(Textos.T("msg_SinCompatiblesTurnoSigueSinCobertura",
+                            "No hay ningún empleado disponible compatible con el rol y la franja.\nEl turno sigue sin cobertura."), "Sin cobertura",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -211,7 +172,7 @@ namespace CAPAS
 
                 if (!ok)
                 {
-                    MsgBox.Show($"{nuevoEmpleado.Usuario} superaría su límite de horas semanales. Elegí otro empleado.",
+                    MsgBox.Show(Textos.T("msg_SuperariaSuLimiteDeHorasSemanalesElegiOtroEmpleado", "{0} superaría su límite de horas semanales. Elegí otro empleado.", nuevoEmpleado.Usuario),
                         "Límite de horas superado", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                     return;
                 }
@@ -220,7 +181,7 @@ namespace CAPAS
                     $"{fila.Franja.HoraInicio:hh\\:mm}-{fila.Franja.HoraFin:hh\\:mm} que habías confirmado que podías cubrir.";
                 _notificacionBLL.Notificar(nuevoEmpleado, _grilla.Id, mensaje);
 
-                MsgBox.Show("Turno cubierto y empleado notificado.", "Éxito",
+                MsgBox.Show(Textos.T("msg_TurnoCubiertoYEmpleadoNotificado", "Turno cubierto y empleado notificado."), "Éxito",
                     MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 CargarFilas();
             }
