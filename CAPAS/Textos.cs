@@ -51,6 +51,10 @@ namespace CAPAS
             {
                 _registradas.Remove(clave);
             }
+            catch (InvalidOperationException)
+            {
+                _registradas.Remove(clave);
+            }
         }
     }
 }

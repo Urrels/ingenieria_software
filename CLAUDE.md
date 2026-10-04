@@ -24,7 +24,9 @@ powershell -ExecutionPolicy Bypass -File Instalador\generar-instalador.ps1
 
 The script finds MSBuild with `vswhere`, builds `TP_IS.sln` in Release (`/restore`) and then `Instalador.wixproj` (WiX comes from NuGet; no separate install). Output: `Instalador\bin\Release\CAPAS-Instalador.msi`.
 
-`Package.wxs`: per-machine, `es-ES` UI (`WixUI_InstallDir` + `Licencia.rtf`), `MajorUpgrade`, launch condition on `WIXNETFX4RELEASEINSTALLED >= #528040` (.NET Framework 4.8, Netfx extension), installs `CAPAS\bin\Release\**` (minus `*.pdb`, `*.xml`, `*.log`) via the `Files` wildcard element to `ProgramFiles6432Folder\CAPAS`, the `DAL\*.sql` scripts to `CAPAS\Scripts`, and Start-menu + desktop shortcuts. Bump `Package/@Version` for each release; never change `UpgradeCode`. The database is not created by the installer.
+`Package.wxs`: per-machine, `es-ES` UI (`WixUI_InstallDir` + `Licencia.rtf`), `MajorUpgrade`, launch condition on `WIXNETFX4RELEASEINSTALLED >= #528040` (.NET Framework 4.8, Netfx extension), installs `CAPAS\bin\Release\**` (minus `*.pdb`, `*.xml`, `*.log`) via the `Files` wildcard element to `ProgramFiles6432Folder\CAPAS`, the `DAL\*.sql` scripts to `CAPAS\Scripts`, and Start-menu + desktop shortcuts. Bump `Package/@Version` for each release; never change `UpgradeCode`. The installer also adds a Start-menu shortcut to `ConfiguradorBD.exe` and, on the exit dialog, a checked-by-default checkbox that launches it (`WixShellExec` from the Util extension, impersonated, so Windows auth uses the real user — never run the DB setup as a deferred custom action: it would run as SYSTEM). If `Instalador\Prerequisitos\SqlLocalDB.msi` exists at build time (`IncluirLocalDB` define, git-ignored), it is packaged into `CAPAS\Prerequisitos`.
+
+**ConfiguradorBD** (`ConfiguradorBD/`, WinForms, .NET Framework 4.8, `requireAdministrator` manifest, in `TP_IS.sln`) builds into `CAPAS\bin\$(Configuration)\` so it sits next to `CAPAS.exe.config` and is harvested by the installer's `Files` wildcard. It: detects local instances from `HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL` (64/32-bit views) and LocalDB (`Local DB\Installed Versions`); maps the typed server to its Windows service (`InstanciaSql.ServicioDe`) and offers to start it if stopped; for `(localdb)\MSSQLLocalDB` runs `SqlLocalDB create/start`; with no engine, silently installs `Prerequisitos\SqlLocalDB.msi` (`IACCEPTSQLLOCALDBLICENSETERMS=YES`) or opens the download page; pre-flight checks (connection, version ≥ 15 / SQL Server 2019, `CREATE ANY DATABASE`, disk space); runs `Scripts\script.sql` + `Scripts\traducciones.sql` batch by batch (`GO` splitter, falls back to `..\DAL\` in development); drops the database if any batch fails (rollback); if `BDCAPAS` already exists, only re-runs translations; writes the connection string to `CAPAS.exe.config`; logs to `%ProgramData%\CAPAS\install.log`. `CAPAS/Program.cs` checks `BLL.ConexionBLL.Disponible()` at startup and offers to launch the configurator when the database is unreachable.
 
 ## Database setup
 
@@ -37,9 +39,9 @@ sqlcmd -S . -E -i "DAL\script.sql"
 sqlcmd -S . -d BDCAPAS -E -i "DAL\traducciones.sql"
 ```
 
-`script.sql` is the SSMS export of the real `BDCAPAS` database (it starts with `CREATE DATABASE`, so it is meant for a fresh install), with `USUARIO_PERMISOS_LISTAR` in its non-inheriting version and a final idempotent seed block: languages (`Español` default, `Inglés`, `Portugues`), the `PERMISO` catalog, roles (`Administrador` protected with every permission; `Usuario`, `Sala`, `Recepcion`, `Tecnico` with *Cambiar contraseña*) and the `admin` user (password `1234`) assigned to `Administrador`. When the schema changes, update `script.sql` (re-export from SSMS or edit the affected object) instead of adding migration scripts.
+`script.sql` is the SSMS export of the real `BDCAPAS` database (it starts with `CREATE DATABASE`, so it is meant for a fresh install), made portable — `CREATE DATABASE [BDCAPAS]` without machine-specific file paths or `LEDGER`, and no `FILESTREAM` option (unsupported by LocalDB); requires SQL Server 2019+ — with `USUARIO_PERMISOS_LISTAR` in its non-inheriting version and a final idempotent seed block: languages (`Español` default, `Inglés`, `Portugues`), the `PERMISO` catalog, roles (`Administrador` protected with every permission; `Usuario`, `Sala`, `Recepcion`, `Tecnico` with *Cambiar contraseña*) and the `admin` user (password `1234`) assigned to `Administrador`. When the schema changes, update `script.sql` (re-export from SSMS or edit the affected object) instead of adding migration scripts.
 
-`traducciones.sql` is the single source of translations and can be re-run at any time. It upserts the 427 keys of the system (`CONTROL_IDIOMA.TEXTO_DEFAULT` = Spanish, plus `TRADUCCION` rows for Español/Inglés/Portugues; it creates Inglés/Portugues if missing) inside a transaction, and **deletes keys that are no longer used** (with their translations). Because it overwrites translations, edits made from `frmIdiomas` must also be copied into the script to survive a re-run.
+`traducciones.sql` is the single source of translations and can be re-run at any time. It upserts the 429 keys of the system (`CONTROL_IDIOMA.TEXTO_DEFAULT` = Spanish, plus `TRADUCCION` rows for Español/Inglés/Portugues; it creates Inglés/Portugues if missing) inside a transaction, and **deletes keys that are no longer used** (with their translations). Because it overwrites translations, edits made from `frmIdiomas` must also be copied into the script to survive a re-run.
 
 **Resetting integrity for testing** — if you need to force the app to reinitialize DVH/DVV (e.g., after a direct DB edit):
 ```sql
@@ -49,7 +51,7 @@ On next startup `EstaInicializado()` returns false → `RecalcularIntegridad()` 
 
 ## Architecture
 
-Five projects in the solution:
+Six projects in the solution:
 
 ```
 CAPAS (UI/WinForms)
@@ -59,7 +61,11 @@ CAPAS (UI/WinForms)
   │     └── BE
   └── SeguridadYServicios
               └── BE
+
+ConfiguradorBD (standalone setup tool, no project references)
 ```
+
+`ConfiguradorBD` is the only code allowed to run SQL text directly (it executes the setup scripts batch by batch); the application itself goes through stored procedures only.
 
 **BE** — Plain entity classes (`USUARIO`, `BITACORA`, `IDIOMA`, `CONTROL_IDIOMA`, `NodoPermiso`, `Rol`, `Permiso`, `UsuarioHistorial`, etc.) plus the `LoginResultado` enum. No logic. `USUARIO` has a `DVH int` property (the only integrity-protected entity). `NodoPermiso.ToString()` returns `Nombre` (used by `CheckedListBox` in `frmPerfiles`).
 

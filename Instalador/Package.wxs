@@ -21,6 +21,9 @@
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="CAPAS">
         <Directory Id="CarpetaScripts" Name="Scripts" />
+        <?ifdef IncluirLocalDB ?>
+        <Directory Id="CarpetaPrerequisitos" Name="Prerequisitos" />
+        <?endif?>
       </Directory>
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder">
@@ -35,6 +38,9 @@
         <Exclude Files="$(var.AppBin)**\*.log" />
       </Files>
       <Files Directory="CarpetaScripts" Include="$(var.Scripts)*.sql" />
+      <?ifdef IncluirLocalDB ?>
+      <Files Directory="CarpetaPrerequisitos" Include="Prerequisitos\SqlLocalDB.msi" />
+      <?endif?>
       <ComponentRef Id="AccesosDirectos" />
     </Feature>
 
@@ -50,11 +56,25 @@
                 Description="Sistema de gestión del gimnasio"
                 Target="[INSTALLFOLDER]CAPAS.exe"
                 WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="AccesoConfigurador"
+                Name="Configurar base de datos de CAPAS"
+                Description="Crea la base de datos o cambia el servidor SQL Server"
+                Target="[INSTALLFOLDER]ConfiguradorBD.exe"
+                WorkingDirectory="INSTALLFOLDER" />
       <RemoveFolder Id="QuitarCarpetaMenuInicio" On="uninstall" />
       <RegistryValue Root="HKCU" Key="Software\CAPAS" Name="Instalado" Type="integer" Value="1" KeyPath="yes" />
     </Component>
 
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Configurar la base de datos ahora" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[INSTALLFOLDER]ConfiguradorBD.exe" />
+    <CustomAction Id="AbrirConfigurador" BinaryRef="Wix4UtilCA_X86" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
+
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="AbrirConfigurador"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
     <WixVariable Id="WixUILicenseRtf" Value="Licencia.rtf" />
   </Package>
 </Wix>
