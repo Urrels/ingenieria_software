@@ -22,7 +22,9 @@ Run the full script against the local SQL Server instance (Windows Auth, databas
 sqlcmd -S . -d BDCAPAS -E -i "DAL\script.sql"
 ```
 
-The script is append-only and mostly idempotent: `CONTROL_REGISTRAR` and `TRADUCCION_GUARDAR` are upserts, but early `CREATE TABLE` / `CREATE PROCEDURE` blocks will error if objects already exist (harmless — the rest of the batch still runs). Later blocks use `IF OBJECT_ID ... DROP` before recreating, so they are fully idempotent.
+Then run, in order, `DAL\nuevoScript.sql` (ROL/PERMISO migration) and `DAL\mejoras_idiomas_perfiles.sql` (transactional `IDIOMA_ELIMINAR`, `USUARIO_PERFIL_LISTAR_ACTIVOS`; idempotent).
+
+`script.sql` is append-only and mostly idempotent: `CONTROL_REGISTRAR` and `TRADUCCION_GUARDAR` are upserts, but early `CREATE TABLE` / `CREATE PROCEDURE` blocks will error if objects already exist (harmless — the rest of the batch still runs). Later blocks use `IF OBJECT_ID ... DROP` before recreating, so they are fully idempotent.
 
 **Resetting integrity for testing** — if you need to force the app to reinitialize DVH/DVV (e.g., after a direct DB edit):
 ```sql
@@ -111,15 +113,23 @@ The many-to-many link between roles and permissions lives in `ROL_PERMISO (ROL_I
 1. `Rol.Protegido == true` → system role, cannot be deleted. Currently only *Administrador* (`PROTEGIDO=1`); all other roles default to `PROTEGIDO=0`.
 2. `PerfilDAL.TieneUsuariosAsignados(id)` → the SP `ROL_TIENE_USUARIOS` uses a recursive CTE to check whether any role in the subtree has entries in `USUARIO_PERFIL`. Blocks deletion if so.
 
+**Anti-lockout guard** — `PerfilBLL.ValidarQueQuedeAdministracion` rejects (with `InvalidOperationException`) any change that would leave the system without at least one active (non-blocked) user holding each administration permission (`Administrar usuarios`, `Gestión de roles`). It simulates the change in memory (data from `USUARIO_PERFIL_LISTAR_ACTIVOS` and `ROL_PERMISO_LISTAR_TODOS`) and only blocks if a permission that was covered before stops being covered. Called from `PerfilBLL.ActualizarPermisosDeRol`, `UsuarioPerfilBLL.GuardarAsignaciones`, `UsuarioBLL.Eliminar` and `UsuarioHistorialBLL.Rollback` (a snapshot with `Bloqueado=true` counts as losing all roles). The UI catches the exception and shows the message.
+
+**Atomic role assignment** — `UsuarioPerfilDAL.ReemplazarAsignaciones` runs `USUARIO_PERFIL_BORRAR_TODOS` + N × `USUARIO_PERFIL_ASIGNAR` inside a transaction; used by both `GuardarAsignaciones` and `Rollback`.
+
+**Bitácora for security changes** — `PerfilBLL` logs `ROL_CREADO:`, `ROL_ELIMINADO:`, `ROL_PADRE_CAMBIADO:` and `ROL_PERMISOS_MODIFICADOS:` (+ role name); `UsuarioPerfilBLL.GuardarAsignaciones` logs `PERFILES_ASIGNADOS:` (+ username). `BITACORA.ACCION` is `VARCHAR(50)`, so `BitacoraBLL.RegistrarAccion` truncates longer actions.
+
 `frmPerfiles` shows three context-sensitive panels when a `Rol` node is selected: `panelPadre` (ComboBox to reassign parent, excludes the role's own subtree from candidates) and `panelPermisos` (CheckedListBox of catalog permissions). The Eliminar button is disabled in the UI when `rol.Protegido` is true.
 
-**Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → walks role inheritance (recursive CTE on `ROL.PADRE_ID`) then joins `ROL_PERMISO → PERMISO` to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`. **Never check `USUARIO.Rol` to control visibility** — it is a legacy field not aligned with the permission system (the old `SessionManager.EsAdmin()` helper that did this was removed).
+**Permissions check flow** — `LoginBLL` calls `UsuarioPerfilBLL.ObtenerPermisos(usuarioId)` → `USUARIO_PERMISOS_LISTAR` SP → joins `USUARIO_PERFIL → ROL_PERMISO → PERMISO` for the user's own roles (no inheritance, see above) to get distinct permission names → stored in `SessionManager._permisos`. UI checks via `SessionManager.TienePermiso("Ver bitácora")`. **Never check `USUARIO.Rol` to control visibility** — it is a legacy field not aligned with the permission system (the old `SessionManager.EsAdmin()` helper that did this was removed).
 
 **Observer (multi-language)** — `IdiomaManager` is the Subject. Forms are Observers. Each form has its own language selector added dynamically by `IdiomaUIHelper.AgregarSelector(form)` (called at the end of every form's `Load`), because `ShowDialog()` disables the parent form. On change: CAPAS calls `BLL.IdiomaBLL.CargarTraducciones(idiomaId)`, then passes the dictionary to `IdiomaManager.CambiarIdioma()`, which calls `Notificar()` → `ActualizarIdioma()` on every registered form. Forms fall back to their design-time text when a key has no translation.
 
-**`IDIOMA.PREDETERMINADO`** — `BIT` column marking the system's default language (`Español`, seeded via `UPDATE IDIOMA SET PREDETERMINADO = 1 WHERE NOMBRE = 'Español'`). `frmIdiomas.btnEliminarIdioma_Click` blocks deletion in two cases, each with its own warning message:
-1. `_idiomaSeleccionado.Predeterminado == true` — the default language can never be deleted.
-2. `IdiomaBLL.EstaEnUso(id)` (SP `IDIOMA_ESTA_EN_USO`, `SELECT COUNT(*) FROM USUARIO WHERE IDIOMA_ID = @id`) — a language assigned to *any* user (not just the current session's) cannot be deleted.
+**`IDIOMA.PREDETERMINADO`** — `BIT` column marking the system's default language (`Español`, seeded via `UPDATE IDIOMA SET PREDETERMINADO = 1 WHERE NOMBRE = 'Español'`). A language can be neither **deleted** nor **disabled** in two cases, each with its own message:
+1. It is the default language (`Predeterminado == true`).
+2. It is assigned to *any* user — `IdiomaBLL.EstaEnUso(id)` (SP `IDIOMA_ESTA_EN_USO`, `SELECT COUNT(*) FROM USUARIO WHERE IDIOMA_ID = @id`).
+
+The rules are enforced in three layers: `frmIdiomas` pre-checks before asking for confirmation; `IdiomaBLL.Eliminar` / `IdiomaBLL.ActualizarEstado(id, false)` throw `InvalidOperationException` as a backstop (caught by the UI); and the SP `IDIOMA_ELIMINAR` re-checks both conditions (`THROW 50001/50002`) and deletes `TRADUCCION` + `IDIOMA` inside a transaction, so translations are never lost on a failed delete. `LoginBLL` only applies a user's saved language if it is still `Habilitado`.
 
 **Per-user language preference (`USUARIO.IDIOMA_ID`)** — nullable FK to `IDIOMA(ID)` (`FK_USUARIO_IDIOMA`); `NULL` means "no preference saved yet". Three write sites call `UsuarioBLL.ActualizarIdioma(usuarioId, idiomaId)` (SP `USUARIO_ACTUALIZAR_IDIOMA`) whenever a logged-in user changes language: `IdiomaUIHelper.AgregarSelector`'s combo handler and `frmMenu.cboIdiomaStatus_SelectedIndexChanged` (both guarded by `SessionManager.getInstance().getUsuario() != null` — the pre-login `LogIn` selector does not persist). On successful login, `LoginBLL.AutenticarUsuario` reads `u.IdiomaId` (now returned by `USUARIO_LOGIN`); if set, it loads the `IDIOMA` (`IdiomaBLL.ObtenerPorId`, SP `IDIOMA_OBTENER_POR_ID`) and its translations and calls `IdiomaManager.CambiarIdioma(...)` directly — this happens *before* `frmMenu` is constructed, so the menu loads already translated. `BE.USUARIO.IdiomaId` (`int?`) is hidden from `dgvUsuarios` in `frmAdminUsuarios` (not user-relevant in that grid).
 

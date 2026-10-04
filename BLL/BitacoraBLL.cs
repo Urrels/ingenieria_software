@@ -6,6 +6,7 @@ namespace BLL
 {
     public class BitacoraBLL
     {
+        private const int LargoMaximoAccion = 50;
         private readonly DAL.BitacoraDAL _dal = new DAL.BitacoraDAL();
 
         public void RegistrarLogin(string usuario)
@@ -20,6 +21,8 @@ namespace BLL
 
         public void RegistrarAccion(string usuario, string accion)
         {
+            if (accion != null && accion.Length > LargoMaximoAccion)
+                accion = accion.Substring(0, LargoMaximoAccion);
             _dal.Registrar(usuario, accion);
         }
 

@@ -9,6 +9,7 @@ namespace BLL
         private readonly DAL.UsuarioDAL _usuarioDal = new DAL.UsuarioDAL();
         private readonly IntegridadBLL _integridad = new IntegridadBLL();
         private readonly UsuarioHistorialBLL _historial = new UsuarioHistorialBLL();
+        private readonly BitacoraBLL _bitacora = new BitacoraBLL();
 
         public List<string> ObtenerPermisos(int usuarioId)
         {
@@ -22,12 +23,14 @@ namespace BLL
 
         public void GuardarAsignaciones(int usuarioId, List<int> perfilIds)
         {
-            _dal.BorrarTodos(usuarioId);
-            foreach (int id in perfilIds)
-                _dal.Asignar(usuarioId, id);
+            new PerfilBLL().ValidarQueQuedeAdministracion(usuarioId: usuarioId, nuevosRolIds: perfilIds);
+
+            _dal.ReemplazarAsignaciones(usuarioId, perfilIds);
             _integridad.RecalcularIntegridadUsuarios();
             string admin = SessionManager.getInstance().getUsuario()?.Usuario ?? "sistema";
             _historial.RegistrarCambio(usuarioId, "ASIGNACION_PERFIL", admin);
+            string nombreUsuario = _usuarioDal.ObtenerPorId(usuarioId)?.Usuario ?? usuarioId.ToString();
+            _bitacora.RegistrarAccion(admin, "PERFILES_ASIGNADOS:" + nombreUsuario);
 
             BE.USUARIO usuarioSesion = SessionManager.getInstance().getUsuario();
             if (usuarioSesion != null && usuarioSesion.Id == usuarioId)

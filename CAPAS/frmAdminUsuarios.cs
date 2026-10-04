@@ -278,7 +278,15 @@ namespace CAPAS
                 "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
 
-            _bll.Eliminar(seleccionado.Id);
+            try
+            {
+                _bll.Eliminar(seleccionado.Id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
+                return;
+            }
             CargarUsuarios();
         }
 

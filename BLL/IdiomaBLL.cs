@@ -1,4 +1,5 @@
 using BE;
+using System;
 using System.Collections.Generic;
 
 namespace BLL
@@ -24,10 +25,32 @@ namespace BLL
         public void Renombrar(int id, string nombre) =>
             _dal.Renombrar(id, nombre);
 
-        public void ActualizarEstado(int id, bool habilitado) =>
+        public void ActualizarEstado(int id, bool habilitado)
+        {
+            if (!habilitado)
+            {
+                IDIOMA idioma = _dal.ObtenerPorId(id);
+                if (idioma != null && idioma.Predeterminado)
+                    throw new InvalidOperationException(
+                        "No se puede deshabilitar el idioma predeterminado del sistema.");
+                if (_dal.EstaEnUso(id))
+                    throw new InvalidOperationException(
+                        "No se puede deshabilitar un idioma que está en uso por algún usuario.");
+            }
             _dal.ActualizarEstado(id, habilitado);
+        }
 
-        public void Eliminar(int id) => _dal.Eliminar(id);
+        public void Eliminar(int id)
+        {
+            IDIOMA idioma = _dal.ObtenerPorId(id);
+            if (idioma != null && idioma.Predeterminado)
+                throw new InvalidOperationException(
+                    "No se puede eliminar el idioma predeterminado del sistema.");
+            if (_dal.EstaEnUso(id))
+                throw new InvalidOperationException(
+                    "No se puede eliminar un idioma que está en uso por algún usuario.");
+            _dal.Eliminar(id);
+        }
 
         public void RegistrarControl(string clave, string textoDefault) =>
             _dal.RegistrarControl(clave, textoDefault);

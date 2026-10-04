@@ -47,6 +47,8 @@ namespace BLL
 
         public void Eliminar(int id)
         {
+            new PerfilBLL().ValidarQueQuedeAdministracion(usuarioId: id, nuevosRolIds: new List<int>());
+
             string admin = SessionManager.getInstance().getUsuario().Usuario;
             _historial.RegistrarCambio(id, "BAJA", admin);
             _dal.Eliminar(id);
