@@ -71,7 +71,7 @@ DELETE FROM DIGITO_VERIFICADOR_VERTICAL WHERE TABLA = 'USUARIO';
 
 ## Instalador
 
-El instalador `.msi` se arma con [WiX Toolset](https://wixtoolset.org) 6.0.2 desde la carpeta `Instalador/`. No hace falta instalar WiX: se descarga solo como paquete NuGet al compilar.
+El instalador se arma con [WiX Toolset](https://wixtoolset.org) 6.0.2 desde la carpeta `Instalador/`. No hace falta instalar WiX: se descarga solo como paquete NuGet al compilar.
 
 ### Generarlo
 
@@ -81,9 +81,19 @@ Desde PowerShell, en la raíz del repo:
 powershell -ExecutionPolicy Bypass -File Instalador\generar-instalador.ps1
 ```
 
-El script compila la solución en `Release` y después el instalador. El resultado queda en `Instalador\bin\Release\` (`CAPAS-Instalador.msi`).
+El script compila la solución en `Release` y después el instalador. Genera dos archivos:
 
-### Qué hace el instalador
+- **`Instalador\Bundle\bin\Release\CAPAS-Setup.exe`**: el que hay que repartir. Es un instalador `.exe` (WiX Burn) que instala primero lo que falte y después CAPAS.
+- `Instalador\bin\Release\CAPAS-Instalador.msi`: el paquete de CAPAS solo, sin prerrequisitos (el `.exe` lo lleva adentro).
+
+### Qué hace el `.exe` (`CAPAS-Setup.exe`)
+
+- Pantallas en español (`Instalador\Bundle\Tema.es-ES.wxl`) con la licencia (`Licencia.rtf`). En **Opciones** se puede cambiar la carpeta de destino.
+- Si falta **.NET Framework 4.8**, lo descarga e instala.
+- Si el instalador se generó con `Instalador\Prerequisitos\SqlLocalDB.msi` y el equipo no tiene ni SQL Server ni LocalDB, instala **SQL Server Express LocalDB** en modo silencioso.
+- Instala CAPAS (el `.msi`) y, al terminar, muestra el botón **Configurar base de datos**, que abre el configurador.
+
+### Qué hace el `.msi`
 
 - Pantallas en español: bienvenida, licencia (`Licencia.rtf`), carpeta de destino y progreso.
 - Verifica que esté instalado .NET Framework 4.8; si no, avisa y no continúa.
@@ -114,7 +124,7 @@ Usuario inicial: `admin`, contraseña `1234`.
 
 ### Publicar una versión nueva
 
-Subir el atributo `Version` del `Package` en `Instalador/Package.wxs` (por ejemplo `1.0.0` → `1.1.0`). El `UpgradeCode` no se cambia nunca: es lo que permite que la versión nueva reemplace a la anterior.
+Subir el atributo `Version` del `Package` en `Instalador/Package.wxs` y el del `Bundle` en `Instalador/Bundle/Bundle.wxs` (por ejemplo `1.0.0` → `1.1.0`). Los `UpgradeCode` no se cambian nunca: es lo que permite que la versión nueva reemplace a la anterior.
 
 ---
 
@@ -130,7 +140,7 @@ TP_IS.sln
 ├── SeguridadYServicios/    Servicios transversales (sesión, idioma, integridad, hash)
 ├── CAPAS/                  UI — Windows Forms
 ├── ConfiguradorBD/         Configurador de la base de datos (lo abre el instalador)
-├── Instalador/             Instalador .msi (WiX Toolset)
+├── Instalador/             Instalador .msi y .exe (WiX Toolset)
 │   └── Program.cs          Punto de entrada
 ├── DER.puml                Diagrama entidad-relación (PlantUML)
 ├── DiagramaClases.puml     Diagrama de clases (PlantUML)

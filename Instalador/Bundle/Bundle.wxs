@@ -1,0 +1,50 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Bundle Name="CAPAS - Gestión de gimnasio"
+          Manufacturer="TP Ingeniería de Software"
+          Version="1.0.0"
+          UpgradeCode="07C59D9F-3B4F-40BA-931A-303F319BD1B9">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication Theme="rtfLicense"
+                                              LicenseFile="..\Licencia.rtf"
+                                              LocalizationFile="Tema.es-ES.wxl"
+                                              ShowVersion="yes"
+                                              LaunchTarget="[InstallFolder]\ConfiguradorBD.exe" />
+    </BootstrapperApplication>
+
+    <Variable Name="InstallFolder" Type="formatted" Value="[ProgramFiles6432Folder]CAPAS" bal:Overridable="yes" />
+
+    <util:RegistrySearch Id="BuscarInstanciasSql"
+                         Variable="HaySqlServer"
+                         Root="HKLM"
+                         Key="SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL"
+                         Result="exists"
+                         Bitness="always64" />
+    <util:RegistrySearch Id="BuscarLocalDb"
+                         Variable="HayLocalDb"
+                         Root="HKLM"
+                         Key="SOFTWARE\Microsoft\Microsoft SQL Server Local DB\Installed Versions"
+                         Result="exists"
+                         Bitness="always64" />
+
+    <Chain>
+      <PackageGroupRef Id="NetFx48Web" />
+
+      <?ifdef IncluirLocalDB ?>
+      <MsiPackage Id="SqlLocalDB"
+                  SourceFile="..\Prerequisitos\SqlLocalDB.msi"
+                  Permanent="yes"
+                  Visible="yes"
+                  InstallCondition="NOT HaySqlServer AND NOT HayLocalDb">
+        <MsiProperty Name="IACCEPTSQLLOCALDBLICENSETERMS" Value="YES" />
+      </MsiPackage>
+      <?endif?>
+
+      <MsiPackage Id="CAPAS" SourceFile="$(var.Instalador.TargetPath)">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+      </MsiPackage>
+    </Chain>
+  </Bundle>
+</Wix>
