@@ -14,6 +14,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The entry point is `CAPAS` (outputs `CAPAS.exe`). There are no automated tests; verification is manual via the running application.
 
+## Installer (WiX)
+
+`Instalador/` holds an SDK-style WiX Toolset **6.0.2** project (v7 requires accepting the OSMF EULA on every build machine, v6 does not). It is **not** part of `TP_IS.sln` (Visual Studio needs the HeatWave extension to load `.wixproj`); build it with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Instalador\generar-instalador.ps1
+```
+
+The script finds MSBuild with `vswhere`, builds `TP_IS.sln` in Release (`/restore`) and then `Instalador.wixproj` (WiX comes from NuGet; no separate install). Output: `Instalador\bin\Release\CAPAS-Instalador.msi`.
+
+`Package.wxs`: per-machine, `es-ES` UI (`WixUI_InstallDir` + `Licencia.rtf`), `MajorUpgrade`, launch condition on `WIXNETFX4RELEASEINSTALLED >= #528040` (.NET Framework 4.8, Netfx extension), installs `CAPAS\bin\Release\**` (minus `*.pdb`, `*.xml`, `*.log`) via the `Files` wildcard element to `ProgramFiles6432Folder\CAPAS`, the `DAL\*.sql` scripts to `CAPAS\Scripts`, and Start-menu + desktop shortcuts. Bump `Package/@Version` for each release; never change `UpgradeCode`. The database is not created by the installer.
+
 ## Database setup
 
 Two scripts live in `DAL/` (both UTF-8 with BOM, so `sqlcmd` reads accents correctly):
@@ -187,7 +199,7 @@ The system protects **USUARIO** against unauthorized out-of-system DB modificati
 - **Restaurar desde historial**: opens `frmHistorialUsuario` for each affected user so the admin can roll back to a prior snapshot. Disabled if no affected user has any history records. After restoring, recalculates and proceeds to `frmMenu`.
 - **Cancelar**: clears the session, returns to the login form.
 
-**Integrity errors are logged** to `integridad_error.log` in the same folder as the `.exe` (via `Program.GuardarLogIntegridad`), with timestamp, each time `frmRestaurarIntegridad` loads.
+**Integrity errors are logged** to `%LOCALAPPDATA%\CAPAS\integridad_error.log` (via `Program.GuardarLogIntegridad`), with timestamp, each time `frmRestaurarIntegridad` loads. Not next to the `.exe`: once installed under Program Files that folder is read-only for standard users.
 
 **After every mutation of USUARIO**, the appropriate recalculation method must be called:
 

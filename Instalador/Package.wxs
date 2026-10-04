@@ -1,0 +1,60 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="CAPAS - Gestión de gimnasio"
+           Manufacturer="TP Ingeniería de Software"
+           Version="1.0.0"
+           UpgradeCode="AB5393F6-89D0-43A6-980E-68196A37FA92"
+           Language="3082"
+           Codepage="1252"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="Ya hay instalada una versión más nueva de [ProductName]." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <PropertyRef Id="WIXNETFX4RELEASEINSTALLED" />
+    <Launch Condition="Installed OR WIXNETFX4RELEASEINSTALLED &gt;= &quot;#528040&quot;"
+            Message="[ProductName] necesita .NET Framework 4.8. Instalalo desde https://dotnet.microsoft.com/download/dotnet-framework/net48 y volvé a ejecutar el instalador." />
+
+    <Icon Id="IconoCapas" SourceFile="$(var.AppBin)CAPAS.exe" />
+    <Property Id="ARPPRODUCTICON" Value="IconoCapas" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="CAPAS">
+        <Directory Id="CarpetaScripts" Name="Scripts" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="CarpetaMenuInicio" Name="CAPAS" />
+    </StandardDirectory>
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Feature Id="Principal" Title="CAPAS" Level="1">
+      <Files Directory="INSTALLFOLDER" Include="$(var.AppBin)**">
+        <Exclude Files="$(var.AppBin)**\*.pdb" />
+        <Exclude Files="$(var.AppBin)**\*.xml" />
+        <Exclude Files="$(var.AppBin)**\*.log" />
+      </Files>
+      <Files Directory="CarpetaScripts" Include="$(var.Scripts)*.sql" />
+      <ComponentRef Id="AccesosDirectos" />
+    </Feature>
+
+    <Component Id="AccesosDirectos" Directory="CarpetaMenuInicio" Guid="C22F1BD3-4A60-4050-BC68-B3D056FFDD8A">
+      <Shortcut Id="AccesoMenuInicio"
+                Name="CAPAS"
+                Description="Sistema de gestión del gimnasio"
+                Target="[INSTALLFOLDER]CAPAS.exe"
+                WorkingDirectory="INSTALLFOLDER" />
+      <Shortcut Id="AccesoEscritorio"
+                Directory="DesktopFolder"
+                Name="CAPAS"
+                Description="Sistema de gestión del gimnasio"
+                Target="[INSTALLFOLDER]CAPAS.exe"
+                WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="QuitarCarpetaMenuInicio" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\CAPAS" Name="Instalado" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <WixVariable Id="WixUILicenseRtf" Value="Licencia.rtf" />
+  </Package>
+</Wix>
