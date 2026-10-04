@@ -135,7 +135,15 @@ namespace CAPAS
                 seleccionados.Add(((Permiso)chkPermisos.Items[i]).Id);
             }
 
-            _bll.ActualizarPermisosDeRol(rol.Id, seleccionados);
+            try
+            {
+                _bll.ActualizarPermisosDeRol(rol.Id, seleccionados);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
+                return;
+            }
             CargarArbol();
 
             foreach (TreeNode tn in treePermisos.Nodes)

@@ -34,7 +34,7 @@ namespace BLL
                 {
                     var idiomaBll = new IdiomaBLL();
                     IDIOMA idioma = idiomaBll.ObtenerPorId(u.IdiomaId.Value);
-                    if (idioma != null)
+                    if (idioma != null && idioma.Habilitado)
                     {
                         var traducciones = idiomaBll.CargarTraducciones(idioma.Id);
                         IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);

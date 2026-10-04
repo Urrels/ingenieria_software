@@ -165,7 +165,15 @@ namespace CAPAS
                     MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
 
-            _bll.Eliminar(_idiomaSeleccionado.Id);
+            try
+            {
+                _bll.Eliminar(_idiomaSeleccionado.Id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
             _idiomaSeleccionado = null;
             dgvTraducciones.DataSource = null;
             CargarIdiomas();
@@ -198,7 +206,15 @@ namespace CAPAS
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
-            _bll.ActualizarEstado(_idiomaSeleccionado.Id, !_idiomaSeleccionado.Habilitado);
+            try
+            {
+                _bll.ActualizarEstado(_idiomaSeleccionado.Id, !_idiomaSeleccionado.Habilitado);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
             CargarIdiomas();
         }
 

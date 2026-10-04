@@ -70,6 +70,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="mejoras_idiomas_perfiles.sql" />
     <Content Include="nuevoScript.sql" />
     <Content Include="paginado.sql" />
     <Content Include="script.sql" />

@@ -51,34 +51,54 @@ namespace DAL
             return ids;
         }
 
-        public void BorrarTodos(int usuarioId)
+        public Dictionary<int, List<int>> ListarRolesDeUsuariosActivos()
         {
-            List<SqlParameter> parametros = new List<SqlParameter>
-            {
-                _acceso.CrearParametro("@usuario_id", usuarioId)
-            };
+            Dictionary<int, List<int>> rolesPorUsuario = new Dictionary<int, List<int>>();
             try
             {
                 _acceso.Abrir();
-                _acceso.Escribir("USUARIO_PERFIL_BORRAR_TODOS", parametros);
+                DataTable tabla = _acceso.Leer("USUARIO_PERFIL_LISTAR_ACTIVOS");
+                foreach (DataRow fila in tabla.Rows)
+                {
+                    int usuarioId = Convert.ToInt32(fila["USUARIO_ID"]);
+                    if (!rolesPorUsuario.ContainsKey(usuarioId))
+                        rolesPorUsuario[usuarioId] = new List<int>();
+                    if (fila["PERFIL_ID"] != DBNull.Value)
+                        rolesPorUsuario[usuarioId].Add(Convert.ToInt32(fila["PERFIL_ID"]));
+                }
             }
             finally
             {
                 _acceso.Cerrar();
             }
+            return rolesPorUsuario;
         }
 
-        public void Asignar(int usuarioId, int perfilId)
+        public void ReemplazarAsignaciones(int usuarioId, List<int> perfilIds)
         {
-            List<SqlParameter> parametros = new List<SqlParameter>
-            {
-                _acceso.CrearParametro("@usuario_id", usuarioId),
-                _acceso.CrearParametro("@perfil_id",  perfilId)
-            };
             try
             {
                 _acceso.Abrir();
-                _acceso.Escribir("USUARIO_PERFIL_ASIGNAR", parametros);
+                _acceso.IniciarTx();
+
+                _acceso.Escribir("USUARIO_PERFIL_BORRAR_TODOS",
+                    new List<SqlParameter> { _acceso.CrearParametro("@usuario_id", usuarioId) });
+
+                foreach (int perfilId in perfilIds)
+                {
+                    _acceso.Escribir("USUARIO_PERFIL_ASIGNAR", new List<SqlParameter>
+                    {
+                        _acceso.CrearParametro("@usuario_id", usuarioId),
+                        _acceso.CrearParametro("@perfil_id",  perfilId)
+                    });
+                }
+
+                _acceso.ConfirmarTX();
+            }
+            catch
+            {
+                _acceso.DeshacerTX();
+                throw;
             }
             finally
             {

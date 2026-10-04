@@ -61,6 +61,11 @@ namespace BLL
             if (snapshot.TipoCambio == "ROLLBACK")
                 throw new InvalidOperationException("No se puede restaurar una versión que ya es un rollback.");
 
+            List<int> perfiles = ParsearPerfiles(snapshot.Perfiles);
+            new PerfilBLL().ValidarQueQuedeAdministracion(
+                usuarioId: snapshot.UsuarioId,
+                nuevosRolIds: snapshot.Bloqueado ? new List<int>() : perfiles);
+
             _usuarioDal.AplicarEstado(
                 snapshot.UsuarioId,
                 snapshot.Rol,
@@ -68,9 +73,7 @@ namespace BLL
                 snapshot.IntentosFallidos,
                 snapshot.RolId);
 
-            _perfilDal.BorrarTodos(snapshot.UsuarioId);
-            foreach (int pid in ParsearPerfiles(snapshot.Perfiles))
-                _perfilDal.Asignar(snapshot.UsuarioId, pid);
+            _perfilDal.ReemplazarAsignaciones(snapshot.UsuarioId, perfiles);
 
             _usuarioDal.ActualizarDatos(snapshot.UsuarioId, snapshot.Nombre, snapshot.Apellido,
                 snapshot.Telefono, snapshot.Email);

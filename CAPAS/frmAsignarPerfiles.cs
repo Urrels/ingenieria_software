@@ -116,7 +116,15 @@ namespace CAPAS
         {
             List<int> seleccionados = new List<int>();
             ObtenerIdsCheckeados(treeRoles.Nodes, seleccionados);
-            _asignacionBll.GuardarAsignaciones(_usuario.Id, seleccionados);
+            try
+            {
+                _asignacionBll.GuardarAsignaciones(_usuario.Id, seleccionados);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
+                return;
+            }
             MsgBox.Show("Asignaciones guardadas.", "Éxito",
                 MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
