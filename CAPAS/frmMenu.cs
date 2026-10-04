@@ -21,12 +21,12 @@ namespace CAPAS
 
         private void frmMenu_Load(object sender, EventArgs e)
         {
-            BE.USUARIO u = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-            this.Text = "Menu — " + u.Usuario;
+            ActualizarTitulo();
 
             ActualizarVisibilidadMenu();
 
             GuardarMenuDefaults(menuStrip1.Items);
+            GuardarMenuDefaults(statusStrip1.Items);
             CargarIdiomas();
             SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             MaterialSkinManager.Instance.AddFormToManage(this);
@@ -62,6 +62,14 @@ namespace CAPAS
                                ?? _menuDefaults[kvp.Key];
                 kvp.Value.Text = texto;
             }
+            ActualizarTitulo();
+        }
+
+        private void ActualizarTitulo()
+        {
+            BE.USUARIO u = SeguridadYServicios.SessionManager.getInstance().getUsuario();
+            if (u != null)
+                this.Text = Textos.T("frmMenu_Titulo", "Menú — {0}", u.Usuario);
         }
 
         private void GuardarMenuDefaults(ToolStripItemCollection items)
@@ -70,8 +78,8 @@ namespace CAPAS
             {
                 if (!string.IsNullOrEmpty(item.Name) && !string.IsNullOrEmpty(item.Text))
                 {
-                    _menuItems[item.Name] = item;
-                    _menuDefaults[item.Name] = item.Text;
+                    _menuItems["frmMenu." + item.Name] = item;
+                    _menuDefaults["frmMenu." + item.Name] = item.Text;
                 }
                 if (item is ToolStripMenuItem mi && mi.HasDropDownItems)
                     GuardarMenuDefaults(mi.DropDownItems);
@@ -94,7 +102,7 @@ namespace CAPAS
             if (!(cboIdiomaStatus.SelectedItem is IDIOMA idioma)) return;
 
             foreach (var kvp in _menuDefaults)
-                _fachadaIdioma.RegistrarClave(kvp.Key, "[" + kvp.Value + "]");
+                _fachadaIdioma.RegistrarClave(kvp.Key, kvp.Value);
 
             _fachadaIdioma.Cambiar(idioma);
         }

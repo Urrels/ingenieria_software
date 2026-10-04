@@ -123,7 +123,7 @@ namespace CAPAS
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(239, 60);
             this.label4.TabIndex = 8;
-            this.label4.Text = " - 6 o mas caracteres\r\n- 1 o mas Letras MAYÚSCULAS\r\n- 1 o mas NUMEROS";
+            this.label4.Text = "- 6 o más caracteres\r\n- 1 o más letras MAYÚSCULAS\r\n- 1 o más NÚMEROS";
             // 
             // frmContraseña
             // 

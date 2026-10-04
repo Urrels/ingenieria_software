@@ -86,7 +86,7 @@
             this.MinimumSize = new System.Drawing.Size(776, 569);
             this.Name = "frmMantenimientoPredictivo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmMantenimientoPredictivo";
+            this.Text = "Mantenimiento predictivo";
             this.Load += new System.EventHandler(this.frmMantenimientoPredictivo_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPredicciones)).EndInit();
             this.ResumeLayout(false);

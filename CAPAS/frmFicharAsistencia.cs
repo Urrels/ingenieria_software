@@ -26,8 +26,8 @@ namespace CAPAS
             bool tieneAbierto = _asistenciaBLL.TieneIngresoAbierto(usuario);
 
             lblEstado.Text = tieneAbierto
-                ? "Tenés un ingreso registrado hoy, sin egreso."
-                : "No tenés ningún ingreso abierto hoy.";
+                ? Textos.T("lbl_IngresoAbiertoHoy", "Tenés un ingreso registrado hoy, sin egreso.")
+                : Textos.T("lbl_SinIngresoAbiertoHoy", "No tenés ningún ingreso abierto hoy.");
 
             btnIngreso.Enabled = !tieneAbierto;
             btnEgreso.Enabled = tieneAbierto;

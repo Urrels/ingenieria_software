@@ -192,7 +192,7 @@ namespace CAPAS
 
             if (nodo is Rol rol)
             {
-                lblSeleccionado.Text = $"Rol: {rol.Nombre}";
+                lblSeleccionado.Text = Textos.T("lbl_RolSeleccionado", "Rol: {0}", rol.Nombre);
                 btnEliminar.Enabled = !rol.Protegido;
                 btnDuplicarRol.Enabled = true;
                 panelPermisos.Visible = true;
@@ -202,7 +202,7 @@ namespace CAPAS
             }
             else
             {
-                lblSeleccionado.Text = $"Permiso: {nodo.Nombre}";
+                lblSeleccionado.Text = Textos.T("lbl_PermisoSeleccionado", "Permiso: {0}", nodo.Nombre);
                 btnEliminar.Enabled = false;
                 btnDuplicarRol.Enabled = false;
                 panelPermisos.Visible = false;

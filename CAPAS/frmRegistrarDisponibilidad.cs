@@ -40,7 +40,7 @@ namespace CAPAS
                     bool yaSeleccionada = previa.Franjas.Any(f => f.Id == _franjasDisponibles[i].Id);
                     clbFranjas.SetItemChecked(i, yaSeleccionada);
                 }
-                lblAviso.Text = "Ya habías cargado disponibilidad para esta semana — podés modificarla.";
+                lblAviso.Text = Textos.T("lbl_DisponibilidadYaCargada", "Ya habías cargado disponibilidad para esta semana — podés modificarla.");
             }
 
             InicializarFormulario();

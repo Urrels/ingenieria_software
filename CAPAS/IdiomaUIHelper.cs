@@ -8,7 +8,7 @@ namespace CAPAS
         internal static void AgregarSelector(Form form)
         {
             var strip = new StatusStrip { Dock = DockStyle.Bottom };
-            strip.Items.Add(new ToolStripLabel("Idioma: "));
+            strip.Items.Add(new ToolStripLabel(Textos.T("lbl_Idioma", "Idioma: ")));
 
             var cbo = new ToolStripComboBox
             {

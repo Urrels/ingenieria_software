@@ -123,7 +123,7 @@
             this.MinimizeBox = false;
             this.Name = "frmRegistrarAsistenciaSocios";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmRegistrarAsistenciaSocios";
+            this.Text = "Asistencia de socios";
             this.Load += new System.EventHandler(this.frmRegistrarAsistenciaSocios_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

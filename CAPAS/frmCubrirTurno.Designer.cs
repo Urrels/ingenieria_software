@@ -74,7 +74,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 539);
             this.Name = "frmCubrirTurno";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmCubrirTurno";
+            this.Text = "Cubrir turno";
             this.Load += new System.EventHandler(this.frmCubrirTurno_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);

@@ -61,11 +61,7 @@ namespace CAPAS
 
             if (dgvResultados.Columns.Count > 0)
             {
-                dgvResultados.Columns["Franja"].HeaderText = "Franja";
-                dgvResultados.Columns["Rol"].HeaderText = "Rol";
-                dgvResultados.Columns["PersonalAsignado"].HeaderText = "Personal asignado";
-                dgvResultados.Columns["SociosAsistidos"].HeaderText = "Socios asistidos";
-                dgvResultados.Columns["Resultado"].HeaderText = "Resultado";
+                ActualizarEncabezados();
             }
 
             MsgBox.Show(Textos.T("msg_EvaluacionDeCoberturaRegistradaSeUsaraParaAjustarLaProximaPl", "Evaluación de cobertura registrada. Se usará para ajustar la próxima planificación."),
@@ -80,6 +76,20 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvResultados, "Franja", "hdr_Franja", "Franja");
+            Encabezado(dgvResultados, "Rol", "hdr_Rol", "Rol");
+            Encabezado(dgvResultados, "PersonalAsignado", "hdr_PersonalAsignado", "Personal asignado");
+            Encabezado(dgvResultados, "SociosAsistidos", "hdr_SociosAsistidos", "Socios asistidos");
+            Encabezado(dgvResultados, "Resultado", "hdr_Resultado", "Resultado");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

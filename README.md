@@ -36,19 +36,17 @@ Aplicación de escritorio en C# / WinForms con arquitectura en capas, sistema de
 
 Crear la base de datos manualmente desde SQL Server Management Studio o con:
 
-```sql
-CREATE DATABASE BDCAPAS;
-```
-
-Luego ejecutar el script completo:
+Ejecutar los dos scripts de `DAL/` en este orden:
 
 ```powershell
-sqlcmd -S . -d BDCAPAS -E -i "DAL\script.sql"
+sqlcmd -S . -E -i "DAL\script.sql"
+sqlcmd -S . -d BDCAPAS -E -i "DAL\traducciones.sql"
 ```
 
-El script es mayormente idempotente. Los bloques `CREATE TABLE` / `CREATE PROCEDURE` del inicio fallan si los objetos ya existen (inofensivo). Los bloques posteriores usan `IF OBJECT_ID ... DROP` antes de recrear, por lo que son completamente idempotentes.
+- `script.sql` crea la base `BDCAPAS` completa (tablas, claves foráneas y todos los stored procedures) y carga los datos iniciales: idiomas, catálogo de permisos, roles y el usuario `admin`.
+- `traducciones.sql` carga todos los textos del sistema en español, inglés y portugués. Se puede volver a correr cuando se agregan textos nuevos.
 
-**Credencial de administrador por defecto:** usuario `admin`, contraseña definida al correr el script.
+**Credencial de administrador por defecto:** usuario `admin`, contraseña `1234`.
 
 ### 2. Compilar
 
@@ -76,7 +74,8 @@ DELETE FROM DIGITO_VERIFICADOR_VERTICAL WHERE TABLA = 'USUARIO';
 TP_IS.sln
 ├── BE/                     Entidades (Plain Objects, sin lógica)
 ├── DAL/                    Acceso a datos (stored procedures exclusivamente)
-│   └── script.sql          Script completo de BD (tablas + SPs + datos iniciales)
+│   ├── script.sql          Script completo de BD (tablas + SPs + datos iniciales)
+│   └── traducciones.sql    Textos del sistema en español, inglés y portugués
 ├── BLL/                    Lógica de negocio
 ├── SeguridadYServicios/    Servicios transversales (sesión, idioma, integridad, hash)
 ├── CAPAS/                  UI — Windows Forms
@@ -349,43 +348,24 @@ La verificación solo ocurre al arrancar. Si la BD se corrompe durante una sesi�
 
 ## Soporte multiidioma
 
-### Registrar un nuevo control
+### Claves de traducción
 
-En el `Load` del form, después de `GuardarDefaults`:
+Todos los formularios (salvo `frmMenu`) heredan de `FormBase`, que registra solo sus controles con claves por formulario: `<Formulario>.<Control>` (por ejemplo `frmBitacora.lblTitulo`) y `<Formulario>` para la barra de título. Así dos formularios pueden tener un control con el mismo nombre sin compartir la traducción.
 
-```csharp
-// Barra de título
-_controles[this.Name] = this;
-_defaults[this.Name]  = this.Text;
+### Textos generados en tiempo de ejecución
 
-// Clave con nombre único si colisiona con otro form
-_controles.Remove("lblTitulo");
-_defaults.Remove("lblTitulo");
-_controles["lblTitulo_MiForm"] = lblTitulo;
-_defaults["lblTitulo_MiForm"]  = lblTitulo.Text;
-```
-
-### Texto dinámico (TreeView, nodos generados)
-
-No pasa por `_controles`. Usar directamente:
+Mensajes, etiquetas dinámicas, encabezados de grillas y títulos de gráficos usan `Textos.T`:
 
 ```csharp
-IdiomaManager.getInstance().Traducir("clave") ?? "fallback"
+lblPagina.Text = Textos.T("lbl_PaginaDe", "Página {0} de {1}", pagina, total);
+Encabezado(dgvTurnos, "Dia", "hdr_Dia", "Día");
 ```
 
-### Encabezados de DataGridView
+Si una etiqueta cambia de texto en tiempo de ejecución, se excluye de la traducción automática en `AjustarClaves()` con `ExcluirDeTraduccion(lblPagina)`.
 
-No están en la colección `Controls`. Traducirlos en un método separado `ActualizarEncabezados()`, llamado desde `ActualizarIdioma()` y después de cada asignación de `DataSource`. Claves sugeridas: `colhdr_NombreColumna`.
+### Agregar traducciones
 
-### Agregar traducciones a la BD
-
-Agregar al final de `DAL/script.sql`:
-
-```sql
-EXEC CONTROL_REGISTRAR 'clave_control', '[Texto por defecto]';
-EXEC TRADUCCION_GUARDAR 'clave_control', 1, 'Texto en idioma 1';
-EXEC TRADUCCION_GUARDAR 'clave_control', 2, 'Texto en idioma 2';
-```
+Agregar la clave con sus textos en español, inglés y portugués en `DAL/traducciones.sql` y volver a correr el script. Las claves de `Textos.T` además se registran solas la primera vez que se usan, así que aparecen en la pantalla de idiomas para traducirlas desde ahí.
 
 ---
 
@@ -396,7 +376,7 @@ EXEC TRADUCCION_GUARDAR 'clave_control', 2, 'Texto en idioma 2';
 - `EXEC` no acepta expresiones como parámetros — asignar a variable primero.
 - `GO` reinicia el scope de `DECLARE`. Cada batch posterior a un `GO` debe redeclarar sus variables.
 - Para eliminar una columna con DEFAULT constraint, primero eliminar el constraint dinámicamente (el nombre autogenerado varía por instancia), luego la columna.
-- Nuevas tablas y SPs se agregan al final de `DAL/script.sql`.
+- Nuevas tablas y SPs se agregan en `DAL/script.sql` (debe reflejar la base real); los textos nuevos, en `DAL/traducciones.sql`.
 
 ---
 
@@ -404,18 +384,13 @@ EXEC TRADUCCION_GUARDAR 'clave_control', 2, 'Texto en idioma 2';
 
 ### Nuevo formulario con soporte de idioma
 
-1. Implementar `SeguridadYServicios.IObservadorIdioma`.
-2. Agregar campos `Dictionary<string, Control> _controles` y `Dictionary<string, string> _defaults`.
-3. En `Load`:
-   - `GuardarDefaults(this.Controls)`
-   - Registrar título: `_controles[this.Name] = this; _defaults[this.Name] = this.Text;`
-   - `IdiomaManager.getInstance().Registrar(this); ActualizarIdioma();`
-   - `IdiomaUIHelper.AgregarSelector(this)` al final.
-4. En `FormClosed`: `IdiomaManager.getInstance().Desregistrar(this)`.
-5. `ActualizarIdioma()` itera `_controles` aplicando `Traducir(key) ?? _defaults[key]`. Si tiene DataGridViews, llamar también `ActualizarEncabezados()`.
-6. Agregar los eventos `Load` y `FormClosed` en el `.Designer.cs`.
-7. Agregar `.cs` y `.Designer.cs` en `CAPAS/UI.csproj`.
-8. Agregar claves en `script.sql` con `EXEC CONTROL_REGISTRAR` y `EXEC TRADUCCION_GUARDAR`.
+1. Heredar de `FormBase`.
+2. En `Load`: primero la carga propia del formulario, después `InicializarFormulario();` (registra los textos, el idioma, el selector y el tema).
+3. Si tiene grillas, crear `ActualizarEncabezados()` con `Encabezado(...)` y redefinir `ActualizarTextosDinamicos()` para que lo llame.
+4. Usar `Textos.T` para todos los mensajes y textos armados en el código.
+5. Agregar el evento `Load` en el `.Designer.cs` (el cierre lo maneja `FormBase`).
+6. Agregar `.cs` y `.Designer.cs` en `CAPAS/UI.csproj`.
+7. Agregar las claves nuevas con sus traducciones en `DAL/traducciones.sql`.
 
 ### Extender integridad a una nueva entidad
 

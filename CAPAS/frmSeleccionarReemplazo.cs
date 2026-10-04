@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmSeleccionarReemplazo : MaterialForm
+    public partial class frmSeleccionarReemplazo : FormBase
     {
         private readonly List<BE.USUARIO> _candidatos;
         public BE.USUARIO EmpleadoSeleccionado { get; private set; }
@@ -21,8 +19,7 @@ namespace CAPAS
             lstEmpleados.DataSource = _candidatos;
             lstEmpleados.DisplayMember = "Usuario";
             lstEmpleados.ValueMember = "Id";
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void btnAsignar_Click(object sender, System.EventArgs e)

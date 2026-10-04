@@ -57,11 +57,7 @@ namespace CAPAS
 
             if (dgvPredicciones.Columns.Count > 0)
             {
-                dgvPredicciones.Columns["Equipo"].HeaderText = "Equipo";
-                dgvPredicciones.Columns["UsoAcumulado"].HeaderText = "Uso acumulado";
-                dgvPredicciones.Columns["NivelUsoCritico"].HeaderText = "Umbral crítico";
-                dgvPredicciones.Columns["DiasEstimados"].HeaderText = "Días estimados restantes";
-                dgvPredicciones.Columns["Urgencia"].HeaderText = "Urgencia";
+                ActualizarEncabezados();
             }
         }
 
@@ -78,6 +74,20 @@ namespace CAPAS
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ActualizarEncabezados()
+        {
+            Encabezado(dgvPredicciones, "Equipo", "hdr_Equipo", "Equipo");
+            Encabezado(dgvPredicciones, "UsoAcumulado", "hdr_UsoAcumulado", "Uso acumulado");
+            Encabezado(dgvPredicciones, "NivelUsoCritico", "hdr_UmbralCritico", "Umbral crítico");
+            Encabezado(dgvPredicciones, "DiasEstimados", "hdr_DiasEstimadosRestantes", "Días estimados restantes");
+            Encabezado(dgvPredicciones, "Urgencia", "hdr_Urgencia", "Urgencia");
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
         }
     }
 }

@@ -78,11 +78,11 @@ namespace CAPAS
         {
             _chartCobertura.Series.Clear();
             _chartCobertura.Titles.Clear();
-            _chartCobertura.Titles.Add("Evaluación de cobertura (Proceso 1 + 3)");
+            _chartCobertura.Titles.Add(Textos.T("chart_EvaluacionCobertura", "Evaluación de cobertura (Proceso 1 + 3)"));
 
             var resumen = _evaluacionBLL.ObtenerResumen();
 
-            var serie = new Series("Cantidad de franjas") { ChartType = SeriesChartType.Column };
+            var serie = new Series(Textos.T("chart_CantidadDeFranjas", "Cantidad de franjas")) { ChartType = SeriesChartType.Column };
             foreach (var kvp in resumen)
                 serie.Points.AddXY(kvp.Key, kvp.Value);
 
@@ -93,12 +93,12 @@ namespace CAPAS
         {
             _chartEquipos.Series.Clear();
             _chartEquipos.Titles.Clear();
-            _chartEquipos.Titles.Add("Uso acumulado por equipo (Proceso 2)");
+            _chartEquipos.Titles.Add(Textos.T("chart_UsoAcumuladoPorEquipo", "Uso acumulado por equipo (Proceso 2)"));
 
             var equipos = _equipoBLL.ListarTodos();
 
-            var serieUso = new Series("Uso acumulado") { ChartType = SeriesChartType.Column };
-            var serieUmbral = new Series("Umbral crítico")
+            var serieUso = new Series(Textos.T("chart_UsoAcumulado", "Uso acumulado")) { ChartType = SeriesChartType.Column };
+            var serieUmbral = new Series(Textos.T("chart_UmbralCritico", "Umbral crítico"))
             {
                 ChartType = SeriesChartType.Line,
                 BorderWidth = 3,
@@ -121,9 +121,9 @@ namespace CAPAS
 
             _chartAsistencia.Series.Clear();
             _chartAsistencia.Titles.Clear();
-            _chartAsistencia.Titles.Add("Asistencia de socios en el tiempo (Proceso 3)");
+            _chartAsistencia.Titles.Add(Textos.T("chart_AsistenciaDeSocios", "Asistencia de socios en el tiempo (Proceso 3)"));
 
-            var serie = new Series("Socios")
+            var serie = new Series(Textos.T("chart_Socios", "Socios"))
             {
                 ChartType = SeriesChartType.Line,
                 BorderWidth = 3,

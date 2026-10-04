@@ -80,7 +80,7 @@
             this.MinimumSize = new System.Drawing.Size(676, 529);
             this.Name = "frmMisNotificaciones";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmMisNotificaciones";
+            this.Text = "Mis notificaciones";
             this.Load += new System.EventHandler(this.frmMisNotificaciones_Load);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmMisNotificaciones_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvNotificaciones)).EndInit();

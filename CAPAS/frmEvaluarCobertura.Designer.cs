@@ -107,7 +107,7 @@
             this.MinimumSize = new System.Drawing.Size(776, 599);
             this.Name = "frmEvaluarCobertura";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmEvaluarCobertura";
+            this.Text = "Evaluar cobertura";
             this.Load += new System.EventHandler(this.frmEvaluarCobertura_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvResultados)).EndInit();
             this.ResumeLayout(false);

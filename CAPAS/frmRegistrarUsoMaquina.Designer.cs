@@ -82,7 +82,7 @@
             this.MinimizeBox = false;
             this.Name = "frmRegistrarUsoMaquina";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "frmRegistrarUsoMaquina";
+            this.Text = "Uso de máquina";
             this.Load += new System.EventHandler(this.frmRegistrarUsoMaquina_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
