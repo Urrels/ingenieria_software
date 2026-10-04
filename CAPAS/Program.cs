@@ -55,7 +55,10 @@ namespace CAPAS
         {
             try
             {
-                string ruta = Path.Combine(Application.StartupPath, "integridad_error.log");
+                string carpeta = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAPAS");
+                Directory.CreateDirectory(carpeta);
+                string ruta = Path.Combine(carpeta, "integridad_error.log");
                 using (StreamWriter sw = new StreamWriter(ruta, append: true))
                 {
                     sw.WriteLine($"=== {DateTime.Now:yyyy-MM-dd HH:mm:ss} ===");

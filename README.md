@@ -8,16 +8,17 @@ Aplicación de escritorio en C# / WinForms con arquitectura en capas, sistema de
 
 1. [Requisitos](#requisitos)
 2. [Configuración inicial](#configuración-inicial)
-3. [Estructura del proyecto](#estructura-del-proyecto)
-4. [Arquitectura por capas](#arquitectura-por-capas)
-5. [Modelo de datos](#modelo-de-datos)
-6. [Patrones de diseño](#patrones-de-diseño)
-7. [Sistema de seguridad](#sistema-de-seguridad)
-8. [Sistema de integridad (DVH/DVV)](#sistema-de-integridad-dvhdvv)
-9. [Control de cambios (historial)](#control-de-cambios-historial)
-10. [Soporte multiidioma](#soporte-multiidioma)
-11. [Convenciones de la base de datos](#convenciones-de-la-base-de-datos)
-12. [Agregar funcionalidad nueva](#agregar-funcionalidad-nueva)
+3. [Instalador](#instalador)
+4. [Estructura del proyecto](#estructura-del-proyecto)
+5. [Arquitectura por capas](#arquitectura-por-capas)
+6. [Modelo de datos](#modelo-de-datos)
+7. [Patrones de diseño](#patrones-de-diseño)
+8. [Sistema de seguridad](#sistema-de-seguridad)
+9. [Sistema de integridad (DVH/DVV)](#sistema-de-integridad-dvhdvv)
+10. [Control de cambios (historial)](#control-de-cambios-historial)
+11. [Soporte multiidioma](#soporte-multiidioma)
+12. [Convenciones de la base de datos](#convenciones-de-la-base-de-datos)
+13. [Agregar funcionalidad nueva](#agregar-funcionalidad-nueva)
 
 ---
 
@@ -68,6 +69,36 @@ DELETE FROM DIGITO_VERIFICADOR_VERTICAL WHERE TABLA = 'USUARIO';
 
 ---
 
+## Instalador
+
+El instalador `.msi` se arma con [WiX Toolset](https://wixtoolset.org) 6.0.2 desde la carpeta `Instalador/`. No hace falta instalar WiX: se descarga solo como paquete NuGet al compilar.
+
+### Generarlo
+
+Desde PowerShell, en la raíz del repo:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Instalador\generar-instalador.ps1
+```
+
+El script compila la solución en `Release` y después el instalador. El resultado queda en `Instalador\bin\Release\` (`CAPAS-Instalador.msi`).
+
+### Qué hace el instalador
+
+- Pantallas en español: bienvenida, licencia (`Licencia.rtf`), carpeta de destino y progreso.
+- Verifica que esté instalado .NET Framework 4.8; si no, avisa y no continúa.
+- Copia la aplicación y todas sus dependencias a `Archivos de programa\CAPAS` y los scripts SQL a la subcarpeta `Scripts`.
+- Crea accesos directos en el menú Inicio y en el escritorio.
+- Aparece en "Agregar o quitar programas" para desinstalarlo. Al instalar una versión nueva, reemplaza la anterior.
+
+La base de datos no se crea sola: después de instalar hay que correr `Scripts\script.sql` y `Scripts\traducciones.sql` en el SQL Server, y revisar la cadena de conexión en `CAPAS.exe.config` (clave `BDCAPAS`).
+
+### Publicar una versión nueva
+
+Subir el atributo `Version` del `Package` en `Instalador/Package.wxs` (por ejemplo `1.0.0` → `1.1.0`). El `UpgradeCode` no se cambia nunca: es lo que permite que la versión nueva reemplace a la anterior.
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -79,6 +110,7 @@ TP_IS.sln
 ├── BLL/                    Lógica de negocio
 ├── SeguridadYServicios/    Servicios transversales (sesión, idioma, integridad, hash)
 ├── CAPAS/                  UI — Windows Forms
+├── Instalador/             Instalador .msi (WiX Toolset)
 │   └── Program.cs          Punto de entrada
 ├── DER.puml                Diagrama entidad-relación (PlantUML)
 ├── DiagramaClases.puml     Diagrama de clases (PlantUML)
@@ -301,7 +333,7 @@ Muestra los errores y ofrece tres opciones:
 | Restaurar desde historial | Abre `frmHistorialUsuario` por cada usuario afectado para hacer rollback. Deshabilitado si no hay historial. |
 | Cancelar | Cierra sesión y vuelve al login. |
 
-Los errores se loguean en `integridad_error.log` junto al `.exe`.
+Los errores se loguean en `%LOCALAPPDATA%\CAPAS\integridad_error.log` (la carpeta de instalación en Archivos de programa no tiene permiso de escritura para usuarios comunes).
 
 ### Cuándo recalcular
 
