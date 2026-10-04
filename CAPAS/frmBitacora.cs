@@ -1,20 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmBitacora : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmBitacora : FormBase
     {
         private const string OPCION_TODOS = "(Todos)";
         private const int TAMANIO_PAGINA = 30;
 
         private readonly BLL.BitacoraBLL _bll = new BLL.BitacoraBLL();
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private int _paginaActual = 1;
         private int _totalPaginas = 1;
@@ -29,23 +24,25 @@ namespace CAPAS
 
         private void frmBitacora_Load(object sender, EventArgs e)
         {
-            GuardarDefaults(this.Controls);
+            InicializarFormulario();
+            PoblarFiltros();
+            Refrescar();
+            ReposicionarLayout();
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
+        }
+
+        protected override void AjustarClaves()
+        {
             _controles.Remove("lblTitulo");
             _defaults.Remove("lblTitulo");
             _controles.Remove("lblPagina");
             _defaults.Remove("lblPagina");
             _controles["lblTitulo_Bitacora"] = lblTitulo;
             _defaults["lblTitulo_Bitacora"] = lblTitulo.Text;
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            PoblarFiltros();
-            Refrescar();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-            ReposicionarLayout();
         }
 
         private void ReposicionarLayout()
@@ -76,22 +73,6 @@ namespace CAPAS
             btnPaginaAnterior.Left = btnPaginaSiguiente.Left - btnPaginaAnterior.Width - 12;
         }
 
-        private void frmBitacora_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-            ActualizarEncabezados();
-        }
-
         private void ActualizarEncabezados()
         {
             if (dataGridView1.Columns.Count == 0) return;
@@ -104,19 +85,6 @@ namespace CAPAS
                 dataGridView1.Columns["Accion"].HeaderText = mgr.Traducir("colhdr_Accion") ?? "Acción";
             if (dataGridView1.Columns["Fecha"] != null)
                 dataGridView1.Columns["Fecha"].HeaderText = mgr.Traducir("colhdr_Fecha") ?? "Fecha y Hora";
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void PoblarFiltros()

@@ -15,6 +15,7 @@ namespace CAPAS
         internal static DialogResult Show(string mensaje, string titulo,
             Botones botones = Botones.OK, Icono icono = Icono.Info)
         {
+            titulo = Textos.T(Textos.ClaveDesdeTexto("tit_", titulo), titulo);
             using (var frm = new FrmMensaje(mensaje, titulo, botones, icono))
             {
                 return frm.ShowDialog();
@@ -83,7 +84,9 @@ namespace CAPAS
             int anchoForm = Math.Max(lblMensaje.Right + margen + 20, 420);
             this.ClientSize = new Size(anchoForm, 220);
 
-            btnAceptar = CrearBoton(_botones == MsgBox.Botones.SiNo ? "Sí" : "Aceptar");
+            btnAceptar = CrearBoton(_botones == MsgBox.Botones.SiNo
+                ? Textos.T("btnmsg_Si", "Sí")
+                : Textos.T("btnmsg_Aceptar", "Aceptar"));
             btnAceptar.DialogResult = DialogResult.OK;
             if (_botones == MsgBox.Botones.SiNo)
                 btnAceptar.DialogResult = DialogResult.Yes;
@@ -91,7 +94,7 @@ namespace CAPAS
 
             if (_botones == MsgBox.Botones.SiNo)
             {
-                btnCancelar = CrearBoton("No");
+                btnCancelar = CrearBoton(Textos.T("btnmsg_No", "No"));
                 btnCancelar.DialogResult = DialogResult.No;
                 btnCancelar.Click += (s, e) => this.Close();
 

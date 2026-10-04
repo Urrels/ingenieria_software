@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmEvaluarAutorizarVisita : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmEvaluarAutorizarVisita : FormBase
     {
         private readonly BLL.AlertaRevisionBLL _alertaBLL = new BLL.AlertaRevisionBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private List<BE.AlertaRevision> _alertas;
 
@@ -24,14 +20,7 @@ namespace CAPAS
         {
             CargarAlertas();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void CargarAlertas()
@@ -49,38 +38,10 @@ namespace CAPAS
             }
         }
 
-        private void frmEvaluarAutorizarVisita_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
-        }
-
         private BE.AlertaRevision ObtenerSeleccionada()
         {
             if (dgvAlertas.CurrentRow?.DataBoundItem is BE.AlertaRevision alerta) return alerta;
-            MsgBox.Show("Seleccioná una alerta.", "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+            MsgBox.Show(Textos.T("msg_SeleccionaUnaAlerta", "Seleccioná una alerta."), "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
             return null;
         }
 
@@ -90,12 +51,12 @@ namespace CAPAS
             if (alerta == null) return;
 
             var equipo = _alertaBLL.ObtenerEquipoDeAlerta(alerta);
-            if (MsgBox.Show($"¿Autorizar la visita técnica para '{equipo.Nombre}'?", "Confirmar",
+            if (MsgBox.Show(Textos.T("msg_AutorizarLaVisitaTecnicaPara", "¿Autorizar la visita técnica para '{0}'?", equipo.Nombre), "Confirmar",
                 MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
             _alertaBLL.AutorizarVisita(alerta);
-            MsgBox.Show("Visita autorizada.", "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+            MsgBox.Show(Textos.T("msg_VisitaAutorizada", "Visita autorizada."), "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
             CargarAlertas();
         }
 
@@ -104,12 +65,12 @@ namespace CAPAS
             var alerta = ObtenerSeleccionada();
             if (alerta == null) return;
 
-            if (MsgBox.Show("¿Descartar esta alerta como falso positivo?", "Confirmar",
+            if (MsgBox.Show(Textos.T("msg_DescartarEstaAlertaComoFalsoPositivo", "¿Descartar esta alerta como falso positivo?"), "Confirmar",
                 MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
             _alertaBLL.DescartarAlerta(alerta);
-            MsgBox.Show("Alerta descartada.", "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+            MsgBox.Show(Textos.T("msg_AlertaDescartada", "Alerta descartada."), "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
             CargarAlertas();
         }
 

@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class LogIn : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class LogIn : FormBase
     {
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public LogIn()
         {
@@ -18,42 +13,7 @@ namespace CAPAS
 
         private void LogIn_Load(object sender, EventArgs e)
         {
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void LogIn_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
+            InicializarFormulario();
         }
 
         private void btnIngresar_Click(object sender, EventArgs e)
@@ -61,7 +21,7 @@ namespace CAPAS
             if (string.IsNullOrWhiteSpace(txtUsuario.Text) ||
                 string.IsNullOrWhiteSpace(txtContrasena.Text))
             {
-                MsgBox.Show("Completá usuario y contraseña.", "Atención",
+                MsgBox.Show(Textos.T("msg_CompletaUsuarioYContrasena", "Completá usuario y contraseña."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -92,9 +52,8 @@ namespace CAPAS
                         else
                         {
                             MsgBox.Show(
-                                "El sistema no puede iniciarse debido a un problema interno." +
-                                Environment.NewLine + Environment.NewLine +
-                                "Comuníquese con el administrador del sistema.",
+                                Textos.T("msg_ElSistemaNoPuedeIniciarse",
+                                    "El sistema no puede iniciarse debido a un problema interno.\n\nComuníquese con el administrador del sistema."),
                                 "Error del sistema",
                                 MsgBox.Botones.OK, MsgBox.Icono.Error);
                             SeguridadYServicios.SessionManager.getInstance().cerrarSesion();
@@ -106,7 +65,7 @@ namespace CAPAS
                         new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
                     }
 
-                    MsgBox.Show("Bienvenido, " + usuarioActual.Usuario + "!",
+                    MsgBox.Show(Textos.T("msg_Bienvenido", "Bienvenido, {0}!", usuarioActual.Usuario),
                         "Login exitoso", MsgBox.Botones.OK, MsgBox.Icono.Exito);
                     new frmMenu().Show();
                     this.Hide();
@@ -116,14 +75,14 @@ namespace CAPAS
                     if (Program.ResultadoIntegridad == null || Program.ResultadoIntegridad.EsValido)
                         new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
                     MsgBox.Show(
-                        "Usuario bloqueado por intentos fallidos. Contactate con un administrador.",
+                        Textos.T("msg_UsuarioBloqueadoPorIntentosFallidosContactateConUnAdministra", "Usuario bloqueado por intentos fallidos. Contactate con un administrador."),
                         "Acceso denegado", MsgBox.Botones.OK, MsgBox.Icono.Error);
                     break;
 
                 default:
                     if (Program.ResultadoIntegridad == null || Program.ResultadoIntegridad.EsValido)
                         new BLL.IntegridadBLL().RecalcularIntegridadUsuarios();
-                    MsgBox.Show("Usuario o contraseña incorrectos.", "Error",
+                    MsgBox.Show(Textos.T("msg_UsuarioOContrasenaIncorrectos", "Usuario o contraseña incorrectos."), "Error",
                         MsgBox.Botones.OK, MsgBox.Icono.Error);
                     break;
             }

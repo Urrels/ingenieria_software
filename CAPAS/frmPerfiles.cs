@@ -4,16 +4,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmPerfiles : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmPerfiles : FormBase
     {
         private readonly BLL.PerfilBLL _bll = new BLL.PerfilBLL();
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private List<Permiso> _permisosDisponibles = new List<Permiso>();
         private readonly HashSet<int> _padresDeshabilitados = new HashSet<int>();
@@ -26,49 +22,17 @@ namespace CAPAS
 
         private void frmPerfiles_Load(object sender, EventArgs e)
         {
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
             _permisosDisponibles = _bll.ObtenerPermisosDisponibles();
             cboPadre.DrawMode = DrawMode.OwnerDrawFixed;
             cboPadre.ItemHeight = 20;
             cboPadre.DrawItem += cboPadre_DrawItem;
             cboPadre.SelectedIndexChanged += cboPadre_SelectedIndexChanged;
-            ActualizarIdioma();
+            InicializarFormulario();
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
             CargarArbol();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void frmPerfiles_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-            CargarArbol();
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void CargarArbol()
@@ -105,7 +69,7 @@ namespace CAPAS
         private void btnAgregarRol_Click(object sender, EventArgs e)
         {
             string nombre = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nombre del rol:", "Agregar Rol");
+                Textos.T("input_NombreDelRol", "Nombre del rol:"), Textos.T("input_AgregarRol", "Agregar Rol"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
 
             int? padreId = null;
@@ -115,6 +79,31 @@ namespace CAPAS
             try
             {
                 _bll.AgregarRol(nombre, padreId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
+                return;
+            }
+            CargarArbol();
+        }
+
+        private void btnDuplicarRol_Click(object sender, EventArgs e)
+        {
+            if (!(treePermisos.SelectedNode?.Tag is Rol rol))
+            {
+                MsgBox.Show(Textos.T("msg_SeleccionaUnRol", "Seleccioná un rol."), "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
+
+            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
+                Textos.T("input_NombreDelNuevoRol", "Nombre del nuevo rol:"), Textos.T("input_DuplicarRol", "Duplicar rol"),
+                Textos.T("input_SufijoCopia", "{0} (copia)", rol.Nombre));
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+
+            try
+            {
+                _bll.DuplicarRol(rol.Id, nombre.Trim());
             }
             catch (InvalidOperationException ex)
             {
@@ -170,12 +159,12 @@ namespace CAPAS
 
             if (nodo.EsHoja())
             {
-                MsgBox.Show("Los permisos del catálogo no se pueden eliminar.\nDesasignalo usando los checkboxes.",
+                MsgBox.Show(Textos.T("msg_LosPermisosDelCatalogoNoSePuedenEliminarDesasignaloUsandoLos", "Los permisos del catálogo no se pueden eliminar.\nDesasignalo usando los checkboxes."),
                     "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Exito);
                 return;
             }
 
-            if (MsgBox.Show($"¿Eliminar el rol '{nodo.Nombre}' y todos sus sub-roles?",
+            if (MsgBox.Show(Textos.T("msg_EliminarElRolYTodosSusSubroles", "¿Eliminar el rol '{0}' y todos sus sub-roles?", nodo.Nombre),
                 "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) == DialogResult.Yes)
             {
                 try
@@ -205,6 +194,7 @@ namespace CAPAS
             {
                 lblSeleccionado.Text = $"Rol: {rol.Nombre}";
                 btnEliminar.Enabled = !rol.Protegido;
+                btnDuplicarRol.Enabled = true;
                 panelPermisos.Visible = true;
                 panelPadre.Visible = true;
                 PopularCheckPermisos(rol);
@@ -214,6 +204,7 @@ namespace CAPAS
             {
                 lblSeleccionado.Text = $"Permiso: {nodo.Nombre}";
                 btnEliminar.Enabled = false;
+                btnDuplicarRol.Enabled = false;
                 panelPermisos.Visible = false;
                 panelPadre.Visible = false;
             }

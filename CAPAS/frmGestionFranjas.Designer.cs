@@ -188,7 +188,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmGestionFranjas";
             this.Load += new System.EventHandler(this.frmGestionFranjas_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmGestionFranjas_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvFranjas)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

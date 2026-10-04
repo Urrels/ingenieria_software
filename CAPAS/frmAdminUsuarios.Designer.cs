@@ -239,7 +239,6 @@ namespace CAPAS
             this.Padding = new System.Windows.Forms.Padding(3, 64, 2, 2);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Administración de usuarios";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmAdminUsuarios_FormClosed);
             this.Load += new System.EventHandler(this.frmAdminUsuarios_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).EndInit();
             this.panelInferior.ResumeLayout(false);

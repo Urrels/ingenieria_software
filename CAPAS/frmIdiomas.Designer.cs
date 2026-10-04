@@ -157,7 +157,6 @@ namespace CAPAS
             this.Name = "frmIdiomas";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestión de idiomas";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmIdiomas_FormClosed);
             this.Load += new System.EventHandler(this.frmIdiomas_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvIdiomas)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTraducciones)).EndInit();

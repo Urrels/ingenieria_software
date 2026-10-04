@@ -24,5 +24,10 @@ namespace BE
         {
             return true;
         }
+
+        public override NodoPermiso Clonar()
+        {
+            return new Permiso { Id = Id, Nombre = Nombre, PadreId = PadreId };
+        }
     }
 }

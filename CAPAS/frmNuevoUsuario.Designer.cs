@@ -212,7 +212,6 @@ namespace CAPAS
             this.Name = "frmNuevoUsuario";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Nuevo usuario";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmNuevoUsuario_FormClosed);
             this.Load += new System.EventHandler(this.frmNuevoUsuario_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

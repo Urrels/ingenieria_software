@@ -89,7 +89,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmRegistrarDisponibilidad";
             this.Load += new System.EventHandler(this.frmRegistrarDisponibilidad_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmRegistrarDisponibilidad_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

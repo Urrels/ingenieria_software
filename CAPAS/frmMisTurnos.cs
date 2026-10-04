@@ -2,18 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmMisTurnos : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmMisTurnos : FormBase
     {
         private readonly BLL.TurnoBLL _turnoBLL = new BLL.TurnoBLL();
         private readonly BLL.FranjaHorariaBLL _franjaBLL = new BLL.FranjaHorariaBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private List<TurnoEmpleadoVM> _filas;
 
@@ -26,42 +22,7 @@ namespace CAPAS
         {
             CargarFilas();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void frmMisTurnos_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
+            InicializarFormulario();
         }
 
         private void CargarFilas()
@@ -91,7 +52,7 @@ namespace CAPAS
         {
             if (dgvTurnos.CurrentRow == null)
             {
-                MsgBox.Show("Seleccioná un turno de la lista.", "Atención",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnTurnoDeLaLista", "Seleccioná un turno de la lista."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -100,13 +61,14 @@ namespace CAPAS
 
             if (fila.Turno.Estado != "Asignado")
             {
-                MsgBox.Show("Este turno ya no está asignado (puede que ya lo hayas cancelado antes).", "Atención",
+                MsgBox.Show(Textos.T("msg_EsteTurnoYaNoEstaAsignadoPuedeQueYaLoHayasCanceladoAntes", "Este turno ya no está asignado (puede que ya lo hayas cancelado antes)."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            if (MsgBox.Show($"¿Seguro que querés cancelar el turno del {fila.Dia} {fila.Horario}?\n" +
-                "Se va a notificar automáticamente al administrador y a los empleados disponibles para cubrirlo.",
+            if (MsgBox.Show(Textos.T("msg_ConfirmarCancelarTurno",
+                "¿Seguro que querés cancelar el turno del {0} {1}?\nSe va a notificar automáticamente al administrador y a los empleados disponibles para cubrirlo.",
+                fila.Dia, fila.Horario),
                 "Confirmar cancelación", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
@@ -114,8 +76,8 @@ namespace CAPAS
             List<BE.USUARIO> notificados = _turnoBLL.CancelarPorEmpleado(fila.Turno, usuario);
 
             MsgBox.Show(notificados.Count > 0
-                    ? $"Turno cancelado. Se notificó al administrador y a {notificados.Count} empleado(s) disponible(s)."
-                    : "Turno cancelado. Se notificó al administrador (no se encontraron empleados disponibles para cubrirlo).",
+                    ? Textos.T("msg_TurnoCanceladoConNotificados", "Turno cancelado. Se notificó al administrador y a {0} empleado(s) disponible(s).", notificados.Count)
+                    : Textos.T("msg_TurnoCanceladoSinNotificados", "Turno cancelado. Se notificó al administrador (no se encontraron empleados disponibles para cubrirlo)."),
                 "Listo", MsgBox.Botones.OK, MsgBox.Icono.Exito);
 
             CargarFilas();

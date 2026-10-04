@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
@@ -24,14 +22,12 @@ namespace CAPAS
         }
     }
 
-    public partial class frmGenerarGrilla : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmGenerarGrilla : FormBase
     {
         private readonly BLL.GrillaBLL _grillaBLL = new BLL.GrillaBLL();
         private readonly BLL.FranjaHorariaBLL _franjaBLL = new BLL.FranjaHorariaBLL();
         private readonly BLL.UsuarioBLL _usuarioBLL = new BLL.UsuarioBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private BE.GrillaDeTurnos _grilla;
         private List<TurnoFilaVM> _filas;
@@ -45,14 +41,7 @@ namespace CAPAS
         {
             dtpSemana.Value = ObtenerLunesDeLaSemanaSiguiente();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
 
             ActualizarBotones();
         }
@@ -65,37 +54,9 @@ namespace CAPAS
             return hoy.AddDays(diasHastaLunes);
         }
 
-        private void frmGenerarGrilla_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
-        }
-
         private void btnGenerar_Click(object sender, EventArgs e)
         {
-            if (MsgBox.Show($"¿Generar la grilla para la semana del {dtpSemana.Value:dd/MM}?",
+            if (MsgBox.Show(Textos.T("msg_GenerarLaGrillaParaLaSemanaDel", "¿Generar la grilla para la semana del {0:dd/MM}?", dtpSemana.Value),
                 "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
@@ -141,7 +102,7 @@ namespace CAPAS
         {
             if (_grilla.Estado != "Propuesta")
             {
-                MsgBox.Show("La grilla ya fue confirmada, no se puede modificar.", "Atención",
+                MsgBox.Show(Textos.T("msg_LaGrillaYaFueConfirmadaNoSePuedeModificar", "La grilla ya fue confirmada, no se puede modificar."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -161,19 +122,19 @@ namespace CAPAS
             bool ok = _grillaBLL.ConfirmarGrilla(_grilla);
             if (!ok)
             {
-                MsgBox.Show("Todavía quedan franjas sin asignar ni marcar como déficit de cobertura.",
+                MsgBox.Show(Textos.T("msg_TodaviaQuedanFranjasSinAsignarNiMarcarComoDeficitDeCobertura", "Todavía quedan franjas sin asignar ni marcar como déficit de cobertura."),
                     "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            MsgBox.Show("Grilla confirmada correctamente.", "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+            MsgBox.Show(Textos.T("msg_GrillaConfirmadaCorrectamente", "Grilla confirmada correctamente."), "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
             ActualizarBotones();
         }
 
         private void btnComunicar_Click(object sender, EventArgs e)
         {
             _grillaBLL.ComunicarHorarios(_grilla);
-            MsgBox.Show("Horarios comunicados al equipo.", "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+            MsgBox.Show(Textos.T("msg_HorariosComunicadosAlEquipo", "Horarios comunicados al equipo."), "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
             ActualizarBotones();
         }
 

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
@@ -16,12 +14,10 @@ namespace CAPAS
         public string Urgencia { get; set; }
     }
 
-    public partial class frmMantenimientoPredictivo : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmMantenimientoPredictivo : FormBase
     {
         private readonly BLL.EquipoBLL _equipoBLL = new BLL.EquipoBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmMantenimientoPredictivo()
         {
@@ -32,14 +28,7 @@ namespace CAPAS
         {
             CargarPredicciones();
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
+            InicializarFormulario();
         }
 
         private void CargarPredicciones()
@@ -73,34 +62,6 @@ namespace CAPAS
                 dgvPredicciones.Columns["NivelUsoCritico"].HeaderText = "Umbral crítico";
                 dgvPredicciones.Columns["DiasEstimados"].HeaderText = "Días estimados restantes";
                 dgvPredicciones.Columns["Urgencia"].HeaderText = "Urgencia";
-            }
-        }
-
-        private void frmMantenimientoPredictivo_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
             }
         }
 

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
@@ -15,12 +12,10 @@ namespace CAPAS
         public string Resultado { get; set; }
     }
 
-    public partial class frmEvaluarCobertura : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmEvaluarCobertura : FormBase
     {
         private readonly BLL.EvaluacionCoberturaBLL _evaluacionBLL = new BLL.EvaluacionCoberturaBLL();
 
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmEvaluarCobertura()
         {
@@ -33,42 +28,7 @@ namespace CAPAS
             int diasDesdeLunes = ((int)hoy.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
             dtpSemana.Value = hoy.AddDays(-diasDesdeLunes - 7);
 
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void frmEvaluarCobertura_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
+            InicializarFormulario();
         }
 
         private void btnEvaluar_Click(object sender, EventArgs e)
@@ -81,7 +41,7 @@ namespace CAPAS
 
             if (resultados.Count == 0)
             {
-                MsgBox.Show("No hay una grilla confirmada para esa semana, o no tiene turnos asignados.",
+                MsgBox.Show(Textos.T("msg_NoHayUnaGrillaConfirmadaParaEsaSemanaONoTieneTurnosAsignados", "No hay una grilla confirmada para esa semana, o no tiene turnos asignados."),
                     "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 dgvResultados.DataSource = null;
                 return;
@@ -108,7 +68,7 @@ namespace CAPAS
                 dgvResultados.Columns["Resultado"].HeaderText = "Resultado";
             }
 
-            MsgBox.Show("Evaluación de cobertura registrada. Se usará para ajustar la próxima planificación.",
+            MsgBox.Show(Textos.T("msg_EvaluacionDeCoberturaRegistradaSeUsaraParaAjustarLaProximaPl", "Evaluación de cobertura registrada. Se usará para ajustar la próxima planificación."),
                 "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
 

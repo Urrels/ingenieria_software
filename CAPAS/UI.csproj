@@ -237,7 +237,11 @@
       <DependentUpon>LogIn.cs</DependentUpon>
     </Compile>
     <Compile Include="AppTheme.cs" />
+    <Compile Include="FormBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="IdiomaUIHelper.cs" />
+    <Compile Include="Textos.cs" />
     <Compile Include="MsgBox.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

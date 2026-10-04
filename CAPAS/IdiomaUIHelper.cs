@@ -20,8 +20,9 @@ namespace CAPAS
             form.Controls.Add(strip);
             form.Height += strip.Height;
 
-            IDIOMA activo = SeguridadYServicios.IdiomaManager.getInstance().IdiomaActivo;
-            foreach (IDIOMA idioma in new BLL.IdiomaBLL().ListarHabilitados())
+            var fachada = new BLL.FachadaIdioma();
+            IDIOMA activo = fachada.IdiomaActivo;
+            foreach (IDIOMA idioma in fachada.ListarDisponibles())
             {
                 cbo.Items.Add(idioma);
                 if (activo != null && idioma.Id == activo.Id)
@@ -30,14 +31,8 @@ namespace CAPAS
 
             cbo.SelectedIndexChanged += (s, e) =>
             {
-                if (!(cbo.SelectedItem is IDIOMA idioma)) return;
-                var bll = new BLL.IdiomaBLL();
-                var traducciones = bll.CargarTraducciones(idioma.Id);
-                SeguridadYServicios.IdiomaManager.getInstance().CambiarIdioma(idioma, traducciones);
-
-                BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-                if (usuario != null)
-                    new BLL.UsuarioBLL().ActualizarIdioma(usuario.Id, idioma.Id);
+                if (cbo.SelectedItem is IDIOMA idioma)
+                    fachada.Cambiar(idioma);
             };
         }
     }

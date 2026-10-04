@@ -25,6 +25,7 @@ namespace CAPAS
             this.lblPermisos = new System.Windows.Forms.Label();
             this.chkPermisos = new System.Windows.Forms.CheckedListBox();
             this.btnGuardarPermisos = new System.Windows.Forms.Button();
+            this.btnDuplicarRol = new System.Windows.Forms.Button();
             this.btnEliminar = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
             this.panelDerecho.SuspendLayout();
@@ -51,11 +52,12 @@ namespace CAPAS
             this.panelDerecho.Controls.Add(this.btnAgregarRol);
             this.panelDerecho.Controls.Add(this.panelPadre);
             this.panelDerecho.Controls.Add(this.panelPermisos);
+            this.panelDerecho.Controls.Add(this.btnDuplicarRol);
             this.panelDerecho.Controls.Add(this.btnEliminar);
             this.panelDerecho.Controls.Add(this.btnCerrar);
             this.panelDerecho.Location = new System.Drawing.Point(390, 105);
             this.panelDerecho.Name = "panelDerecho";
-            this.panelDerecho.Size = new System.Drawing.Size(257, 635);
+            this.panelDerecho.Size = new System.Drawing.Size(257, 675);
             this.panelDerecho.TabIndex = 1;
             // 
             // lblSeleccionado
@@ -149,9 +151,18 @@ namespace CAPAS
             this.btnGuardarPermisos.Text = "Guardar permisos";
             this.btnGuardarPermisos.Click += new System.EventHandler(this.btnGuardarPermisos_Click);
             // 
+            // btnDuplicarRol
+            // 
+            this.btnDuplicarRol.Location = new System.Drawing.Point(29, 527);
+            this.btnDuplicarRol.Name = "btnDuplicarRol";
+            this.btnDuplicarRol.Size = new System.Drawing.Size(170, 40);
+            this.btnDuplicarRol.TabIndex = 6;
+            this.btnDuplicarRol.Text = "Duplicar rol";
+            this.btnDuplicarRol.Click += new System.EventHandler(this.btnDuplicarRol_Click);
+            // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(29, 534);
+            this.btnEliminar.Location = new System.Drawing.Point(29, 573);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(170, 42);
             this.btnEliminar.TabIndex = 4;
@@ -160,7 +171,7 @@ namespace CAPAS
             // 
             // btnCerrar
             // 
-            this.btnCerrar.Location = new System.Drawing.Point(29, 582);
+            this.btnCerrar.Location = new System.Drawing.Point(29, 621);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(170, 44);
             this.btnCerrar.TabIndex = 5;
@@ -178,7 +189,6 @@ namespace CAPAS
             this.Controls.Add(this.panelDerecho);
             this.Name = "frmPerfiles";
             this.Text = "Gestión de Roles y Permisos";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmPerfiles_FormClosed);
             this.Load += new System.EventHandler(this.frmPerfiles_Load);
             this.panelDerecho.ResumeLayout(false);
             this.panelPadre.ResumeLayout(false);
@@ -199,6 +209,7 @@ namespace CAPAS
         private System.Windows.Forms.Label lblPermisos;
         private System.Windows.Forms.CheckedListBox chkPermisos;
         private System.Windows.Forms.Button btnGuardarPermisos;
+        private System.Windows.Forms.Button btnDuplicarRol;
         private System.Windows.Forms.Button btnEliminar;
         private System.Windows.Forms.Button btnCerrar;
     }

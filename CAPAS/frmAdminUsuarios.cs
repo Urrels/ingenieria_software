@@ -1,19 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmAdminUsuarios : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmAdminUsuarios : FormBase
     {
         private const int TAMANIO_PAGINA = 15;
 
         private readonly BLL.UsuarioBLL _bll = new BLL.UsuarioBLL();
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         private int _paginaActual = 1;
         private int _totalPaginas = 1;
@@ -29,22 +24,24 @@ namespace CAPAS
 
         private void frmAdminUsuarios_Load(object sender, EventArgs e)
         {
-            GuardarDefaults(this.Controls);
+            InicializarFormulario();
+            CargarUsuarios();
+            ReposicionarLayout();
+        }
+
+        protected override void ActualizarTextosDinamicos()
+        {
+            ActualizarEncabezados();
+        }
+
+        protected override void AjustarClaves()
+        {
             _controles.Remove("lblTitulo");
             _defaults.Remove("lblTitulo");
             _controles.Remove("lblPagina");
             _defaults.Remove("lblPagina");
             _controles["lblTitulo_AdminUsuarios"] = lblTitulo;
             _defaults["lblTitulo_AdminUsuarios"] = lblTitulo.Text;
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            CargarUsuarios();
-            IdiomaUIHelper.AgregarSelector(this);
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-            ReposicionarLayout();
         }
 
         private void ReposicionarLayout()
@@ -82,22 +79,6 @@ namespace CAPAS
             btnCerrar.Left = w - btnCerrar.Width - 40;
         }
 
-        private void frmAdminUsuarios_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-            ActualizarEncabezados();
-        }
-
         private void ActualizarEncabezados()
         {
             if (dgvUsuarios.Columns.Count == 0) return;
@@ -118,19 +99,6 @@ namespace CAPAS
                 dgvUsuarios.Columns["Telefono"].HeaderText = mgr.Traducir("colhdr_Telefono") ?? "Teléfono";
             if (dgvUsuarios.Columns["Email"] != null)
                 dgvUsuarios.Columns["Email"].HeaderText = mgr.Traducir("colhdr_Email") ?? "Email";
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void CargarUsuarios()
@@ -203,13 +171,13 @@ namespace CAPAS
 
                 if (creado)
                 {
-                    MsgBox.Show("Usuario creado correctamente.", "Éxito",
+                    MsgBox.Show(Textos.T("msg_UsuarioCreadoCorrectamente", "Usuario creado correctamente."), "Éxito",
                         MsgBox.Botones.OK, MsgBox.Icono.Exito);
                     CargarUsuarios();
                 }
                 else
                 {
-                    MsgBox.Show("El nombre de usuario ya existe.", "Atención",
+                    MsgBox.Show(Textos.T("msg_ElNombreDeUsuarioYaExiste", "El nombre de usuario ya existe."), "Atención",
                         MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 }
             }
@@ -220,7 +188,7 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnUsuario", "Seleccioná un usuario."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -234,24 +202,24 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnUsuario", "Seleccioná un usuario."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
             if (!seleccionado.Bloqueado)
             {
-                MsgBox.Show("El usuario no está bloqueado.", "Atención",
+                MsgBox.Show(Textos.T("msg_ElUsuarioNoEstaBloqueado", "El usuario no está bloqueado."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            if (MsgBox.Show("¿Desbloquear al usuario '" + seleccionado.Usuario + "'?",
+            if (MsgBox.Show(Textos.T("msg_DesbloquearAlUsuario", "¿Desbloquear al usuario '{0}'?", seleccionado.Usuario),
                 "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes)
                 return;
 
             _bll.Desbloquear(seleccionado.Usuario);
-            MsgBox.Show("Usuario desbloqueado.", "Éxito",
+            MsgBox.Show(Textos.T("msg_UsuarioDesbloqueado", "Usuario desbloqueado."), "Éxito",
                 MsgBox.Botones.OK, MsgBox.Icono.Exito);
             CargarUsuarios();
         }
@@ -261,7 +229,7 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnUsuario", "Seleccioná un usuario."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -269,12 +237,12 @@ namespace CAPAS
             string usuarioActual = SeguridadYServicios.SessionManager.getInstance().getUsuario().Usuario;
             if (seleccionado.Usuario == usuarioActual)
             {
-                MsgBox.Show("No podés eliminar tu propio usuario.", "Atención",
+                MsgBox.Show(Textos.T("msg_NoPodesEliminarTuPropioUsuario", "No podés eliminar tu propio usuario."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
 
-            if (MsgBox.Show($"¿Eliminar al usuario '{seleccionado.Usuario}'? Esta acción no se puede deshacer.",
+            if (MsgBox.Show(Textos.T("msg_EliminarAlUsuarioEstaAccionNoSePuedeDeshacer", "¿Eliminar al usuario '{0}'? Esta acción no se puede deshacer.", seleccionado.Usuario),
                 "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Atencion) != DialogResult.Yes)
                 return;
 
@@ -295,7 +263,7 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnUsuario", "Seleccioná un usuario."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
@@ -314,7 +282,7 @@ namespace CAPAS
             BE.USUARIO seleccionado = dgvUsuarios.CurrentRow?.DataBoundItem as BE.USUARIO;
             if (seleccionado == null)
             {
-                MsgBox.Show("Seleccioná un usuario.", "Atención",
+                MsgBox.Show(Textos.T("msg_SeleccionaUnUsuario", "Seleccioná un usuario."), "Atención",
                     MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }

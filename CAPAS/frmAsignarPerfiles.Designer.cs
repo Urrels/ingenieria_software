@@ -61,7 +61,6 @@ namespace CAPAS
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Asignar roles al usuario";
             this.Load += new System.EventHandler(this.frmAsignarPerfiles_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmAsignarPerfiles_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

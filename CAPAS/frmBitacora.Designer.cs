@@ -227,7 +227,6 @@ namespace CAPAS
             this.Padding = new System.Windows.Forms.Padding(3, 64, 2, 2);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bitácora";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmBitacora_FormClosed);
             this.Load += new System.EventHandler(this.frmBitacora_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panelPaginado.ResumeLayout(false);

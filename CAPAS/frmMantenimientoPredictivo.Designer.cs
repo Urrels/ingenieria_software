@@ -88,7 +88,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmMantenimientoPredictivo";
             this.Load += new System.EventHandler(this.frmMantenimientoPredictivo_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmMantenimientoPredictivo_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPredicciones)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

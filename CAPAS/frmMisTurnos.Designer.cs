@@ -76,7 +76,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmMisTurnos";
             this.Load += new System.EventHandler(this.frmMisTurnos_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmMisTurnos_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTurnos)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

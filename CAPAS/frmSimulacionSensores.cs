@@ -55,7 +55,7 @@ namespace CAPAS
             }
             catch (Exception ex)
             {
-                MsgBox.Show("No se pudo iniciar la API: " + ex.Message, "Error",
+                MsgBox.Show(Textos.T("msg_NoSePudoIniciarLaApi", "No se pudo iniciar la API: {0}", ex.Message), "Error",
                     MsgBox.Botones.OK, MsgBox.Icono.Error);
             }
         }

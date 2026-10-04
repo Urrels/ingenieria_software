@@ -29,7 +29,7 @@ namespace CAPAS
         {
             if (!(lstEmpleados.SelectedItem is BE.USUARIO seleccionado))
             {
-                MsgBox.Show("Seleccioná un empleado.", "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                MsgBox.Show(Textos.T("msg_SeleccionaUnEmpleado", "Seleccioná un empleado."), "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
                 return;
             }
             EmpleadoSeleccionado = seleccionado;

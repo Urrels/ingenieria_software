@@ -2,20 +2,16 @@ using BE;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
 
 namespace CAPAS
 {
-    public partial class frmAsignarPerfiles : MaterialForm, SeguridadYServicios.IObservadorIdioma
+    public partial class frmAsignarPerfiles : FormBase
     {
         private readonly BLL.PerfilBLL _perfilBll = new BLL.PerfilBLL();
         private readonly BLL.UsuarioPerfilBLL _asignacionBll = new BLL.UsuarioPerfilBLL();
 
         private readonly USUARIO _usuario;
         private List<NodoPermiso> _arbol;
-        private readonly Dictionary<string, Control> _controles = new Dictionary<string, Control>();
-        private readonly Dictionary<string, string> _defaults = new Dictionary<string, string>();
 
         public frmAsignarPerfiles(USUARIO usuario)
         {
@@ -26,46 +22,10 @@ namespace CAPAS
         private void frmAsignarPerfiles_Load(object sender, EventArgs e)
         {
             lblUsuario.Text = "Usuario: " + _usuario.Usuario;
-            GuardarDefaults(this.Controls);
-            _controles[this.Name] = this;
-            _defaults[this.Name] = this.Text;
-            SeguridadYServicios.IdiomaManager.getInstance().Registrar(this);
-            ActualizarIdioma();
-            IdiomaUIHelper.AgregarSelector(this);
-
+            InicializarFormulario();
             _arbol = _perfilBll.ObtenerArbol();
             CargarArbolRoles();
             MarcarRolesAsignados();
-            MaterialSkinManager.Instance.AddFormToManage(this);
-            AppTheme.AplicarTema(this);
-        }
-
-        private void frmAsignarPerfiles_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SeguridadYServicios.IdiomaManager.getInstance().Desregistrar(this);
-        }
-
-        public void ActualizarIdioma()
-        {
-            foreach (var kvp in _controles)
-            {
-                string t = SeguridadYServicios.IdiomaManager.getInstance().Traducir(kvp.Key)
-                           ?? _defaults[kvp.Key];
-                kvp.Value.Text = t;
-            }
-        }
-
-        private void GuardarDefaults(Control.ControlCollection controles)
-        {
-            foreach (Control c in controles)
-            {
-                if (!string.IsNullOrEmpty(c.Name) && !string.IsNullOrEmpty(c.Text))
-                {
-                    _controles[c.Name] = c;
-                    _defaults[c.Name] = c.Text;
-                }
-                if (c.HasChildren) GuardarDefaults(c.Controls);
-            }
         }
 
         private void CargarArbolRoles()
@@ -125,7 +85,7 @@ namespace CAPAS
                 MsgBox.Show(ex.Message, "Error", MsgBox.Botones.OK, MsgBox.Icono.Error);
                 return;
             }
-            MsgBox.Show("Asignaciones guardadas.", "Éxito",
+            MsgBox.Show(Textos.T("msg_AsignacionesGuardadas", "Asignaciones guardadas."), "Éxito",
                 MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
 

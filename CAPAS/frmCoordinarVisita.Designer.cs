@@ -121,7 +121,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "frmCoordinarVisita";
             this.Load += new System.EventHandler(this.frmCoordinarVisita_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmCoordinarVisita_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dgvAlertas)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
