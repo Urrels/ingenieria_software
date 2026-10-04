@@ -1,0 +1,176 @@
+@startuml DiagramaClases_Proceso2_Mantenimiento
+
+title Diagrama de clases — Proceso 2: Mantenimiento de equipamiento
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontSize 12
+skinparam dpi 130
+skinparam nodesep 25
+skinparam ranksep 45
+hide empty members
+left to right direction
+
+package "CAPAS (UI)" #FEFECE {
+  class frmRegistrarUsoMaquina
+  class frmSimulacionSensores
+  class ApiSensoresEquipos {
+    + Iniciar(puerto = 5050)
+    + Detener()
+    - ProcesarSolicitud(contexto)
+  }
+  class frmMantenimientoPredictivo
+  class frmEvaluarAutorizarVisita
+  class frmCoordinarVisita
+  class frmRealizarRevision
+  class frmConfirmarCierreMantenimiento
+}
+
+package "BLL" #E8F4E8 {
+  class EquipoBLL {
+    + RegistrarUso(equipoId, incremento = 1) : bool
+    + EstimarDiasHastaCritico(equipo, ventanaDias = 14) : int?
+    + ReiniciarContador(equipoId)
+    + MarcarEnMantenimiento(equipoId)
+    + ListarTodos() : List<Equipo>
+    + ObtenerPorNombre(nombre) : Equipo
+  }
+  class AlertaRevisionBLL {
+    + GenerarAlerta(equipoId) : AlertaRevision
+    + ListarPendientes() : List<AlertaRevision>
+    + ListarAutorizadas() : List<AlertaRevision>
+    + AutorizarVisita(alerta)
+    + DescartarAlerta(alerta)
+    + MarcarCoordinada(alerta)
+    + MantenerActiva(alertaId)
+    + MarcarResuelta(alertaId)
+  }
+  class VisitaTecnicaBLL {
+    + ObtenerTecnicoHabitual(equipo) : USUARIO
+    + ListarTecnicosAlternativos() : List<USUARIO>
+    + CoordinarVisita(alertaId, tecnicoId, fecha) : int
+    + ListarPendientesPorTecnico(tecnicoId) : List<VisitaTecnica>
+  }
+  class InformeMantenimientoBLL {
+    + RegistrarInforme(visita, alertaId, resultado, pendienteRepuesto) : InformeMantenimiento
+    + ListarPendientesCierre() : List<InformeMantenimiento>
+    + ConfirmarCierre(informe)
+  }
+  class NotificacionBLL {
+    + NotificarAdministradores(mensaje, unaVezPorDia)
+  }
+}
+
+package "DAL" #E8E8F4 {
+  class EquipoDAL {
+    + ActualizarUso()
+    + RegistrarUsoLog()
+    + ObtenerUsoUltimosDias()
+    + ReiniciarContador()
+    + MarcarEnMantenimiento()
+  }
+  class AlertaRevisionDAL {
+    + Insertar()
+    + ActualizarEstado()
+    + ListarPendientes()
+    + ListarAutorizadas()
+  }
+  class VisitaTecnicaDAL {
+    + Insertar()
+    + ListarTecnicosAlternativos()
+    + ListarPendientesPorTecnico()
+  }
+  class InformeMantenimientoDAL {
+    + Insertar()
+    + ListarPendientesCierre()
+    + MarcarCerrado()
+  }
+  class NotificacionDAL
+  class Acceso <<stored procedures>>
+}
+
+package "BE" #F4F4F4 {
+  class Equipo {
+    + Id : int
+    + Nombre : string
+    + UsoAcumulado : int
+    + NivelUsoCritico : int?
+    + Estado : string
+    + TecnicoHabitualId : int?
+  }
+  class AlertaRevision {
+    + Id : int
+    + EquipoId : int
+    + FechaGeneracion : DateTime
+    + Estado : string
+  }
+  class VisitaTecnica {
+    + Id : int
+    + AlertaId : int
+    + TecnicoId : int
+    + FechaCoordinada : DateTime
+    + Estado : string
+  }
+  class InformeMantenimiento {
+    + Id : int
+    + VisitaId : int
+    + Resultado : string
+    + PendienteRepuesto : bool
+    + FechaEmision : DateTime
+  }
+  class USUARIO {
+    + Id : int
+    + Usuario : string
+  }
+}
+
+' UI → BLL
+frmRegistrarUsoMaquina ..> EquipoBLL
+frmSimulacionSensores ..> ApiSensoresEquipos
+ApiSensoresEquipos ..> EquipoBLL : POST /api/equipos/uso
+frmMantenimientoPredictivo ..> EquipoBLL
+frmEvaluarAutorizarVisita ..> AlertaRevisionBLL
+frmCoordinarVisita ..> AlertaRevisionBLL
+frmCoordinarVisita ..> VisitaTecnicaBLL
+frmRealizarRevision ..> VisitaTecnicaBLL
+frmRealizarRevision ..> InformeMantenimientoBLL
+frmConfirmarCierreMantenimiento ..> InformeMantenimientoBLL
+
+' BLL → BLL / DAL
+EquipoBLL --> AlertaRevisionBLL
+EquipoBLL --> NotificacionBLL
+InformeMantenimientoBLL --> AlertaRevisionBLL
+InformeMantenimientoBLL --> EquipoBLL
+InformeMantenimientoBLL --> NotificacionBLL
+EquipoBLL --> EquipoDAL
+AlertaRevisionBLL --> AlertaRevisionDAL
+VisitaTecnicaBLL --> VisitaTecnicaDAL
+InformeMantenimientoBLL --> InformeMantenimientoDAL
+NotificacionBLL --> NotificacionDAL
+EquipoDAL ..> Acceso
+AlertaRevisionDAL ..> Acceso
+VisitaTecnicaDAL ..> Acceso
+InformeMantenimientoDAL ..> Acceso
+NotificacionDAL ..> Acceso
+
+' Entidades
+AlertaRevision "0..*" --> "1" Equipo
+VisitaTecnica "0..*" --> "1" AlertaRevision
+VisitaTecnica "0..*" --> "1" USUARIO : técnico
+InformeMantenimiento "0..1" --> "1" VisitaTecnica
+Equipo "0..*" --> "0..1" USUARIO : técnico habitual
+
+note bottom of AlertaRevisionBLL
+  estados: Pendiente → Autorizada → Coordinada → Resuelta
+  (o Descartada). Un equipo tiene como máximo una
+  alerta abierta; si falta un repuesto vuelve a Pendiente
+end note
+note bottom of EquipoBLL
+  días hasta el nivel crítico =
+  (nivel crítico − uso acumulado) / uso diario
+  promedio de los últimos 14 días
+end note
+
+@enduml
