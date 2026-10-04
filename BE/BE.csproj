@@ -50,7 +50,6 @@
     <Compile Include="EvaluacionCobertura.cs" />
     <Compile Include="FranjaHoraria.cs" />
     <Compile Include="GrillaDeTurnos.cs" />
-    <Compile Include="HistorialAsistenciaSocios.cs" />
     <Compile Include="IDIOMA.cs" />
     <Compile Include="InformeMantenimiento.cs" />
     <Compile Include="LoginResultado.cs" />

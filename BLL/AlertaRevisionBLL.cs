@@ -17,21 +17,18 @@ namespace BLL
 
         public BE.Equipo ObtenerEquipoDeAlerta(BE.AlertaRevision alerta) => _equipoDAL.ObtenerPorId(alerta.EquipoId);
 
-        // UC2, flujo Sí
         public void AutorizarVisita(BE.AlertaRevision alerta)
         {
             _dal.ActualizarEstado(alerta.Id, "Autorizada");
             alerta.Estado = "Autorizada";
         }
 
-        // UC2, flujo 3a (falso positivo)
         public void DescartarAlerta(BE.AlertaRevision alerta)
         {
             _dal.ActualizarEstado(alerta.Id, "Descartada");
             alerta.Estado = "Descartada";
         }
 
-        // UC4, flujo 3a (repuesto pendiente): la alerta vuelve a "Pendiente" hasta la próxima visita
         public void MantenerActiva(int alertaId)
         {
             _dal.ActualizarEstado(alertaId, "Pendiente");

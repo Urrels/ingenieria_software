@@ -7,7 +7,7 @@ namespace BE
     {
         public int Id { get; set; }
         public DateTime Semana { get; set; }
-        public string Estado { get; set; }   // "Propuesta" | "Confirmada" | "Comunicada"
+        public string Estado { get; set; }
         public int AdministradorId { get; set; }
         public List<Turno> Turnos { get; set; } = new List<Turno>();
     }

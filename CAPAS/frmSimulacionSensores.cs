@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using ReaLTaiizor.Forms;
 using ReaLTaiizor.Manager;
 using System;
@@ -95,8 +94,6 @@ namespace CAPAS
             await EnviarUsoAsync(equipoElegido);
         }
 
-        // Simula exactamente lo que haría un sensor real: un POST HTTP al endpoint,
-        // sin tocar el BLL/DAL directamente — así queda desacoplado, como en la vida real.
         private async Task EnviarUsoAsync(string nombreEquipo)
         {
             try

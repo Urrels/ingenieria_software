@@ -29,9 +29,6 @@ namespace BLL
             string admin = SessionManager.getInstance().getUsuario()?.Usuario ?? "sistema";
             _historial.RegistrarCambio(usuarioId, "ASIGNACION_PERFIL", admin);
 
-            // Si se reasignaron perfiles al usuario de la sesión activa
-            // (el propio admin logueado), refrescamos su USUARIO y sus
-            // permisos en caliente para que no haga falta desloguearse.
             BE.USUARIO usuarioSesion = SessionManager.getInstance().getUsuario();
             if (usuarioSesion != null && usuarioSesion.Id == usuarioId)
             {

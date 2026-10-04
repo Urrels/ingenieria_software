@@ -30,7 +30,6 @@ namespace CAPAS
             cboFranja.DataSource = _franjas;
             cboFranja.DisplayMember = "Dia";
             cboFranja.ValueMember = "Id";
-            // Se muestra Día + horario, no solo el día (varias franjas comparten día)
             cboFranja.Format += (s, ev) =>
             {
                 var f = (BE.FranjaHoraria)ev.ListItem;

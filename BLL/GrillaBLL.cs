@@ -19,7 +19,7 @@ namespace BLL
             if (existente != null)
             {
                 existente.Turnos = _turnoDAL.ListarPorGrilla(existente.Id);
-                return existente;   // ya había una grilla para esa semana, se reusa
+                return existente;
             }
 
             var admin = SessionManager.getInstance().getUsuario();
@@ -54,7 +54,6 @@ namespace BLL
 
         public bool ConfirmarGrilla(BE.GrillaDeTurnos grilla)
         {
-            // Bloquea solo si queda un turno sin asignar Y sin marcar como déficit
             if (grilla.Turnos.Exists(t => t.UsuarioId == null && t.Estado != "DeficitCobertura"))
                 return false;
 

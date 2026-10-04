@@ -63,7 +63,6 @@ namespace CAPAS
             dgvUsuarios.Height = altoGrilla;
             dgvUsuarios.Width = this.ClientSize.Width - dgvUsuarios.Left - 40;
 
-            // Buscador: bloque compacto alineado a la derecha
             int margenDer = 40;
             btnBuscar.Left = this.ClientSize.Width - btnBuscar.Width - margenDer;
             int anchoBuscar = 230;

@@ -10,10 +10,6 @@ namespace DAL
     {
         private readonly Acceso _acceso = new Acceso();
 
-        // OJO: esto depende de la tabla de historial de asistencia de socios,
-        // que se crea recién en el Proceso 3 (Control de Asistencia). Por ahora
-        // devuelve lista vacía para no romper el flujo de DemandaEstimadaBLL —
-        // cuando armemos el Proceso 3 esto se reemplaza por un SP real.
         public List<int> ObtenerHistorial(int franjaId, int semanas)
         {
             return new DAL.HistorialAsistenciaSociosDAL().ObtenerPorFranja(franjaId, semanas);

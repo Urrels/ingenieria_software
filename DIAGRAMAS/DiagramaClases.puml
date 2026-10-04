@@ -154,7 +154,6 @@ package "SeguridadYServicios" #D5E8D4 {
     + setUsuario(u : USUARIO) : void
     + setPermisos(p : List<string>) : void
     + TienePermiso(permiso : string) : bool
-    + EsAdmin() : bool
     + cerrarSesion() : void
   }
 

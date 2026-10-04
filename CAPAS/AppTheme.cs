@@ -6,20 +6,19 @@ namespace CAPAS
 {
     internal static class AppTheme
     {
-        // Paleta: Rosé Pine Main — oscuro con pasteles rose/iris/foam
-        internal static readonly Color FondoForm      = Color.FromArgb( 25,  23,  36); // base    #191724
-        internal static readonly Color FondoHeader    = Color.FromArgb( 38,  35,  58); // overlay #26233a
-        internal static readonly Color FondoControl   = Color.FromArgb( 31,  29,  46); // surface #1f1d2e
-        internal static readonly Color FondoGrilla    = Color.FromArgb( 31,  29,  46); // surface #1f1d2e
-        internal static readonly Color FondoGrillaAlt = Color.FromArgb( 38,  35,  58); // overlay #26233a
-        internal static readonly Color Acento         = Color.FromArgb(196, 167, 231); // iris    #c4a7e7  ← lavanda pastel
-        internal static readonly Color AcentoHover    = Color.FromArgb(235, 188, 186); // rose    #ebbcba  ← rosa pastel
-        internal static readonly Color TextoPrincipal  = Color.FromArgb(224, 222, 244); // text    #e0def4  ← lavanda claro
-        internal static readonly Color TextoEncabezado = Color.FromArgb(196, 167, 231); // iris    #c4a7e7  ← lavanda pastel
-        internal static readonly Color TextoSecundario = Color.FromArgb(144, 140, 170); // subtle  #908caa  ← gris lavanda
-        internal static readonly Color Borde          = Color.FromArgb(110, 106, 134); // muted   #6e6a86
-        internal static readonly Color Seleccion      = Color.FromArgb( 49, 116, 143); // pine    #31748f  ← teal muted
-        internal static readonly Color SeleccionTexto = Color.FromArgb(224, 222, 244); // text    #e0def4
+        internal static readonly Color FondoForm      = Color.FromArgb( 25,  23,  36);
+        internal static readonly Color FondoHeader    = Color.FromArgb( 38,  35,  58);
+        internal static readonly Color FondoControl   = Color.FromArgb( 31,  29,  46);
+        internal static readonly Color FondoGrilla    = Color.FromArgb( 31,  29,  46);
+        internal static readonly Color FondoGrillaAlt = Color.FromArgb( 38,  35,  58);
+        internal static readonly Color Acento         = Color.FromArgb(196, 167, 231);
+        internal static readonly Color AcentoHover    = Color.FromArgb(235, 188, 186);
+        internal static readonly Color TextoPrincipal  = Color.FromArgb(224, 222, 244);
+        internal static readonly Color TextoEncabezado = Color.FromArgb(196, 167, 231);
+        internal static readonly Color TextoSecundario = Color.FromArgb(144, 140, 170);
+        internal static readonly Color Borde          = Color.FromArgb(110, 106, 134);
+        internal static readonly Color Seleccion      = Color.FromArgb( 49, 116, 143);
+        internal static readonly Color SeleccionTexto = Color.FromArgb(224, 222, 244);
 
         internal static readonly Font FontTitulo = new Font("Segoe UI", 11f, FontStyle.Bold);
         internal static readonly Font FontBold   = new Font("Segoe UI", 10f, FontStyle.Bold);
@@ -82,14 +81,13 @@ namespace CAPAS
                 }
                 if (c is Label lbl)
                 {
-                    // Preservar etiquetas blancas del login (texto sobre imagen oscura)
                     if (lbl.ForeColor == Color.White)
                     {
                         lbl.Font = lbl.Font != null && lbl.Font.Bold ? FontBold : FontNormal;
                         continue;
                     }
                     lbl.ForeColor = TextoPrincipal;
-                    lbl.BackColor = fondoPadre; // mismo color que el contenedor — sin Transparent
+                    lbl.BackColor = fondoPadre;
                     bool bold   = lbl.Font != null && lbl.Font.Bold;
                     bool grande = lbl.Font != null && lbl.Font.Size >= 11f;
                     lbl.Font = (grande && bold) ? FontTitulo : (bold ? FontBold : FontNormal);
@@ -97,7 +95,6 @@ namespace CAPAS
                 }
                 if (c is DateTimePicker dtp)
                 {
-                    // BackColor no es compatible en DTP nativo; solo configurar el calendario
                     dtp.CalendarMonthBackground = FondoControl;
                     dtp.CalendarForeColor       = TextoPrincipal;
                     dtp.CalendarTitleBackColor  = FondoHeader;
@@ -121,7 +118,6 @@ namespace CAPAS
                     continue;
                 }
 
-                // Default
                 try { c.BackColor = FondoForm; c.ForeColor = TextoPrincipal; } catch { }
                 if (c.HasChildren) EstilizarControles(c.Controls, FondoForm);
             }
@@ -136,7 +132,6 @@ namespace CAPAS
             btn.ForeColor = Acento;
             btn.Cursor    = Cursors.Hand;
             btn.UseVisualStyleBackColor = false;
-            // No se cambia btn.Font — preserva el tamaño original para que el texto entre
 
             btn.MouseEnter += (s, e) =>
             {
@@ -226,7 +221,7 @@ namespace CAPAS
 
         internal static void EstilizarStatusStrip(StatusStrip ss)
         {
-            Color fondoStatus = Color.FromArgb(144, 140, 170); // subtle #908caa  ← gris claro abajo
+            Color fondoStatus = Color.FromArgb(144, 140, 170);
             ss.BackColor  = fondoStatus;
             ss.ForeColor  = TextoSecundario;
             ss.Font       = FontNormal;

@@ -17,7 +17,7 @@ namespace BLL
             };
 
             if (!TieneAlMenosUnaFranja(disponibilidad))
-                return null;   // flujo 5a: el llamador (UI) muestra el aviso
+                return null;
 
             BE.Disponibilidad previa = _dal.ObtenerPorUsuarioYSemana(usuario.Id, semana);
             if (previa != null)
@@ -33,8 +33,6 @@ namespace BLL
             return disponibilidad;
         }
 
-        // Flujo 3a (ya había disponibilidad cargada): la UI llama esto primero
-        // para precargar el formulario con lo que el empleado ya había puesto.
         public BE.Disponibilidad ObtenerPrevia(BE.USUARIO usuario, DateTime semana)
         {
             return _dal.ObtenerPorUsuarioYSemana(usuario.Id, semana);

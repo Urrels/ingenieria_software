@@ -13,8 +13,6 @@ namespace CAPAS
         public int Incremento { get; set; } = 1;
     }
 
-    // Mini API local: simula el endpoint al que un sensor IoT real le reportaría
-    // el uso de una máquina, sin necesitar IIS ni un servidor aparte.
     public class ApiSensoresEquipos
     {
         private HttpListener _listener;
@@ -49,12 +47,12 @@ namespace CAPAS
             {
                 try
                 {
-                    var contexto = _listener.GetContext();   // se bloquea hasta que llega un request
+                    var contexto = _listener.GetContext();
                     ProcesarSolicitud(contexto);
                 }
                 catch (HttpListenerException)
                 {
-                    break;   // listener detenido, salida normal
+                    break;
                 }
                 catch (Exception ex)
                 {

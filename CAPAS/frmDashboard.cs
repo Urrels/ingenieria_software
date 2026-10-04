@@ -44,8 +44,6 @@ namespace CAPAS
             AppTheme.AplicarTema(this);
         }
 
-        // Los 3 Chart se crean por código y se insertan en los Panel del Designer,
-        // en vez de definirlos en el Designer (evita serializar Chart a mano, que es larguísimo).
         private void ArmarCharts()
         {
             _chartCobertura = CrearChartBase();
@@ -87,7 +85,6 @@ namespace CAPAS
             CargarChartAsistencia();
         }
 
-        // Proceso 1 + 3 juntos: cuántas franjas quedaron con Falta / Ajustado / Exceso de personal
         private void CargarChartCobertura()
         {
             _chartCobertura.Series.Clear();
@@ -103,7 +100,6 @@ namespace CAPAS
             _chartCobertura.Series.Add(serie);
         }
 
-        // Proceso 2: uso acumulado de cada equipo contra su umbral crítico
         private void CargarChartEquipos()
         {
             _chartEquipos.Series.Clear();
@@ -130,7 +126,6 @@ namespace CAPAS
             _chartEquipos.Series.Add(serieUmbral);
         }
 
-        // Proceso 3: evolución de la asistencia de socios en el tiempo, para la franja elegida
         private void CargarChartAsistencia()
         {
             if (!(cboFranjaAsistencia.SelectedItem is BE.FranjaHoraria franja)) return;

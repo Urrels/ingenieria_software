@@ -57,7 +57,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // Devuelve false si el SP rechazó el borrado por tener referencias (disponibilidad, turnos, historial)
         public bool Eliminar(int id)
         {
             List<SqlParameter> parametros = new List<SqlParameter>

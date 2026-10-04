@@ -36,8 +36,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // Nota: la llama ObtenerPorUsuarioYSemana mientras la conexión ya está abierta,
-        // por eso NO vuelve a Abrir()/Cerrar() acá adentro.
         private List<BE.FranjaHoraria> ObtenerFranjas(int disponibilidadId)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
@@ -55,10 +53,6 @@ namespace DAL
                     Dia = fila["DIA"].ToString(),
                     HoraInicio = (TimeSpan)fila["HORA_INICIO"],
                     HoraFin = (TimeSpan)fila["HORA_FIN"]
-                    // Ojo: RolRequerido no viene en DISPONIBILIDAD_FRANJAS_LISTAR
-                    // (ese SP solo lista franjas elegidas por el empleado, no necesita el rol
-                    // porque ya se sabe por el rol del propio empleado). Si te hace falta acá
-                    // también, avisame y le agrego la columna al SELECT.
                 });
             }
             return lista;

@@ -28,7 +28,6 @@ namespace CAPAS
             _semana = ObtenerLunesDeLaSemanaSiguiente();
             BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
 
-            // Solo se muestran las franjas del rol del empleado logueado
             _franjasDisponibles = _franjaBLL.ListarTodas()
                 .Where(f => f.RolRequerido == usuario.RolNombre)
                 .ToList();
@@ -37,7 +36,6 @@ namespace CAPAS
             foreach (var franja in _franjasDisponibles)
                 clbFranjas.Items.Add(DescripcionFranja(franja));
 
-            // Flujo 3a: si ya había disponibilidad cargada para esta semana, se precarga
             BE.Disponibilidad previa = _bll.ObtenerPrevia(usuario, _semana);
             if (previa != null)
             {
@@ -76,7 +74,7 @@ namespace CAPAS
 
         private string DescripcionFranja(BE.FranjaHoraria f)
         {
-            DateTime fecha = _semana;   // _semana ya es el lunes de la semana elegida
+            DateTime fecha = _semana;
             if (DiasSemana.TryGetValue(f.Dia, out var dia))
                 fecha = _semana.AddDays(((int)dia - (int)DayOfWeek.Monday + 7) % 7);
 
@@ -117,7 +115,6 @@ namespace CAPAS
                 if (clbFranjas.GetItemChecked(i))
                     seleccionadas.Add(_franjasDisponibles[i]);
 
-            // flujo 5a
             if (seleccionadas.Count == 0)
             {
                 MsgBox.Show("Tenés que indicar al menos una franja.", "Atención",

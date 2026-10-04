@@ -105,7 +105,6 @@ namespace CAPAS
                 new BLL.UsuarioBLL().ActualizarIdioma(usuario.Id, idioma.Id);
         }
 
-        // ===== Usuario =====
         private void misNotificacionesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmMisNotificaciones().ShowDialog();
@@ -121,7 +120,6 @@ namespace CAPAS
             this.Close();
         }
 
-        // ===== Horarios (Proceso 1) =====
         private void misTurnosToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmMisTurnos().ShowDialog();
@@ -158,7 +156,6 @@ namespace CAPAS
             new frmGestionFranjas().ShowDialog();
         }
 
-        // ===== Mantenimiento (Proceso 2) =====
         private void registrarUsoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmRegistrarUsoMaquina().ShowDialog();
@@ -198,7 +195,6 @@ namespace CAPAS
             new frmDashboard().ShowDialog();
         }
 
-        // ===== Asistencia (Proceso 3) =====
         private void ficharAsistenciaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmFicharAsistencia().ShowDialog();
@@ -214,19 +210,16 @@ namespace CAPAS
             new frmEvaluarCobertura().ShowDialog();
         }
 
-        // ===== Configuración =====
         private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmContraseña().ShowDialog();
         }
 
-        // ===== Bitácora =====
         private void bitacoraToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmBitacora().ShowDialog();
         }
 
-        // ===== Administración =====
         private void usuariosBloqueadosToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmAdminUsuarios().ShowDialog();

@@ -98,7 +98,6 @@ namespace CAPAS
 
             if (!ok)
             {
-                // flujo 1a
                 MsgBox.Show("No tenés un ingreso registrado hoy. Registrá el ingreso primero.",
                     "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
             }

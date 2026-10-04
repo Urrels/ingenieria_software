@@ -8,7 +8,6 @@ namespace BLL
         private readonly AlertaRevisionBLL _alertaBLL = new AlertaRevisionBLL();
         private readonly EquipoBLL _equipoBLL = new EquipoBLL();
 
-        // UC4
         public BE.InformeMantenimiento RegistrarInforme(BE.VisitaTecnica visita, int alertaId, string resultado, bool pendienteRepuesto)
         {
             int id = _dal.Insertar(visita.Id, resultado, pendienteRepuesto);
@@ -21,9 +20,6 @@ namespace BLL
 
         public List<BE.InformeMantenimiento> ListarPendientesCierre() => _dal.ListarPendientesCierre();
 
-        public BE.InformeMantenimiento ObtenerPorId(int id) => _dal.Obtener(id);
-
-        // UC5
         public void ConfirmarCierre(BE.InformeMantenimiento informe)
         {
             if (informe.PendienteRepuesto)
