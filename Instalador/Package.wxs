@@ -1,8 +1,8 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-  <Package Name="CAPAS - Gestión de gimnasio"
+  <Package Name="Gestión de gimnasio"
            Manufacturer="TP Ingeniería de Software"
-           Version="1.0.0"
+           Version="1.0.1"
            UpgradeCode="AB5393F6-89D0-43A6-980E-68196A37FA92"
            Language="3082"
            Codepage="1252"
@@ -15,11 +15,11 @@
     <Launch Condition="Installed OR WIXNETFX4RELEASEINSTALLED &gt;= &quot;#528040&quot;"
             Message="[ProductName] necesita .NET Framework 4.8. Instalalo desde https://dotnet.microsoft.com/download/dotnet-framework/net48 y volvé a ejecutar el instalador." />
 
-    <Icon Id="IconoCapas" SourceFile="$(var.AppBin)CAPAS.exe" />
-    <Property Id="ARPPRODUCTICON" Value="IconoCapas" />
+    <Icon Id="IconoApp" SourceFile="$(var.AppBin)CAPAS.exe" />
+    <Property Id="ARPPRODUCTICON" Value="IconoApp" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="CAPAS">
+      <Directory Id="INSTALLFOLDER" Name="Gestión de gimnasio">
         <Directory Id="CarpetaScripts" Name="Scripts" />
         <?ifdef IncluirLocalDB ?>
         <Directory Id="CarpetaPrerequisitos" Name="Prerequisitos" />
@@ -27,11 +27,11 @@
       </Directory>
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder">
-      <Directory Id="CarpetaMenuInicio" Name="CAPAS" />
+      <Directory Id="CarpetaMenuInicio" Name="Gestión de gimnasio" />
     </StandardDirectory>
     <StandardDirectory Id="DesktopFolder" />
 
-    <Feature Id="Principal" Title="CAPAS" Level="1">
+    <Feature Id="Principal" Title="Gestión de gimnasio" Level="1">
       <Files Directory="INSTALLFOLDER" Include="$(var.AppBin)**">
         <Exclude Files="$(var.AppBin)**\*.pdb" />
         <Exclude Files="$(var.AppBin)**\*.xml" />
@@ -46,23 +46,23 @@
 
     <Component Id="AccesosDirectos" Directory="CarpetaMenuInicio" Guid="C22F1BD3-4A60-4050-BC68-B3D056FFDD8A">
       <Shortcut Id="AccesoMenuInicio"
-                Name="CAPAS"
+                Name="Gestión de gimnasio"
                 Description="Sistema de gestión del gimnasio"
                 Target="[INSTALLFOLDER]CAPAS.exe"
                 WorkingDirectory="INSTALLFOLDER" />
       <Shortcut Id="AccesoEscritorio"
                 Directory="DesktopFolder"
-                Name="CAPAS"
+                Name="Gestión de gimnasio"
                 Description="Sistema de gestión del gimnasio"
                 Target="[INSTALLFOLDER]CAPAS.exe"
                 WorkingDirectory="INSTALLFOLDER" />
       <Shortcut Id="AccesoConfigurador"
-                Name="Configurar base de datos de CAPAS"
+                Name="Configurar base de datos"
                 Description="Crea la base de datos o cambia el servidor SQL Server"
                 Target="[INSTALLFOLDER]ConfiguradorBD.exe"
                 WorkingDirectory="INSTALLFOLDER" />
       <RemoveFolder Id="QuitarCarpetaMenuInicio" On="uninstall" />
-      <RegistryValue Root="HKCU" Key="Software\CAPAS" Name="Instalado" Type="integer" Value="1" KeyPath="yes" />
+      <RegistryValue Root="HKCU" Key="Software\GestionGimnasio" Name="Instalado" Type="integer" Value="1" KeyPath="yes" />
     </Component>
 
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Configurar la base de datos ahora" />

@@ -12,7 +12,7 @@ namespace ConfiguradorBD
         internal RegistroInstalacion()
         {
             string carpeta = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CAPAS");
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GestionGimnasio");
             Directory.CreateDirectory(carpeta);
             Ruta = Path.Combine(carpeta, "install.log");
         }

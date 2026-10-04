@@ -83,12 +83,12 @@ powershell -ExecutionPolicy Bypass -File Instalador\generar-instalador.ps1
 
 El script compila la solución en `Release` y después el instalador. Genera dos archivos:
 
-- **`Instalador\Bundle\bin\Release\CAPAS-Setup.exe`**: el que hay que repartir. Es un instalador `.exe` (WiX Burn) que instala primero lo que falte y después CAPAS.
-- `Instalador\bin\Release\CAPAS-Instalador.msi`: el paquete de CAPAS solo, sin prerrequisitos (el `.exe` lo lleva adentro).
+- **`Instalador\Bundle\bin\Release\GestionGimnasio-Setup.exe`**: el que hay que repartir. Es un instalador `.exe` (WiX Burn) que instala primero lo que falte y después el sistema.
+- `Instalador\bin\Release\GestionGimnasio.msi`: el paquete del sistema solo, sin prerrequisitos (el `.exe` lo lleva adentro).
 
-### Qué hace el `.exe` (`CAPAS-Setup.exe`)
+### Qué hace el `.exe` (`GestionGimnasio-Setup.exe`)
 
-- Pantallas en español (`Instalador\Bundle\Tema.es-ES.wxl`) con la licencia (`Licencia.rtf`). En **Opciones** se puede cambiar la carpeta de destino.
+- Pantallas en español (`Instalador\Bundle\Tema.es-ES.wxl`, con el diseño de `Tema.xml`) y una licencia breve (`Licencia.rtf`). En **Opciones** se puede cambiar la carpeta de destino.
 - Si falta **.NET Framework 4.8**, lo descarga e instala.
 - Si el instalador se generó con `Instalador\Prerequisitos\SqlLocalDB.msi` y el equipo no tiene ni SQL Server ni LocalDB, instala **SQL Server Express LocalDB** en modo silencioso.
 - Instala CAPAS (el `.msi`) y, al terminar, muestra el botón **Configurar base de datos**, que abre el configurador.
@@ -97,11 +97,11 @@ El script compila la solución en `Release` y después el instalador. Genera dos
 
 - Pantallas en español: bienvenida, licencia (`Licencia.rtf`), carpeta de destino y progreso.
 - Verifica que esté instalado .NET Framework 4.8; si no, avisa y no continúa.
-- Copia la aplicación y todas sus dependencias a `Archivos de programa\CAPAS` y los scripts SQL a la subcarpeta `Scripts`.
+- Copia la aplicación y todas sus dependencias a `Archivos de programa\Gestión de gimnasio` y los scripts SQL a la subcarpeta `Scripts`.
 - Crea accesos directos en el menú Inicio y en el escritorio.
 - Aparece en "Agregar o quitar programas" para desinstalarlo. Al instalar una versión nueva, reemplaza la anterior.
 
-- Al terminar ofrece abrir el **configurador de la base de datos** (casilla marcada por defecto). También queda un acceso directo "Configurar base de datos de CAPAS" en el menú Inicio.
+- Al terminar ofrece abrir el **configurador de la base de datos** (casilla marcada por defecto). También queda un acceso directo "Configurar base de datos" en el menú Inicio.
 
 ### Configurador de la base de datos (`ConfiguradorBD.exe`)
 
@@ -110,11 +110,11 @@ Se ejecuta como administrador (pide permiso de Windows) y resuelve la instalaci�
 - **Busca las instancias de SQL Server del equipo** en el registro de Windows, incluida LocalDB, y también acepta un servidor de la red escrito a mano. Permite autenticación de Windows o de SQL Server (usuario y contraseña).
 - **Si el servicio de SQL Server está detenido**, lo detecta y ofrece iniciarlo.
 - **Si no hay ningún motor instalado**, ofrece instalar SQL Server Express LocalDB. Si el instalador incluye `SqlLocalDB.msi` (ver `Instalador\Prerequisitos\LEEME.txt`), lo instala en modo silencioso; si no, abre la página oficial de descarga.
-- **Verifica antes de tocar nada**: conexión, versión (SQL Server 2019 o posterior), permiso para crear bases y espacio en disco.
+- **Verifica antes de tocar nada**: puerto TCP (si el servidor es de la red), conexión, versión (SQL Server 2019 o posterior), permiso para crear bases y espacio en disco.
 - **Crea la base** ejecutando `script.sql` (tablas, relaciones, procedimientos y datos iniciales) y `traducciones.sql`. Si la base ya existe, no la modifica: solo actualiza las traducciones.
 - **Rollback**: si algún paso falla, elimina la base creada a medias y el servidor queda como estaba.
 - **Configura CAPAS**: escribe la cadena de conexión elegida en `CAPAS.exe.config`.
-- **Registro**: todo queda en `C:\ProgramData\CAPAS\install.log`.
+- **Registro**: todo queda en `C:\ProgramData\GestionGimnasio\install.log`.
 
 Además, si CAPAS arranca y no puede conectarse a la base, ofrece abrir el configurador.
 
@@ -363,7 +363,7 @@ Muestra los errores y ofrece tres opciones:
 | Restaurar desde historial | Abre `frmHistorialUsuario` por cada usuario afectado para hacer rollback. Deshabilitado si no hay historial. |
 | Cancelar | Cierra sesión y vuelve al login. |
 
-Los errores se loguean en `%LOCALAPPDATA%\CAPAS\integridad_error.log` (la carpeta de instalación en Archivos de programa no tiene permiso de escritura para usuarios comunes).
+Los errores se loguean en `%LOCALAPPDATA%\GestionGimnasio\integridad_error.log` (la carpeta de instalación en Archivos de programa no tiene permiso de escritura para usuarios comunes).
 
 ### Cuándo recalcular
 

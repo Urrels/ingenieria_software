@@ -1,6 +1,6 @@
 <Project Sdk="WixToolset.Sdk/6.0.2">
   <PropertyGroup>
-    <OutputName>CAPAS-Instalador</OutputName>
+    <OutputName>GestionGimnasio</OutputName>
     <Cultures>es-ES</Cultures>
     <DefaultItemExcludes>$(DefaultItemExcludes);Bundle\**</DefaultItemExcludes>
     <DefineConstants>AppBin=..\CAPAS\bin\$(Configuration)\;Scripts=..\DAL\</DefineConstants>

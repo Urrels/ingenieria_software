@@ -47,7 +47,7 @@ namespace ConfiguradorBD
 
         private void ArmarPantalla()
         {
-            Text = "CAPAS - Configuración de la base de datos";
+            Text = "Configuración de la base de datos";
             Font = new Font("Segoe UI", 9.75f);
             BackColor = Color.White;
             ForeColor = Texto;
@@ -66,7 +66,7 @@ namespace ConfiguradorBD
             };
             var lblDescripcion = new Label
             {
-                Text = "Elegí dónde crear la base BDCAPAS: una instancia de SQL Server de este equipo " +
+                Text = "Elegí dónde crear la base de datos: una instancia de SQL Server de este equipo " +
                        "(se buscan solas) o un servidor de la red.",
                 Location = new Point(20, 48),
                 Size = new Size(600, 50)
@@ -225,6 +225,7 @@ namespace ConfiguradorBD
         {
             SqlConnectionStringBuilder cadena = ArmarCadena();
             if (cadena == null) return;
+            if (!VerificarPuerto(cadena.DataSource)) return;
             if (!PrepararMotor(cadena.DataSource)) return;
 
             ResultadoVerificacion resultado = null;
@@ -237,7 +238,7 @@ namespace ConfiguradorBD
 
             _log.Escribir($"Conectado: SQL Server {resultado.Version} ({resultado.Edicion}).");
             string mensaje = $"Conexión exitosa.\n\nSQL Server {resultado.Version} ({resultado.Edicion})\n" +
-                             (resultado.ExisteBase ? "La base BDCAPAS ya existe en este servidor." : "La base BDCAPAS todavía no existe.");
+                             (resultado.ExisteBase ? "La base de datos ya existe en este servidor." : "La base de datos todavía no existe.");
             if (!resultado.VersionCompatible)
                 mensaje += "\n\nAtención: se necesita SQL Server 2019 o posterior.";
             MessageBox.Show(this, mensaje, "Probar conexión", MessageBoxButtons.OK,
@@ -258,6 +259,7 @@ namespace ConfiguradorBD
                 return;
             }
             if (!VerificarEspacioEnDisco(cadena.DataSource)) return;
+            if (!VerificarPuerto(cadena.DataSource)) return;
             if (!PrepararMotor(cadena.DataSource)) return;
 
             var instalador = new InstaladorBaseDatos(cadena, _log);
@@ -275,8 +277,8 @@ namespace ConfiguradorBD
             if (verificacion.ExisteBase)
             {
                 if (MessageBox.Show(this,
-                        "La base BDCAPAS ya existe en este servidor y no se va a modificar su estructura ni sus datos.\n\n" +
-                        "¿Querés actualizar las traducciones y configurar CAPAS para usar esta base?",
+                        "La base de datos ya existe en este servidor y no se va a modificar su estructura ni sus datos.\n\n" +
+                        "¿Querés actualizar las traducciones y configurar el sistema para usar esta base?",
                         "La base ya existe", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                     return;
                 soloTraducciones = true;
@@ -296,12 +298,12 @@ namespace ConfiguradorBD
                 else
                     instalador.CrearBase(esquema, traducciones);
                 ConfiguracionApp.GuardarCadena(instalador.CadenaParaAplicacion());
-                _log.Escribir("CAPAS quedó configurado para usar " + cadena.DataSource + ".");
+                _log.Escribir("El sistema quedó configurado para usar " + cadena.DataSource + ".");
             });
             if (!ok) return;
 
             MessageBox.Show(this,
-                "La base de datos quedó lista y CAPAS configurado para usarla.\n\n" +
+                "La base de datos quedó lista y el sistema configurado para usarla.\n\n" +
                 "Usuario inicial: admin\nContraseña: 1234\n\nCambiá la contraseña después del primer ingreso.",
                 "Instalación completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -357,6 +359,19 @@ namespace ConfiguradorBD
                                       "y que este programa se esté ejecutando como administrador.",
                     "Servicio detenido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return ok;
+        }
+
+        private bool VerificarPuerto(string servidor)
+        {
+            if (!InstanciaSql.PuertoTcpRemoto(servidor, out string equipo, out int puerto)) return true;
+            _log.Escribir($"Verificando el puerto TCP {puerto} de {equipo}...");
+            if (InstanciaSql.PuertoAbierto(equipo, puerto, TimeSpan.FromSeconds(5))) return true;
+            _log.Escribir($"El puerto TCP {puerto} de {equipo} no responde.");
+            MessageBox.Show(this, $"No se pudo llegar al puerto TCP {puerto} de {equipo}.\n\n" +
+                                  "Verificá que el servidor esté encendido, que SQL Server acepte conexiones TCP/IP " +
+                                  "y que el firewall permita ese puerto.",
+                "Puerto cerrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return false;
         }
 
         private bool VerificarEspacioEnDisco(string servidor)

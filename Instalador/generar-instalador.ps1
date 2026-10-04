@@ -11,7 +11,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Falló la compilación de la solución.' }
 & $msbuild (Join-Path $PSScriptRoot 'Bundle\Bundle.wixproj') /restore /p:Configuration=Release /v:minimal
 if ($LASTEXITCODE -ne 0) { throw 'Falló la generación del instalador.' }
 
-$msi = Get-ChildItem (Join-Path $PSScriptRoot 'bin\Release') -Recurse -Filter *.msi | Select-Object -First 1
-$exe = Get-ChildItem (Join-Path $PSScriptRoot 'Bundle\bin\Release') -Recurse -Filter *.exe | Select-Object -First 1
+$msi = Get-ChildItem (Join-Path $PSScriptRoot 'bin\Release') -Recurse -Filter GestionGimnasio.msi | Select-Object -First 1
+$exe = Get-ChildItem (Join-Path $PSScriptRoot 'Bundle\bin\Release') -Recurse -Filter GestionGimnasio-Setup.exe | Select-Object -First 1
 Write-Host "Instalador .exe: $($exe.FullName)" -ForegroundColor Green
 Write-Host "Instalador .msi: $($msi.FullName)" -ForegroundColor Green

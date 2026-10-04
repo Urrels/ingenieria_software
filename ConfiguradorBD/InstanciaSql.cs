@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Sockets;
 using System.ServiceProcess;
 using Microsoft.Win32;
 
@@ -90,6 +91,50 @@ namespace ConfiguradorBD
                 if (servicio.Status != ServiceControllerStatus.StartPending)
                     servicio.Start();
                 servicio.WaitForStatus(ServiceControllerStatus.Running, espera);
+            }
+        }
+
+        internal static bool PuertoTcpRemoto(string servidor, out string equipo, out int puerto)
+        {
+            equipo = null;
+            puerto = 1433;
+            if (string.IsNullOrWhiteSpace(servidor) || ServicioDe(servidor) != null) return false;
+            string s = servidor.Trim();
+            if (s.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase)) return false;
+            if (s.StartsWith("tcp:", StringComparison.OrdinalIgnoreCase)) s = s.Substring(4);
+
+            int coma = s.IndexOf(',');
+            if (coma >= 0)
+            {
+                if (!int.TryParse(s.Substring(coma + 1).Trim(), out puerto)) return false;
+                s = s.Substring(0, coma);
+            }
+            int barra = s.IndexOf('\\');
+            if (barra >= 0)
+            {
+                if (coma < 0) return false;
+                s = s.Substring(0, barra);
+            }
+            equipo = s.Trim();
+            return equipo.Length > 0;
+        }
+
+        internal static bool PuertoAbierto(string equipo, int puerto, TimeSpan espera)
+        {
+            using (var cliente = new TcpClient())
+            {
+                try
+                {
+                    return cliente.ConnectAsync(equipo, puerto).Wait(espera) && cliente.Connected;
+                }
+                catch (AggregateException)
+                {
+                    return false;
+                }
+                catch (SocketException)
+                {
+                    return false;
+                }
             }
         }
 
