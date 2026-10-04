@@ -2,7 +2,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Gestión de gimnasio"
            Manufacturer="TP Ingeniería de Software"
-           Version="1.0.1"
+           Version="1.0.2"
            UpgradeCode="AB5393F6-89D0-43A6-980E-68196A37FA92"
            Language="3082"
            Codepage="1252"
@@ -67,13 +67,15 @@
 
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Configurar la base de datos ahora" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
-    <Property Id="WixShellExecTarget" Value="[INSTALLFOLDER]ConfiguradorBD.exe" />
     <CustomAction Id="AbrirConfigurador" BinaryRef="Wix4UtilCA_X86" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
     <UI>
+      <!-- El destino se asigna al terminar (y no con <Property>) para que tome la carpeta elegida en el asistente -->
+      <Publish Dialog="ExitDialog" Control="Finish" Property="WixShellExecTarget" Value="[INSTALLFOLDER]ConfiguradorBD.exe"
+               Order="1" Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="AbrirConfigurador"
-               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+               Order="2" Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
     </UI>
     <WixVariable Id="WixUILicenseRtf" Value="Licencia.rtf" />
   </Package>
