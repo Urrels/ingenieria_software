@@ -14,31 +14,42 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmConfirmarCierreMantenimiento" as F #FEFECE
 participant ":InformeMantenimientoBLL" as IB #E8F4E8
 participant ":EquipoBLL" as EB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : abrir "Confirmar cierre"
+A -> SYS : abrir "Confirmar cierre"
+SYS -> F : abrir "Confirmar cierre"
 F -> IB : ListarPendientesCierre()
 IB -> DB : INFORME_LISTAR_PENDIENTES_CIERRE
-F --> A : informes pendientes
-A -> F : seleccionar informe
+F --> SYS : informes pendientes
+SYS --> A : informes pendientes
+A -> SYS : seleccionar informe
+SYS -> F : seleccionar informe
 F -> EB : ObtenerPorId(equipoId)
-F --> A : equipo, estado actual y uso acumulado
-A -> F : click "Confirmar cierre"
+F --> SYS : equipo, estado actual y uso acumulado
+SYS --> A : equipo, estado actual y uso acumulado
+A -> SYS : click "Confirmar cierre"
+SYS -> F : click "Confirmar cierre"
 alt 3a. sin selección
-  F --> A : "Seleccioná un informe."
+  F --> SYS : "Seleccioná un informe."
+  SYS --> A : "Seleccioná un informe."
 else
   alt sin repuesto pendiente
-    F --> A : "¿Confirmar el cierre? Se reiniciará el contador\ny el equipo quedará operativo."
+    F --> SYS : "¿Confirmar el cierre? Se reiniciará el contador\ny el equipo quedará operativo."
+    SYS --> A : "¿Confirmar el cierre? Se reiniciará el contador\ny el equipo quedará operativo."
   else 5a. repuesto pendiente
-    F --> A : "Falta un repuesto: el equipo quedará\n'En mantenimiento'. ¿Confirmar?"
+    F --> SYS : "Falta un repuesto: el equipo quedará\n'En mantenimiento'. ¿Confirmar?"
+    SYS --> A : "Falta un repuesto: el equipo quedará\n'En mantenimiento'. ¿Confirmar?"
   end
   alt 4a. cancela
-    A --> F : No
+    A --> SYS : No
+    SYS --> F : No
   else confirma
-    A --> F : Sí
+    A --> SYS : Sí
+    SYS --> F : Sí
     F -> IB : ConfirmarCierre(informe)
     alt sin repuesto pendiente
       IB -> EB : ReiniciarContador(equipoId)
@@ -49,7 +60,8 @@ else
       EB -> DB : EQUIPO_MARCAR_EN_MANTENIMIENTO
     end
     IB -> DB : INFORME_MARCAR_CERRADO
-    F --> A : mensaje de cierre confirmado
+    F --> SYS : mensaje de cierre confirmado
+    SYS --> A : mensaje de cierre confirmado
     F -> IB : ListarPendientesCierre()
   end
 end

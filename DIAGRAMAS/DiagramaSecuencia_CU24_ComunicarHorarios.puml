@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmGenerarGrilla" as F #FEFECE
 participant ":GrillaBLL" as G #E8F4E8
 participant ":UsuarioBLL" as UB #E8F4E8
@@ -21,7 +22,8 @@ participant ":NotificacionBLL" as N #E8F4E8
 database ":DB" as DB #E8E8F4
 
 note over F : "Comunicar" solo está habilitado\ncon la grilla en estado "Confirmada"
-A -> F : click "Comunicar"
+A -> SYS : click "Comunicar"
+SYS -> F : click "Comunicar"
 F -> G : ComunicarHorarios(grilla)
 G -> DB : GRILLA_TURNOS_POR_EMPLEADO
 DB --> G : turnos agrupados por empleado
@@ -36,7 +38,8 @@ loop por cada empleado con turnos
   end
 end
 G -> DB : GRILLA_MARCAR_COMUNICADA
-F --> A : "Horarios comunicados al equipo."
+F --> SYS : "Horarios comunicados al equipo."
+SYS --> A : "Horarios comunicados al equipo."
 note over N, DB : cada empleado ve su notificación en "Mis notificaciones"
 
 @enduml

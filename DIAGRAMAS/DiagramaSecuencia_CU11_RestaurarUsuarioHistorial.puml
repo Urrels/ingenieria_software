@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmHistorialUsuario" as H #FEFECE
 participant ":UsuarioHistorialBLL" as HB #E8F4E8
 participant ":PerfilBLL" as PB #E8F4E8
@@ -22,22 +23,28 @@ participant ":SessionManager" as S #F4E8E8
 database ":DB" as DB #E8E8F4
 
 note over H : 1a. con una entrada BAJA seleccionada\n"Rollback" está deshabilitado
-A -> H : seleccionar entrada + click "Rollback"
+A -> SYS : seleccionar entrada + click "Rollback"
+SYS -> H : seleccionar entrada + click "Rollback"
 alt 2a. la entrada es un ROLLBACK
-  H --> A : "No se puede restaurar una versión\nque ya es un rollback."
+  H --> SYS : "No se puede restaurar una versión\nque ya es un rollback."
+  SYS --> A : "No se puede restaurar una versión\nque ya es un rollback."
 else
-  H --> A : "¿Restaurar a la versión del dd/MM/aaaa?\nLa contraseña NO se restaura."
+  H --> SYS : "¿Restaurar a la versión del dd/MM/aaaa?\nLa contraseña NO se restaura."
+  SYS --> A : "¿Restaurar a la versión del dd/MM/aaaa?\nLa contraseña NO se restaura."
   alt 4a. cancela
-    A --> H : No
+    A --> SYS : No
+    SYS --> H : No
   else confirma
-    A --> H : Sí
+    A --> SYS : Sí
+    SYS --> H : Sí
     H -> HB : Rollback(historialId, admin)
     HB -> DB : USUARIO_HISTORIAL_OBTENER
     HB -> HB : backstop: tipo ≠ ROLLBACK
     HB -> PB : ValidarQueQuedeAdministracion(...)
     alt 5a. quedaría sin administración
       PB --> H : InvalidOperationException
-      H --> A : mensaje con el permiso que se perdería
+      H --> SYS : mensaje con el permiso que se perdería
+      SYS --> A : mensaje con el permiso que se perdería
     else permitido
       HB -> DB : USUARIO_APLICAR_ESTADO\n(rol, bloqueado, intentos)
       HB -> DB : ReemplazarAsignaciones(perfiles)
@@ -47,7 +54,8 @@ else
       opt es el usuario de la sesión
         HB -> S : setUsuario(u) + setPermisos(p)
       end
-      H --> A : "Estado restaurado correctamente."
+      H --> SYS : "Estado restaurado correctamente."
+      SYS --> A : "Estado restaurado correctamente."
       H -> HB : ObtenerHistorialPaginado(...)
     end
   end

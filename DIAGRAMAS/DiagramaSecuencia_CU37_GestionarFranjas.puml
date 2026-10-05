@@ -14,36 +14,46 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmGestionFranjas" as F #FEFECE
 participant ":FranjaHorariaBLL" as FB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : abrir "Franjas horarias"
+A -> SYS : abrir "Franjas horarias"
+SYS -> F : abrir "Franjas horarias"
 F -> FB : ListarTodas()
 FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
-F --> A : franjas cargadas
+F --> SYS : franjas cargadas
+SYS --> A : franjas cargadas
 alt agregar
-  A -> F : día, rol, hora inicio, hora fin + "Agregar"
+  A -> SYS : día, rol, hora inicio, hora fin + "Agregar"
+  SYS -> F : día, rol, hora inicio, hora fin + "Agregar"
   alt 2a. falta día o rol
-    F --> A : "Seleccioná día y rol."
+    F --> SYS : "Seleccioná día y rol."
+    SYS --> A : "Seleccioná día y rol."
   else
     F -> FB : Insertar(día, inicio, fin, rol)
     alt 3a. fin <= inicio
       FB --> F : ArgumentException
-      F --> A : "La hora de fin tiene que ser posterior..."
+      F --> SYS : "La hora de fin tiene que ser posterior..."
+      SYS --> A : "La hora de fin tiene que ser posterior..."
     else
       FB -> DB : FRANJA_HORARIA_INSERTAR
-      F --> A : "Franja agregada."
+      F --> SYS : "Franja agregada."
+      SYS --> A : "Franja agregada."
     end
   end
 else eliminar
-  A -> F : seleccionar franja + "Eliminar" + confirmar
+  A -> SYS : seleccionar franja + "Eliminar" + confirmar
+  SYS -> F : seleccionar franja + "Eliminar" + confirmar
   F -> FB : Eliminar(id)
   FB -> DB : FRANJA_HORARIA_ELIMINAR
   alt 5a. tiene datos asociados
-    F --> A : "No se puede eliminar: ya tiene disponibilidad,\nturnos, o historial asociado."
+    F --> SYS : "No se puede eliminar: ya tiene disponibilidad,\nturnos, o historial asociado."
+    SYS --> A : "No se puede eliminar: ya tiene disponibilidad,\nturnos, o historial asociado."
   else
-    F --> A : "Franja eliminada."
+    F --> SYS : "Franja eliminada."
+    SYS --> A : "Franja eliminada."
   end
 end
 F -> FB : ListarTodas()

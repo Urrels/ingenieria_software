@@ -14,26 +14,34 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmIdiomas" as F #FEFECE
 participant ":IdiomaBLL" as IB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar idioma + click "Eliminar"
+A -> SYS : seleccionar idioma + click "Eliminar"
+SYS -> F : seleccionar idioma + click "Eliminar"
 alt 1a. sin selección
-  F --> A : "Seleccioná un idioma."
+  F --> SYS : "Seleccioná un idioma."
+  SYS --> A : "Seleccioná un idioma."
 else 2a. es el predeterminado
-  F --> A : "No se puede eliminar el idioma predeterminado del sistema."
+  F --> SYS : "No se puede eliminar el idioma predeterminado del sistema."
+  SYS --> A : "No se puede eliminar el idioma predeterminado del sistema."
 else
   F -> IB : EstaEnUso(id)
   IB -> DB : IDIOMA_ESTA_EN_USO
   alt 3a. lo usa algún usuario
-    F --> A : "No se puede eliminar un idioma que está\nen uso por algún usuario."
+    F --> SYS : "No se puede eliminar un idioma que está\nen uso por algún usuario."
+    SYS --> A : "No se puede eliminar un idioma que está\nen uso por algún usuario."
   else libre
-    F --> A : "¿Eliminar el idioma 'X'?\nSe borrarán todas sus traducciones."
+    F --> SYS : "¿Eliminar el idioma 'X'?\nSe borrarán todas sus traducciones."
+    SYS --> A : "¿Eliminar el idioma 'X'?\nSe borrarán todas sus traducciones."
     alt 4a. cancela
-      A --> F : No
+      A --> SYS : No
+      SYS --> F : No
     else confirma
-      A --> F : Sí
+      A --> SYS : Sí
+      SYS --> F : Sí
       F -> IB : Eliminar(id)
       IB -> IB : backstop: predeterminado / en uso
       IB -> DB : IDIOMA_ELIMINAR(id)
@@ -44,7 +52,8 @@ else
       end note
       F -> F : limpiar grilla de traducciones
       F -> IB : ListarTodos()
-      F --> A : grilla de idiomas refrescada
+      F --> SYS : grilla de idiomas refrescada
+      SYS --> A : grilla de idiomas refrescada
     end
   end
 end

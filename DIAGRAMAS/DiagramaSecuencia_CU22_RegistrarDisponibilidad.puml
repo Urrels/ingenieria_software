@@ -14,13 +14,15 @@ skinparam dpi 140
 hide footbox
 
 actor ":Empleado" as E
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmRegistrarDisponibilidad" as F #FEFECE
 participant ":FranjaHorariaBLL" as FB #E8F4E8
 participant ":DisponibilidadBLL" as D #E8F4E8
 participant ":SessionManager" as S #F4E8E8
 database ":DB" as DB #E8E8F4
 
-E -> F : abrir "Disponibilidad"
+E -> SYS : abrir "Disponibilidad"
+SYS -> F : abrir "Disponibilidad"
 F -> F : semana = lunes de la semana siguiente
 F -> S : getUsuario()
 F -> FB : ListarTodas()
@@ -31,10 +33,13 @@ D -> DB : DISPONIBILIDAD_OBTENER_POR_USUARIO_SEMANA
 opt ya cargó disponibilidad
   F -> F : marcar franjas + aviso "Ya habías cargado..."
 end
-F --> E : franjas con día y fecha
-E -> F : marcar franjas + "Aceptar"
+F --> SYS : franjas con día y fecha
+SYS --> E : franjas con día y fecha
+E -> SYS : marcar franjas + "Aceptar"
+SYS -> F : marcar franjas + "Aceptar"
 alt 5a. ninguna franja marcada
-  F --> E : "Tenés que indicar al menos una franja."
+  F --> SYS : "Tenés que indicar al menos una franja."
+  SYS --> E : "Tenés que indicar al menos una franja."
 else
   F -> D : RegistrarDisponibilidad(usuario, semana, franjas)
   D -> DB : DISPONIBILIDAD_OBTENER_POR_USUARIO_SEMANA
@@ -43,7 +48,8 @@ else
   else nueva
     D -> DB : DISPONIBILIDAD_INSERTAR\n+ N × DISPONIBILIDAD_FRANJA_INSERTAR
   end
-  F --> E : "Disponibilidad registrada correctamente."
+  F --> SYS : "Disponibilidad registrada correctamente."
+  SYS --> E : "Disponibilidad registrada correctamente."
 end
 
 @enduml

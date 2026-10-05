@@ -14,13 +14,15 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmMenu" as M #FEFECE
 participant ":frmBitacora" as F #FEFECE
 participant ":BitacoraBLL" as B #E8F4E8
 database ":DB" as DB #E8E8F4
 
 note over M : el menú "Bitácora" solo se ve con\nel permiso "Ver bitácora"
-A -> M : click "Bitácora"
+A -> SYS : click "Bitácora"
+SYS -> M : click "Bitácora"
 M -> F : ShowDialog()
 F -> B : ListarUsuariosDistinct() / ListarAccionesDistinct()
 B -> DB : BITACORA_LISTAR_USUARIOS_DISTINCT\n+ BITACORA_LISTAR_ACCIONES_DISTINCT
@@ -28,19 +30,24 @@ F -> F : cargar combos de filtro
 F -> B : ListarPaginado(sin filtros, página 1, 30)
 B -> DB : BITACORA_LISTAR_PAGINADO
 DB --> B : registros (más recientes primero) + total
-F --> A : primera página
+F --> SYS : primera página
+SYS --> A : primera página
 opt filtrar
-  A -> F : usuario, acción, desde, hasta + "Filtrar"
+  A -> SYS : usuario, acción, desde, hasta + "Filtrar"
+  SYS -> F : usuario, acción, desde, hasta + "Filtrar"
   F -> B : ListarPaginado(filtros, página 1, 30)
   B -> DB : BITACORA_LISTAR_PAGINADO(filtros)
-  F --> A : resultado filtrado
+  F --> SYS : resultado filtrado
+  SYS --> A : resultado filtrado
 end
 opt 4a. "Limpiar filtros"
-  A -> F : click "Limpiar filtros"
+  A -> SYS : click "Limpiar filtros"
+  SYS -> F : click "Limpiar filtros"
   F -> B : ListarPaginado(sin filtros, página 1, 30)
 end
 opt 4b. navegar páginas
-  A -> F : "Anterior" / "Siguiente"
+  A -> SYS : "Anterior" / "Siguiente"
+  SYS -> F : "Anterior" / "Siguiente"
   F -> B : ListarPaginado(filtros, página, 30)
 end
 

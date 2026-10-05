@@ -14,17 +14,22 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmPerfiles" as F #FEFECE
 participant ":PerfilBLL" as PB #E8F4E8
 participant ":BitacoraBLL" as BB #E8F4E8
 database ":DB" as DB #E8E8F4
 
 opt elegir padre
-  A -> F : seleccionar un rol en el árbol
+  A -> SYS : seleccionar un rol en el árbol
+  SYS -> F : seleccionar un rol en el árbol
 end
-A -> F : click "Agregar rol"
-F --> A : InputBox "Nombre del rol:"
-A -> F : nombre + Aceptar
+A -> SYS : click "Agregar rol"
+SYS -> F : click "Agregar rol"
+F --> SYS : InputBox "Nombre del rol:"
+SYS --> A : InputBox "Nombre del rol:"
+A -> SYS : nombre + Aceptar
+SYS -> F : nombre + Aceptar
 alt 3a. nombre vacío o cancela
   note right of F : no se crea el rol
 else
@@ -36,7 +41,8 @@ else
   BB -> DB : BITACORA_INSERTAR
   F -> PB : ObtenerArbol()
   PB -> DB : ROL_LISTAR_TODOS + ROL_PERMISO_LISTAR_TODOS
-  F --> A : árbol refrescado con el nuevo rol
+  F --> SYS : árbol refrescado con el nuevo rol
+  SYS --> A : árbol refrescado con el nuevo rol
 end
 
 @enduml

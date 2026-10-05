@@ -14,18 +14,24 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmGenerarGrilla" as F #FEFECE
 participant ":GrillaBLL" as G #E8F4E8
 participant ":DemandaEstimadaBLL" as D #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : abrir "Generar grilla"
+A -> SYS : abrir "Generar grilla"
+SYS -> F : abrir "Generar grilla"
 F -> F : proponer lunes de\nla semana siguiente
-A -> F : "Generar" + confirmar
+A -> SYS : "Generar" + confirmar
+SYS -> F : "Generar" + confirmar
 F -> G : GenerarGrilla(semana)
 G -> DB : GRILLA_OBTENER_POR_SEMANA
 alt 3a. ya existe
   G -> DB : TURNO_LISTAR_POR_GRILLA
+  opt grilla en estado "Propuesta"
+    G -> G : completar las franjas que todavía\nno tienen turnos (mismo cálculo del paso 5)
+  end
   G --> F : grilla existente\n(no se duplica)
 else
   G -> DB : GRILLA_INSERTAR\n("Propuesta")
@@ -47,7 +53,8 @@ else
   end
   G --> F : grilla propuesta
 end
-F --> A : grilla de turnos
+F --> SYS : grilla de turnos
+SYS --> A : grilla de turnos
 note over A, DB : continúa en la parte 2: asignación y confirmación
 
 @enduml
