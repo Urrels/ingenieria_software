@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":LogIn" as LI #FEFECE
 participant ":frmRestaurarIntegridad" as F #FEFECE
 participant ":frmHistorialUsuario" as FH #FEFECE
@@ -25,19 +26,23 @@ F -> F : mostrar errores
 F -> F : GuardarLogIntegridad()\n→ integridad_error.log
 F -> F : "Restaurar" habilitado si\nhay usuarios afectados
 alt "Recalcular y continuar"
-  A -> F : click
+  A -> SYS : click
+  SYS -> F : click
   F -> I : RecalcularIntegridadUsuarios()
   I -> DB : DVH por fila + DVV por columna
   F --> LI : OK
 else 4a. "Restaurar desde historial"
-  A -> F : click
+  A -> SYS : click
+  SYS -> F : click
   loop por cada usuario afectado
     F -> DB : historial del usuario\n(UsuarioHistorialBLL)
     alt 4a.1 sin historial
-      F --> A : "El usuario 'X' no tiene\nhistorial de cambios..."
+      F --> SYS : "El usuario 'X' no tiene\nhistorial de cambios..."
+      SYS --> A : "El usuario 'X' no tiene\nhistorial de cambios..."
     else con historial
       F -> FH : ShowDialog()
-      A -> FH : CU-10 / CU-11 rollback
+      A -> SYS : CU-10 / CU-11 rollback
+      SYS -> FH : CU-10 / CU-11 rollback
     end
   end
   opt alguno tenía historial
@@ -45,10 +50,12 @@ else 4a. "Restaurar desde historial"
     F --> LI : OK
   end
 else 4b. "Cancelar"
-  A -> F : click
+  A -> SYS : click
+  SYS -> F : click
   F --> LI : Cancel
   LI -> LI : cerrarSesion()
 end
-LI --> A : con OK: abre el menú (CU-01)
+LI --> SYS : con OK: abre el menú (CU-01)
+SYS --> A : con OK: abre el menú (CU-01)
 
 @enduml

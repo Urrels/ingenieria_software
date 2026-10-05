@@ -14,18 +14,23 @@ skinparam dpi 140
 hide footbox
 
 actor ":Empleado" as E
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmCubrirTurno" as F #FEFECE
 participant ":TurnoBLL" as T #E8F4E8
 participant ":NotificacionBLL" as N #E8F4E8
 database ":DB" as DB #E8E8F4
 
-E -> F : abrir "Cubrir turno"
+E -> SYS : abrir "Cubrir turno"
+SYS -> F : abrir "Cubrir turno"
 F -> T : ListarPendientesPorRol(rol del empleado)
 T -> DB : TURNO_LISTAR_PENDIENTES_POR_ROL
-F --> E : turnos pendientes de su rol
-E -> F : seleccionar turno + "Tomar turno"
+F --> SYS : turnos pendientes de su rol
+SYS --> E : turnos pendientes de su rol
+E -> SYS : seleccionar turno + "Tomar turno"
+SYS -> F : seleccionar turno + "Tomar turno"
 alt 2a. sin selección
-  F --> E : "Seleccioná un turno de la lista."
+  F --> SYS : "Seleccioná un turno de la lista."
+  SYS --> E : "Seleccioná un turno de la lista."
 else
   F -> T : TomarCobertura(turno, empleado)
   T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
@@ -47,9 +52,11 @@ else
     end
   end
   alt false
-    F --> E : "Este turno ya fue cubierto por otra persona\n(o superarías tu límite de horas)."
+    F --> SYS : "Este turno ya fue cubierto por otra persona\n(o superarías tu límite de horas)."
+    SYS --> E : "Este turno ya fue cubierto por otra persona\n(o superarías tu límite de horas)."
   else true
-    F --> E : "¡Listo! El turno quedó asignado a vos."
+    F --> SYS : "¡Listo! El turno quedó asignado a vos."
+    SYS --> E : "¡Listo! El turno quedó asignado a vos."
   end
   F -> T : ListarPendientesPorRol(...)
 end

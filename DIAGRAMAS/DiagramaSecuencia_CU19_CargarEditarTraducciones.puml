@@ -14,18 +14,22 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmIdiomas" as F #FEFECE
 participant ":IdiomaBLL" as IB #E8F4E8
 participant ":FachadaIdioma" as FA #E8F4E8
 participant ":IdiomaManager" as IM #F4E8E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar idioma
+A -> SYS : seleccionar idioma
+SYS -> F : seleccionar idioma
 F -> IB : ListarControlesConTraduccion(idiomaId)
 IB -> DB : TRADUCCION_LISTAR_CONTROLES
 DB --> IB : clave, texto por defecto, traducción
-F --> A : grilla de traducciones (solo "Traducción" editable)
-A -> F : editar traducciones + "Guardar traducciones"
+F --> SYS : grilla de traducciones (solo "Traducción" editable)
+SYS --> A : grilla de traducciones (solo "Traducción" editable)
+A -> SYS : editar traducciones + "Guardar traducciones"
+SYS -> F : editar traducciones + "Guardar traducciones"
 loop por cada fila
   alt 4a. traducción vacía
     note right of F : se saltea
@@ -34,7 +38,8 @@ loop por cada fila
     IB -> DB : TRADUCCION_GUARDAR (alta o modificación)
   end
 end
-F --> A : "Traducciones guardadas."
+F --> SYS : "Traducciones guardadas."
+SYS --> A : "Traducciones guardadas."
 F -> FA : RecargarSiEstaActivo(idiomaId)
 opt es el idioma activo
   FA -> IB : CargarTraducciones(idiomaId)

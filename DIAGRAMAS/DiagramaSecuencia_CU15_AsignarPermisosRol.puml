@@ -14,30 +14,35 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmPerfiles" as F #FEFECE
 participant ":PerfilBLL" as PB #E8F4E8
 participant ":BitacoraBLL" as BB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar un rol
+A -> SYS : seleccionar un rol
+SYS -> F : seleccionar un rol
 alt 1a. el nodo es un permiso
   F -> F : panelPermisos.Visible = false
 else es un rol
   F -> F : PopularCheckPermisos(rol)
   note right of F : marca los permisos propios del rol\n(ROL_PERMISO), sin heredar del padre
-  A -> F : marcar / desmarcar + "Guardar"
+  A -> SYS : marcar / desmarcar + "Guardar"
+  SYS -> F : marcar / desmarcar + "Guardar"
   F -> PB : ActualizarPermisosDeRol(rolId, permisoIds)
   PB -> PB : ValidarQueQuedeAdministracion(rolId, permisoIds)
   PB -> DB : USUARIO_PERFIL_LISTAR_ACTIVOS\n+ ROL_PERMISO_LISTAR_TODOS
   alt 4a. quedaría sin administración
     PB --> F : InvalidOperationException
-    F --> A : mensaje con el permiso que se perdería
+    F --> SYS : mensaje con el permiso que se perdería
+    SYS --> A : mensaje con el permiso que se perdería
   else permitido
     PB -> DB : GuardarPermisosDeRol (transacción:\nLIMPIAR + N × INSERTAR)
     PB -> BB : RegistrarAccion(admin, "ROL_PERMISOS_MODIFICADOS:X")
     F -> PB : ObtenerArbol()
     F -> F : volver a seleccionar el rol
-    F --> A : árbol con los permisos actualizados
+    F --> SYS : árbol con los permisos actualizados
+    SYS --> A : árbol con los permisos actualizados
   end
 end
 

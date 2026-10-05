@@ -14,39 +14,49 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmPerfiles" as F #FEFECE
 participant ":PerfilBLL" as PB #E8F4E8
 participant ":BitacoraBLL" as BB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar nodo
+A -> SYS : seleccionar nodo
+SYS -> F : seleccionar nodo
 F -> F : btnEliminar.Enabled = no protegido
-A -> F : click "Eliminar"
+A -> SYS : click "Eliminar"
+SYS -> F : click "Eliminar"
 alt 1a. el nodo es un permiso
-  F --> A : "Los permisos del catálogo no se pueden eliminar..."
+  F --> SYS : "Los permisos del catálogo no se pueden eliminar..."
+  SYS --> A : "Los permisos del catálogo no se pueden eliminar..."
 else es un rol
-  F --> A : "¿Eliminar el rol 'X' y todos sus sub-roles?"
+  F --> SYS : "¿Eliminar el rol 'X' y todos sus sub-roles?"
+  SYS --> A : "¿Eliminar el rol 'X' y todos sus sub-roles?"
   alt 3a. cancela
-    A --> F : No
+    A --> SYS : No
+    SYS --> F : No
   else confirma
-    A --> F : Sí
+    A --> SYS : Sí
+    SYS --> F : Sí
     F -> PB : Eliminar(id)
     PB -> DB : ROL_LISTAR_TODOS
     alt 1b. rol protegido
       PB --> F : InvalidOperationException
-      F --> A : "Este rol es del sistema y no puede eliminarse."
+      F --> SYS : "Este rol es del sistema y no puede eliminarse."
+      SYS --> A : "Este rol es del sistema y no puede eliminarse."
     else
       PB -> DB : ROL_TIENE_USUARIOS(id)\n(CTE recursiva sobre el subárbol)
       alt 4a. hay usuarios asignados
         PB --> F : InvalidOperationException
-        F --> A : "No se puede eliminar un rol que tiene\nusuarios asignados. Reasignálos primero."
+        F --> SYS : "No se puede eliminar un rol que tiene\nusuarios asignados. Reasignálos primero."
+        SYS --> A : "No se puede eliminar un rol que tiene\nusuarios asignados. Reasignálos primero."
       else sin usuarios
         PB -> DB : ROL_ELIMINAR(id)
         note right of DB : borra el subárbol y sus filas\nde USUARIO_PERFIL y ROL_PERMISO
         PB -> BB : RegistrarAccion(admin, "ROL_ELIMINADO:X")
         F -> F : ocultar panel de permisos
         F -> PB : ObtenerArbol()
-        F --> A : árbol refrescado
+        F --> SYS : árbol refrescado
+        SYS --> A : árbol refrescado
       end
     end
   end

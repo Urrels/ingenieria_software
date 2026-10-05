@@ -14,18 +14,23 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmPerfiles" as F #FEFECE
 participant ":PerfilBLL" as PB #E8F4E8
 participant "original:Rol" as R #E8E8E8
 participant ":BitacoraBLL" as BB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar rol + "Duplicar rol"
+A -> SYS : seleccionar rol + "Duplicar rol"
+SYS -> F : seleccionar rol + "Duplicar rol"
 alt 1a. sin rol seleccionado
-  F --> A : "Seleccioná un rol."
+  F --> SYS : "Seleccioná un rol."
+  SYS --> A : "Seleccioná un rol."
 else
-  F --> A : InputBox "Nombre del nuevo rol:" ("X (copia)")
-  A -> F : nombre + Aceptar
+  F --> SYS : InputBox "Nombre del nuevo rol:" ("X (copia)")
+  SYS --> A : InputBox "Nombre del nuevo rol:" ("X (copia)")
+  A -> SYS : nombre + Aceptar
+  SYS -> F : nombre + Aceptar
   alt 3a. vacío o cancela
     note right of F : no se crea la copia
   else
@@ -39,7 +44,8 @@ else
     PB -> DB : GuardarPermisosDeRol(copia.Id, permisos propios)\n(ROL_PERMISO_LIMPIAR + N × INSERTAR)
     PB -> BB : RegistrarAccion(admin, "ROL_DUPLICADO:nombre")
     F -> PB : ObtenerArbol()
-    F --> A : árbol con el rol duplicado
+    F --> SYS : árbol con el rol duplicado
+    SYS --> A : árbol con el rol duplicado
   end
 end
 

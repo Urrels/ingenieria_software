@@ -14,21 +14,28 @@ skinparam dpi 140
 hide footbox
 
 actor ":Técnico" as T
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmRealizarRevision" as F #FEFECE
 participant ":VisitaTecnicaBLL" as VB #E8F4E8
 participant ":InformeMantenimientoBLL" as IB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-T -> F : abrir "Realizar revisión"
+T -> SYS : abrir "Realizar revisión"
+SYS -> F : abrir "Realizar revisión"
 F -> VB : ListarPendientesPorTecnico()
 VB -> DB : VISITA_LISTAR_PENDIENTES_TECNICO
-F --> T : visitas coordinadas
-T -> F : seleccionar visita
+F --> SYS : visitas coordinadas
+SYS --> T : visitas coordinadas
+T -> SYS : seleccionar visita
+SYS -> F : seleccionar visita
 F -> DB : alerta y equipo\n(AlertaRevisionBLL, EquipoBLL)
-F --> T : "Equipo: X\n(uso acumulado: N)"
-T -> F : resultado (+ "Pendiente de\nrepuesto") + "Registrar informe"
+F --> SYS : "Equipo: X\n(uso acumulado: N)"
+SYS --> T : "Equipo: X\n(uso acumulado: N)"
+T -> SYS : resultado (+ "Pendiente de\nrepuesto") + "Registrar informe"
+SYS -> F : resultado (+ "Pendiente de\nrepuesto") + "Registrar informe"
 alt 4a. sin visita o sin resultado
-  F --> T : "Seleccioná una visita." /\n"Ingresá el resultado..."
+  F --> SYS : "Seleccioná una visita." /\n"Ingresá el resultado..."
+  SYS --> T : "Seleccioná una visita." /\n"Ingresá el resultado..."
 else
   F -> IB : RegistrarInforme(visita, alerta,\nresultado, pendienteRepuesto)
   IB -> DB : INFORME_INSERTAR
@@ -37,7 +44,8 @@ else
     IB -> DB : ALERTA_ACTUALIZAR_ESTADO\n("Pendiente")
   end
   IB -> DB : NOTIFICACION_INSERTAR\n(a cada administrador)\n(NotificacionBLL)
-  F --> T : "Informe registrado.\nSe notificó al Administrador."
+  F --> SYS : "Informe registrado.\nSe notificó al Administrador."
+  SYS --> T : "Informe registrado.\nSe notificó al Administrador."
 end
 
 @enduml

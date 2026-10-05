@@ -14,17 +14,23 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmIdiomas" as F #FEFECE
 participant ":IdiomaBLL" as IB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar idioma
+A -> SYS : seleccionar idioma
+SYS -> F : seleccionar idioma
 alt 1a. sin selección
-  F --> A : "Seleccioná un idioma."
+  F --> SYS : "Seleccioná un idioma."
+  SYS --> A : "Seleccioná un idioma."
 else "Renombrar"
-  A -> F : click "Renombrar"
-  F --> A : InputBox "Nuevo nombre:"
-  A -> F : nuevo nombre
+  A -> SYS : click "Renombrar"
+  SYS -> F : click "Renombrar"
+  F --> SYS : InputBox "Nuevo nombre:"
+  SYS --> A : InputBox "Nuevo nombre:"
+  A -> SYS : nuevo nombre
+  SYS -> F : nuevo nombre
   alt 3a. vacío o igual al actual
     note right of F : no se modifica
   else
@@ -32,21 +38,25 @@ else "Renombrar"
     IB -> DB : IDIOMA_RENOMBRAR
   end
 else "Habilitar / Deshabilitar"
-  A -> F : click "Habilitar/Deshabilitar"
+  A -> SYS : click "Habilitar/Deshabilitar"
+  SYS -> F : click "Habilitar/Deshabilitar"
   F -> IB : ActualizarEstado(id, !habilitado)
   opt deshabilitar
     IB -> DB : IDIOMA_OBTENER_POR_ID + IDIOMA_ESTA_EN_USO
     alt 3b. es el predeterminado
       IB --> F : InvalidOperationException
-      F --> A : "No se puede deshabilitar el idioma predeterminado."
+      F --> SYS : "No se puede deshabilitar el idioma predeterminado."
+      SYS --> A : "No se puede deshabilitar el idioma predeterminado."
     else 3c. lo usa algún usuario
       IB --> F : InvalidOperationException
-      F --> A : "No se puede deshabilitar un idioma en uso."
+      F --> SYS : "No se puede deshabilitar un idioma en uso."
+      SYS --> A : "No se puede deshabilitar un idioma en uso."
     end
   end
   IB -> DB : IDIOMA_ACTUALIZAR_ESTADO
 end
 F -> IB : ListarTodos()
-F --> A : grilla refrescada
+F --> SYS : grilla refrescada
+SYS --> A : grilla refrescada
 
 @enduml
