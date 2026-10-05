@@ -19,6 +19,10 @@ namespace BLL
             if (existente != null)
             {
                 existente.Turnos = _turnoDAL.ListarPorGrilla(existente.Id);
+                // en una propuesta se completan las franjas que todavía no tienen turnos
+                // (por ejemplo, porque al generarla les faltaba historial de asistencia)
+                if (existente.Estado == "Propuesta")
+                    AgregarTurnosSegunDemanda(existente);
                 return existente;
             }
 
@@ -31,10 +35,17 @@ namespace BLL
                 AdministradorId = admin.Id
             };
             grilla.Id = _grillaDAL.Crear(grilla);
+            AgregarTurnosSegunDemanda(grilla);
+            return grilla;
+        }
 
+        private void AgregarTurnosSegunDemanda(BE.GrillaDeTurnos grilla)
+        {
             foreach (var franja in _franjaBLL.ListarTodas())
             {
-                BE.DemandaEstimada demanda = _demandaBLL.CalcularDemanda(semana, franja);
+                if (grilla.Turnos.Exists(t => t.FranjaId == franja.Id)) continue;
+
+                BE.DemandaEstimada demanda = _demandaBLL.CalcularDemanda(grilla.Semana, franja);
 
                 for (int i = 0; i < demanda.CantidadPersonalNecesario; i++)
                 {
@@ -49,7 +60,6 @@ namespace BLL
                     grilla.Turnos.Add(turno);
                 }
             }
-            return grilla;
         }
 
         public bool ConfirmarGrilla(BE.GrillaDeTurnos grilla)

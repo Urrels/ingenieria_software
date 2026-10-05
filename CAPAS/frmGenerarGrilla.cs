@@ -63,6 +63,30 @@ namespace CAPAS
             _grilla = _grillaBLL.GenerarGrilla(dtpSemana.Value.Date);
             CargarFilas();
             ActualizarBotones();
+            AvisarFranjasSinTurnos();
+        }
+
+        // Una franja sin las 4 semanas de asistencia de socios tiene demanda 0 y no genera turnos
+        private void AvisarFranjasSinTurnos()
+        {
+            var franjas = _franjaBLL.ListarTodas();
+            if (franjas.Count == 0)
+            {
+                MsgBox.Show(Textos.T("msg_NoHayFranjasHorariasCargadas",
+                    "No hay franjas horarias cargadas. Crealas en Horarios → Gestión de franjas horarias."),
+                    "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
+
+            var sinTurnos = franjas.Where(f => !_grilla.Turnos.Any(t => t.FranjaId == f.Id))
+                .Select(f => $"{f.Dia} {f.HoraInicio:hh\\:mm}-{f.HoraFin:hh\\:mm} ({f.RolRequerido})")
+                .ToList();
+            if (sinTurnos.Count == 0) return;
+
+            MsgBox.Show(Textos.T("msg_FranjasSinHistorialDeAsistencia",
+                "Estas franjas no generaron turnos porque no tienen 4 semanas de asistencia de socios registradas:\n\n{0}\n\nCargalas en Asistencia → Registrar asistencia de socios y volvé a generar la grilla.",
+                string.Join("\n", sinTurnos)),
+                "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
         }
 
         private void CargarFilas()
@@ -143,9 +167,9 @@ namespace CAPAS
         private void ActualizarBotones()
         {
             bool hayGrilla = _grilla != null;
-            btnConfirmar.Enabled = hayGrilla && _grilla.Estado == "Propuesta";
+            btnConfirmar.Enabled = hayGrilla && _grilla.Estado == "Propuesta" && _grilla.Turnos.Count > 0;
             btnComunicar.Enabled = hayGrilla && _grilla.Estado == "Confirmada";
-            btnGenerar.Enabled = !hayGrilla || _grilla.Estado == "Comunicada";
+            btnGenerar.Enabled = !hayGrilla || _grilla.Estado == "Comunicada" || _grilla.Estado == "Propuesta";
         }
 
         private void btnCerrar_Click(object sender, EventArgs e)
