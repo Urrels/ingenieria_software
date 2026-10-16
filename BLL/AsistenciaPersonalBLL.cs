@@ -21,7 +21,7 @@ namespace BLL
             return new BE.EstadoFichaje
             {
                 Abierto = abierto,
-                Vencido = (DateTime.Now - abierto.Ingreso).TotalHours > max
+                Vencido = (Reloj.Ahora - abierto.Ingreso).TotalHours > max
             };
         }
 
@@ -31,7 +31,7 @@ namespace BLL
             if (estado.Abierto != null)
                 return estado.Vencido ? BE.ResultadoFichaje.IngresoVencido : BE.ResultadoFichaje.IngresoAbierto;
 
-            _dal.RegistrarIngreso(usuario.Id, DateTime.Today, DateTime.Now.TimeOfDay);
+            _dal.RegistrarIngreso(usuario.Id, Reloj.Hoy, Reloj.Ahora.TimeOfDay);
             return BE.ResultadoFichaje.Ok;
         }
 
@@ -41,7 +41,7 @@ namespace BLL
             if (estado.Abierto == null) return BE.ResultadoFichaje.SinIngreso;
             if (estado.Vencido) return BE.ResultadoFichaje.IngresoVencido;
 
-            _dal.RegistrarEgreso(estado.Abierto.Id, DateTime.Now.TimeOfDay);
+            _dal.RegistrarEgreso(estado.Abierto.Id, Reloj.Ahora.TimeOfDay);
             return BE.ResultadoFichaje.Ok;
         }
 
@@ -53,7 +53,7 @@ namespace BLL
             if (!soloIncompletos) return lista;
 
             int max = _liquidacionDAL.ObtenerParametros().MaxHorasFichajeAbierto;
-            return lista.Where(f => !f.HoraEgreso.HasValue && (DateTime.Now - f.Ingreso).TotalHours > max).ToList();
+            return lista.Where(f => !f.HoraEgreso.HasValue && (Reloj.Ahora - f.Ingreso).TotalHours > max).ToList();
         }
 
         public void Corregir(int id, TimeSpan ingreso, TimeSpan egreso, string motivo, BE.USUARIO administrador)
@@ -83,7 +83,7 @@ namespace BLL
             motivo = ValidarMotivo(motivo);
             if (ingreso == egreso)
                 throw new InvalidOperationException("El ingreso y el egreso no pueden ser iguales.");
-            if (fecha.Date > DateTime.Today)
+            if (fecha.Date > Reloj.Hoy)
                 throw new InvalidOperationException("No se puede cargar un fichaje con fecha futura.");
             ValidarPeriodoAbierto(fecha);
             ValidarSinSuperposicion(usuarioId, fecha, ingreso, egreso, 0);

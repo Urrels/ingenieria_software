@@ -57,6 +57,7 @@
     <Compile Include="LiquidacionBLL.cs" />
     <Compile Include="LiquidacionCalculo.cs" />
     <Compile Include="PresenciaBLL.cs" />
+    <Compile Include="Reloj.cs" />
     <Compile Include="NotificacionBLL.cs" />
     <Compile Include="TurnoBLL.cs" />
     <Compile Include="UsuarioHistorialBLL.cs" />

@@ -37,7 +37,7 @@ namespace BLL
             // Un turno nocturno de la noche anterior puede cubrir el comienzo de la primera franja.
             var fichajes = _presenciaBLL.ObtenerFichajes(semana.AddDays(-1), semana.AddDays(7));
             int maxHorasAbierto = _liquidacionDAL.ObtenerParametros().MaxHorasFichajeAbierto;
-            DateTime ahora = DateTime.Now;
+            DateTime ahora = Reloj.Ahora;
 
             foreach (var franjaId in grilla.Turnos.Select(t => t.FranjaId).Distinct())
             {

@@ -24,7 +24,7 @@ namespace BLL
                 Feriados = new HashSet<DateTime>(_dal.ListarFeriados(desde, hasta).Select(f => f.Fecha.Date)),
                 ExcedentesAprobados = _dal.ListarExcedentesAprobados(desde, hasta),
                 Parametros = _dal.ObtenerParametros(),
-                Ahora = DateTime.Now
+                Ahora = Reloj.Ahora
             };
             if (usuarioId.HasValue)
                 entrada.Turnos = entrada.Turnos.Where(t => t.UsuarioId == usuarioId.Value).ToList();
@@ -46,7 +46,7 @@ namespace BLL
         public int Cerrar(DateTime desde, DateTime hasta, BE.USUARIO administrador)
         {
             ValidarRango(desde, hasta);
-            if (hasta.Date >= DateTime.Today)
+            if (hasta.Date >= Reloj.Hoy)
                 throw new InvalidOperationException("Solo se puede liquidar un período que ya terminó.");
             if (_dal.HayLiquidacionEnRango(desde, hasta))
                 throw new InvalidOperationException("Ya existe una liquidación que se superpone con ese período.");
@@ -153,7 +153,7 @@ namespace BLL
         // Horas fichadas contra horas asignadas por empleado en los últimos días (panel de indicadores).
         public List<BE.LiquidacionResumenEmpleado> ResumenReciente(int dias)
         {
-            DateTime hasta = DateTime.Today;
+            DateTime hasta = Reloj.Hoy;
             DateTime desde = hasta.AddDays(-(dias - 1));
             return Resumir(Calcular(desde, hasta));
         }
