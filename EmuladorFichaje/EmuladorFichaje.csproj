@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Herramienta de desarrollo: no la empaqueta el instalador. -->
+  <!-- Compila junto a la aplicación (CAPAS\bin\<config>) para que el instalador lo incluya con el resto. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <RootNamespace>EmuladorFichaje</RootNamespace>
     <AssemblyName>EmuladorFichaje</AssemblyName>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\CAPAS\bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
