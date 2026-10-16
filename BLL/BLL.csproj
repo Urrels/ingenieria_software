@@ -54,6 +54,9 @@
     <Compile Include="HistorialAsistenciaSociosBLL.cs" />
     <Compile Include="InformeMantenimientoBLL.cs" />
     <Compile Include="IntegridadBLL.cs" />
+    <Compile Include="LiquidacionBLL.cs" />
+    <Compile Include="LiquidacionCalculo.cs" />
+    <Compile Include="PresenciaBLL.cs" />
     <Compile Include="NotificacionBLL.cs" />
     <Compile Include="TurnoBLL.cs" />
     <Compile Include="UsuarioHistorialBLL.cs" />

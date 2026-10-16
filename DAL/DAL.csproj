@@ -53,6 +53,7 @@
     <Compile Include="HistorialAsistenciaSociosDAL.cs" />
     <Compile Include="InformeMantenimientoDAL.cs" />
     <Compile Include="IntegridadDAL.cs" />
+    <Compile Include="LiquidacionDAL.cs" />
     <Compile Include="NotificacionDAL.cs" />
     <Compile Include="TurnoDAL.cs" />
     <Compile Include="UsuarioHistorialDAL.cs" />

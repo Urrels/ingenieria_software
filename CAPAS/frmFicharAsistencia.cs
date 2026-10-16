@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace CAPAS
@@ -15,38 +15,70 @@ namespace CAPAS
 
         private void frmFicharAsistencia_Load(object sender, EventArgs e)
         {
+            AjustarTamanioEstado();
             ActualizarEstado();
 
             InicializarFormulario();
         }
 
+        protected override void AjustarClaves()
+        {
+            ExcluirDeTraduccion(lblEstado);
+        }
+
+        private void AjustarTamanioEstado()
+        {
+            lblEstado.AutoSize = false;
+            lblEstado.Size = new System.Drawing.Size(340, 48);
+        }
+
         private void ActualizarEstado()
         {
             BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-            bool tieneAbierto = _asistenciaBLL.TieneIngresoAbierto(usuario);
+            BE.EstadoFichaje estado = _asistenciaBLL.ObtenerEstado(usuario);
 
-            lblEstado.Text = tieneAbierto
-                ? Textos.T("lbl_IngresoAbiertoHoy", "Tenés un ingreso registrado hoy, sin egreso.")
-                : Textos.T("lbl_SinIngresoAbiertoHoy", "No tenés ningún ingreso abierto hoy.");
-
-            btnIngreso.Enabled = !tieneAbierto;
-            btnEgreso.Enabled = tieneAbierto;
+            if (estado.Abierto == null)
+            {
+                lblEstado.Text = Textos.T("lbl_SinIngresoAbierto", "No tenés ningún ingreso abierto.");
+                btnIngreso.Enabled = true;
+                btnEgreso.Enabled = false;
+            }
+            else if (estado.Vencido)
+            {
+                lblEstado.Text = Textos.T("lbl_IngresoVencido",
+                    "Tenés un ingreso del {0:dd/MM} a las {1:hh\\:mm} sin egreso. Pedile al administrador que lo corrija.",
+                    estado.Abierto.Fecha, estado.Abierto.HoraIngreso);
+                btnIngreso.Enabled = false;
+                btnEgreso.Enabled = false;
+            }
+            else
+            {
+                lblEstado.Text = Textos.T("lbl_IngresoAbierto", "Tenés un ingreso registrado el {0:dd/MM} a las {1:hh\\:mm}, sin egreso.",
+                    estado.Abierto.Fecha, estado.Abierto.HoraIngreso);
+                btnIngreso.Enabled = false;
+                btnEgreso.Enabled = true;
+            }
         }
 
         private void btnIngreso_Click(object sender, EventArgs e)
         {
             BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-            bool ok = _asistenciaBLL.RegistrarIngreso(usuario);
+            BE.ResultadoFichaje resultado = _asistenciaBLL.RegistrarIngreso(usuario);
 
-            if (!ok)
+            switch (resultado)
             {
-                MsgBox.Show(Textos.T("msg_YaTenesUnIngresoRegistradoHoySinEgreso", "Ya tenés un ingreso registrado hoy sin egreso."), "Atención",
-                    MsgBox.Botones.OK, MsgBox.Icono.Atencion);
-            }
-            else
-            {
-                MsgBox.Show(Textos.T("msg_IngresoRegistradoALas", "Ingreso registrado a las {0:HH:mm}.", DateTime.Now), "Éxito",
-                    MsgBox.Botones.OK, MsgBox.Icono.Exito);
+                case BE.ResultadoFichaje.Ok:
+                    MsgBox.Show(Textos.T("msg_IngresoRegistradoALas", "Ingreso registrado a las {0:HH:mm}.", DateTime.Now), "Éxito",
+                        MsgBox.Botones.OK, MsgBox.Icono.Exito);
+                    break;
+                case BE.ResultadoFichaje.IngresoVencido:
+                    MsgBox.Show(Textos.T("msg_IngresoAnteriorSinEgreso", "Tenés un ingreso anterior sin egreso. Pedile al administrador que lo corrija antes de fichar de nuevo."),
+                        "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                    break;
+                default:
+                    MsgBox.Show(Textos.T("msg_YaTenesUnIngresoRegistradoSinEgreso", "Ya tenés un ingreso registrado sin egreso."), "Atención",
+                        MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                    break;
             }
             ActualizarEstado();
         }
@@ -54,17 +86,22 @@ namespace CAPAS
         private void btnEgreso_Click(object sender, EventArgs e)
         {
             BE.USUARIO usuario = SeguridadYServicios.SessionManager.getInstance().getUsuario();
-            bool ok = _asistenciaBLL.RegistrarEgreso(usuario);
+            BE.ResultadoFichaje resultado = _asistenciaBLL.RegistrarEgreso(usuario);
 
-            if (!ok)
+            switch (resultado)
             {
-                MsgBox.Show(Textos.T("msg_NoTenesUnIngresoRegistradoHoyRegistraElIngresoPrimero", "No tenés un ingreso registrado hoy. Registrá el ingreso primero."),
-                    "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
-            }
-            else
-            {
-                MsgBox.Show(Textos.T("msg_EgresoRegistradoALas", "Egreso registrado a las {0:HH:mm}.", DateTime.Now), "Éxito",
-                    MsgBox.Botones.OK, MsgBox.Icono.Exito);
+                case BE.ResultadoFichaje.Ok:
+                    MsgBox.Show(Textos.T("msg_EgresoRegistradoALas", "Egreso registrado a las {0:HH:mm}.", DateTime.Now), "Éxito",
+                        MsgBox.Botones.OK, MsgBox.Icono.Exito);
+                    break;
+                case BE.ResultadoFichaje.IngresoVencido:
+                    MsgBox.Show(Textos.T("msg_IngresoAnteriorSinEgreso", "Tenés un ingreso anterior sin egreso. Pedile al administrador que lo corrija antes de fichar de nuevo."),
+                        "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                    break;
+                default:
+                    MsgBox.Show(Textos.T("msg_NoTenesUnIngresoRegistradoRegistraElIngresoPrimero", "No tenés un ingreso registrado. Registrá el ingreso primero."),
+                        "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                    break;
             }
             ActualizarEstado();
         }

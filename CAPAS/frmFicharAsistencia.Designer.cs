@@ -39,7 +39,7 @@
             //
             // btnIngreso
             //
-            this.btnIngreso.Location = new System.Drawing.Point(30, 110);
+            this.btnIngreso.Location = new System.Drawing.Point(30, 135);
             this.btnIngreso.Name = "btnIngreso";
             this.btnIngreso.Size = new System.Drawing.Size(150, 40);
             this.btnIngreso.TabIndex = 2;
@@ -49,7 +49,7 @@
             //
             // btnEgreso
             //
-            this.btnEgreso.Location = new System.Drawing.Point(200, 110);
+            this.btnEgreso.Location = new System.Drawing.Point(200, 135);
             this.btnEgreso.Name = "btnEgreso";
             this.btnEgreso.Size = new System.Drawing.Size(150, 40);
             this.btnEgreso.TabIndex = 3;
@@ -59,7 +59,7 @@
             //
             // btnCerrar
             //
-            this.btnCerrar.Location = new System.Drawing.Point(275, 170);
+            this.btnCerrar.Location = new System.Drawing.Point(275, 195);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(75, 32);
             this.btnCerrar.TabIndex = 4;
@@ -71,7 +71,7 @@
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 225);
+            this.ClientSize = new System.Drawing.Size(400, 250);
             this.Controls.Add(this.btnCerrar);
             this.Controls.Add(this.btnEgreso);
             this.Controls.Add(this.btnIngreso);

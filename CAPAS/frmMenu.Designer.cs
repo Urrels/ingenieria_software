@@ -36,6 +36,8 @@ namespace CAPAS
             this.ficharAsistenciaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registrarAsistenciaSociosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evaluarCoberturaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.liquidarHorasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.corregirFichajesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configuraciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cambiarContraseñaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -217,7 +219,9 @@ namespace CAPAS
             this.asistenciaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ficharAsistenciaToolStripMenuItem,
             this.registrarAsistenciaSociosToolStripMenuItem,
-            this.evaluarCoberturaToolStripMenuItem});
+            this.evaluarCoberturaToolStripMenuItem,
+            this.liquidarHorasToolStripMenuItem,
+            this.corregirFichajesToolStripMenuItem});
             this.asistenciaToolStripMenuItem.Name = "asistenciaToolStripMenuItem";
             this.asistenciaToolStripMenuItem.Size = new System.Drawing.Size(100, 29);
             this.asistenciaToolStripMenuItem.Text = "Asistencia";
@@ -242,6 +246,20 @@ namespace CAPAS
             this.evaluarCoberturaToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
             this.evaluarCoberturaToolStripMenuItem.Text = "Evaluar cobertura del servicio";
             this.evaluarCoberturaToolStripMenuItem.Click += new System.EventHandler(this.evaluarCoberturaToolStripMenuItem_Click);
+            //
+            // liquidarHorasToolStripMenuItem
+            //
+            this.liquidarHorasToolStripMenuItem.Name = "liquidarHorasToolStripMenuItem";
+            this.liquidarHorasToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.liquidarHorasToolStripMenuItem.Text = "Liquidar horas";
+            this.liquidarHorasToolStripMenuItem.Click += new System.EventHandler(this.liquidarHorasToolStripMenuItem_Click);
+            //
+            // corregirFichajesToolStripMenuItem
+            //
+            this.corregirFichajesToolStripMenuItem.Name = "corregirFichajesToolStripMenuItem";
+            this.corregirFichajesToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.corregirFichajesToolStripMenuItem.Text = "Corregir fichajes";
+            this.corregirFichajesToolStripMenuItem.Click += new System.EventHandler(this.corregirFichajesToolStripMenuItem_Click);
             //
             // panelToolStripMenuItem
             //
@@ -373,6 +391,8 @@ namespace CAPAS
         private System.Windows.Forms.ToolStripMenuItem ficharAsistenciaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem registrarAsistenciaSociosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem evaluarCoberturaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem liquidarHorasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem corregirFichajesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem panelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configuraciónToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;

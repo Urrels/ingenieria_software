@@ -1,34 +1,126 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BLL
 {
     public class AsistenciaPersonalBLL
     {
-        private readonly DAL.AsistenciaPersonalDAL _dal = new DAL.AsistenciaPersonalDAL();
+        private const int LargoMaximoMotivo = 150;
 
-        public bool RegistrarIngreso(BE.USUARIO usuario)
+        private readonly DAL.AsistenciaPersonalDAL _dal = new DAL.AsistenciaPersonalDAL();
+        private readonly DAL.LiquidacionDAL _liquidacionDAL = new DAL.LiquidacionDAL();
+        private readonly BitacoraBLL _bitacora = new BitacoraBLL();
+
+        public BE.EstadoFichaje ObtenerEstado(BE.USUARIO usuario)
         {
-            var abierta = _dal.ObtenerAbierta(usuario.Id, DateTime.Today);
-            if (abierta != null)
-                return false;
+            var abierto = _dal.ObtenerAbierta(usuario.Id);
+            if (abierto == null) return new BE.EstadoFichaje();
+
+            int max = _liquidacionDAL.ObtenerParametros().MaxHorasFichajeAbierto;
+            return new BE.EstadoFichaje
+            {
+                Abierto = abierto,
+                Vencido = (DateTime.Now - abierto.Ingreso).TotalHours > max
+            };
+        }
+
+        public BE.ResultadoFichaje RegistrarIngreso(BE.USUARIO usuario)
+        {
+            var estado = ObtenerEstado(usuario);
+            if (estado.Abierto != null)
+                return estado.Vencido ? BE.ResultadoFichaje.IngresoVencido : BE.ResultadoFichaje.IngresoAbierto;
 
             _dal.RegistrarIngreso(usuario.Id, DateTime.Today, DateTime.Now.TimeOfDay);
-            return true;
+            return BE.ResultadoFichaje.Ok;
         }
 
-        public bool RegistrarEgreso(BE.USUARIO usuario)
+        public BE.ResultadoFichaje RegistrarEgreso(BE.USUARIO usuario)
         {
-            var abierta = _dal.ObtenerAbierta(usuario.Id, DateTime.Today);
-            if (abierta == null)
-                return false;
+            var estado = ObtenerEstado(usuario);
+            if (estado.Abierto == null) return BE.ResultadoFichaje.SinIngreso;
+            if (estado.Vencido) return BE.ResultadoFichaje.IngresoVencido;
 
-            _dal.RegistrarEgreso(abierta.Id, DateTime.Now.TimeOfDay);
-            return true;
+            _dal.RegistrarEgreso(estado.Abierto.Id, DateTime.Now.TimeOfDay);
+            return BE.ResultadoFichaje.Ok;
         }
 
-        public bool TieneIngresoAbierto(BE.USUARIO usuario)
+        // ---------- Corrección administrativa ----------
+
+        public List<BE.RegistroAsistenciaPersonal> Listar(DateTime desde, DateTime hasta, bool soloIncompletos)
         {
-            return _dal.ObtenerAbierta(usuario.Id, DateTime.Today) != null;
+            var lista = _dal.ListarRango(desde, hasta);
+            if (!soloIncompletos) return lista;
+
+            int max = _liquidacionDAL.ObtenerParametros().MaxHorasFichajeAbierto;
+            return lista.Where(f => !f.HoraEgreso.HasValue && (DateTime.Now - f.Ingreso).TotalHours > max).ToList();
+        }
+
+        public void Corregir(int id, TimeSpan ingreso, TimeSpan egreso, string motivo, BE.USUARIO administrador)
+        {
+            motivo = ValidarMotivo(motivo);
+            if (ingreso == egreso)
+                throw new InvalidOperationException("El ingreso y el egreso no pueden ser iguales.");
+
+            var registro = _dal.ObtenerPorId(id);
+            if (registro == null) throw new InvalidOperationException("El fichaje no existe.");
+            ValidarPeriodoAbierto(registro.Fecha);
+
+            string antes = registro.HoraEgreso.HasValue
+                ? $"{registro.HoraIngreso:hh\\:mm}-{registro.HoraEgreso.Value:hh\\:mm}"
+                : $"{registro.HoraIngreso:hh\\:mm}-sin egreso";
+            string motivoFinal = $"{motivo} [antes: {antes}]";
+
+            ValidarSinSuperposicion(registro.UsuarioId, registro.Fecha, ingreso, egreso, id);
+
+            _dal.Corregir(id, ingreso, egreso, motivoFinal, administrador.Usuario);
+            _bitacora.RegistrarAccion(administrador.Usuario, "FICHAJE_CORREGIDO:" + registro.Empleado);
+        }
+
+        public void AgregarManual(int usuarioId, string empleado, DateTime fecha, TimeSpan ingreso, TimeSpan egreso,
+            string motivo, BE.USUARIO administrador)
+        {
+            motivo = ValidarMotivo(motivo);
+            if (ingreso == egreso)
+                throw new InvalidOperationException("El ingreso y el egreso no pueden ser iguales.");
+            if (fecha.Date > DateTime.Today)
+                throw new InvalidOperationException("No se puede cargar un fichaje con fecha futura.");
+            ValidarPeriodoAbierto(fecha);
+            ValidarSinSuperposicion(usuarioId, fecha, ingreso, egreso, 0);
+
+            _dal.InsertarManual(usuarioId, fecha, ingreso, egreso, motivo, administrador.Usuario);
+            _bitacora.RegistrarAccion(administrador.Usuario, "FICHAJE_MANUAL:" + empleado);
+        }
+
+        private static string ValidarMotivo(string motivo)
+        {
+            motivo = (motivo ?? "").Trim();
+            if (motivo.Length == 0)
+                throw new InvalidOperationException("Indicá el motivo de la corrección.");
+            if (motivo.Length > LargoMaximoMotivo)
+                throw new InvalidOperationException($"El motivo no puede superar los {LargoMaximoMotivo} caracteres.");
+            return motivo;
+        }
+
+        // Un período ya liquidado no se puede modificar: sus números quedaron congelados.
+        private void ValidarPeriodoAbierto(DateTime fecha)
+        {
+            if (_liquidacionDAL.HayLiquidacionEnRango(fecha, fecha))
+                throw new InvalidOperationException("Esa fecha pertenece a un período ya liquidado.");
+        }
+
+        private void ValidarSinSuperposicion(int usuarioId, DateTime fecha, TimeSpan ingreso, TimeSpan egreso, int ignorarId)
+        {
+            DateTime inicio = fecha.Date + ingreso;
+            DateTime fin = fecha.Date + egreso;
+            if (fin < inicio) fin = fin.AddDays(1);
+
+            foreach (var otro in _dal.ListarRango(fecha.AddDays(-1), fecha.AddDays(1), usuarioId))
+            {
+                if (otro.Id == ignorarId || !otro.Egreso.HasValue) continue;
+                if (inicio < otro.Egreso.Value && fin > otro.Ingreso)
+                    throw new InvalidOperationException("El fichaje se superpone con otro del mismo empleado.");
+            }
         }
     }
 }

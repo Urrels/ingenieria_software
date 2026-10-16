@@ -18,6 +18,7 @@
             this.lblFranjaAsistencia = new System.Windows.Forms.Label();
             this.cboFranjaAsistencia = new System.Windows.Forms.ComboBox();
             this.pnlChartAsistencia = new System.Windows.Forms.Panel();
+            this.pnlChartHoras = new System.Windows.Forms.Panel();
             this.btnActualizar = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -75,9 +76,17 @@
             this.pnlChartAsistencia.Size = new System.Drawing.Size(860, 190);
             this.pnlChartAsistencia.TabIndex = 5;
             //
+            // pnlChartHoras
+            //
+            this.pnlChartHoras.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlChartHoras.Location = new System.Drawing.Point(30, 690);
+            this.pnlChartHoras.Name = "pnlChartHoras";
+            this.pnlChartHoras.Size = new System.Drawing.Size(860, 190);
+            this.pnlChartHoras.TabIndex = 8;
+            //
             // btnActualizar
             //
-            this.btnActualizar.Location = new System.Drawing.Point(30, 695);
+            this.btnActualizar.Location = new System.Drawing.Point(30, 895);
             this.btnActualizar.Name = "btnActualizar";
             this.btnActualizar.Size = new System.Drawing.Size(150, 32);
             this.btnActualizar.TabIndex = 6;
@@ -87,7 +96,7 @@
             //
             // btnCerrar
             //
-            this.btnCerrar.Location = new System.Drawing.Point(815, 695);
+            this.btnCerrar.Location = new System.Drawing.Point(815, 895);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(75, 32);
             this.btnCerrar.TabIndex = 7;
@@ -99,16 +108,18 @@
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(920, 750);
+            this.AutoScroll = true;
+            this.ClientSize = new System.Drawing.Size(920, 945);
             this.Controls.Add(this.btnCerrar);
             this.Controls.Add(this.btnActualizar);
+            this.Controls.Add(this.pnlChartHoras);
             this.Controls.Add(this.pnlChartAsistencia);
             this.Controls.Add(this.cboFranjaAsistencia);
             this.Controls.Add(this.lblFranjaAsistencia);
             this.Controls.Add(this.pnlChartEquipos);
             this.Controls.Add(this.pnlChartCobertura);
             this.Controls.Add(this.lblTitulo);
-            this.MinimumSize = new System.Drawing.Size(936, 789);
+            this.MinimumSize = new System.Drawing.Size(936, 600);
             this.Name = "frmDashboard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Panel de indicadores";
@@ -123,6 +134,7 @@
         private System.Windows.Forms.Label lblFranjaAsistencia;
         private System.Windows.Forms.ComboBox cboFranjaAsistencia;
         private System.Windows.Forms.Panel pnlChartAsistencia;
+        private System.Windows.Forms.Panel pnlChartHoras;
         private System.Windows.Forms.Button btnActualizar;
         private System.Windows.Forms.Button btnCerrar;
     }
