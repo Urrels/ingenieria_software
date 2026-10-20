@@ -5,5 +5,7 @@ namespace BLL
         private readonly DAL.ConexionDAL _dal = new DAL.ConexionDAL();
 
         public bool Disponible() => _dal.Probar();
+
+        public string Identificador() => _dal.Identificador();
     }
 }

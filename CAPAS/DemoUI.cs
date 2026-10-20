@@ -82,12 +82,19 @@ namespace CAPAS
             MsgBox.Show(resumen + "\n\n" + nota, "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
 
+        // La pregunta se recuerda por servidor y base: cambiar de base (o crear una nueva) vuelve a ofrecerla.
+        private static string NombreValor()
+        {
+            string base_ = new BLL.ConexionBLL().Identificador().Replace('\\', '_');
+            return ValorPreguntada + "_" + base_;
+        }
+
         private static bool YaSePregunto()
         {
             try
             {
                 using (RegistryKey clave = Registry.CurrentUser.OpenSubKey(ClaveRegistro))
-                    return clave != null && Convert.ToInt32(clave.GetValue(ValorPreguntada, 0)) == 1;
+                    return clave != null && Convert.ToInt32(clave.GetValue(NombreValor(), 0)) == 1;
             }
             catch (Exception ex) when (ex is System.Security.SecurityException || ex is UnauthorizedAccessException || ex is IOException)
             {
@@ -100,7 +107,7 @@ namespace CAPAS
             try
             {
                 using (RegistryKey clave = Registry.CurrentUser.CreateSubKey(ClaveRegistro))
-                    clave?.SetValue(ValorPreguntada, 1, RegistryValueKind.DWord);
+                    clave?.SetValue(NombreValor(), 1, RegistryValueKind.DWord);
             }
             catch (Exception ex) when (ex is System.Security.SecurityException || ex is UnauthorizedAccessException || ex is IOException)
             {
