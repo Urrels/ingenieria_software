@@ -1,0 +1,48 @@
+@startuml DiagramaSecuencia_CU39_AgregarFichajeManual
+
+title CU-39 — Agregar fichaje manual — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
+participant ":frmCorregirFichajes" as F #FEFECE
+participant ":AsistenciaPersonalBLL" as AB #E8F4E8
+participant ":BitacoraBLL" as B #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> SYS : abrir "Corregir fichajes" (permiso "Liquidar horas")
+SYS -> F : abrir "Corregir fichajes"
+F -> AB : Listar(desde, hasta, soloIncompletos)
+AB -> DB : ASISTENCIA_LISTAR_RANGO
+DB --> AB : filas
+AB --> F : resultado
+F --> SYS : fichajes del período
+SYS --> A : fichajes del período
+A -> SYS : elegir empleado y fecha, indicar ingreso, egreso y motivo, "Agregar fichaje manual"
+SYS -> F : elegir empleado y fecha, indicar ingreso, egreso y motivo, "Agregar fichaje manual"
+F -> AB : AgregarManual(empleado, fecha, ingreso, egreso, motivo, administrador)
+alt 3a. sin motivo, egreso anterior al ingreso\no fecha dentro de un período liquidado
+  AB --> F : InvalidOperationException (mensaje)
+  F --> SYS : motivo del rechazo
+  SYS --> A : motivo del rechazo
+else
+  AB -> DB : ASISTENCIA_INSERTAR_MANUAL (marcado como corregido)
+  DB --> AB : OK
+  AB -> B : RegistrarAccion("FICHAJE_MANUAL:" + empleado)
+  B --> AB : OK
+  AB --> F : OK
+  F --> SYS : "Fichaje agregado."
+  SYS --> A : "Fichaje agregado."
+end
+
+@enduml

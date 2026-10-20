@@ -24,6 +24,8 @@ E -> SYS : abrir "Asistencia de socios"
 SYS -> F : abrir "Asistencia de socios"
 F -> FB : ListarTodas()
 FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
+DB --> FB : filas
+FB --> F : resultado
 F --> SYS : fecha de hoy + combo de franjas
 SYS --> E : fecha de hoy + combo de franjas
 E -> SYS : elegir franja, fecha y cantidad + "Registrar"
@@ -37,6 +39,8 @@ else 4a. cantidad inválida
 else
   F -> HB : RegistrarAsistencia(franja, fecha, cantidad)
   HB -> DB : HISTORIAL_ASISTENCIA_INSERTAR
+  DB --> HB : OK
+  HB --> F : OK
   F --> SYS : "Asistencia de socios registrada."
   SYS --> E : "Asistencia de socios registrada."
 end

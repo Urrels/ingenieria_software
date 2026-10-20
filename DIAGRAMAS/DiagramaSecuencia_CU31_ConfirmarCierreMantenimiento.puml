@@ -24,11 +24,14 @@ A -> SYS : abrir "Confirmar cierre"
 SYS -> F : abrir "Confirmar cierre"
 F -> IB : ListarPendientesCierre()
 IB -> DB : INFORME_LISTAR_PENDIENTES_CIERRE
+DB --> IB : filas
+IB --> F : resultado
 F --> SYS : informes pendientes
 SYS --> A : informes pendientes
 A -> SYS : seleccionar informe
 SYS -> F : seleccionar informe
 F -> EB : ObtenerPorId(equipoId)
+EB --> F : resultado
 F --> SYS : equipo, estado actual y uso acumulado
 SYS --> A : equipo, estado actual y uso acumulado
 A -> SYS : click "Confirmar cierre"
@@ -54,15 +57,23 @@ else
     alt sin repuesto pendiente
       IB -> EB : ReiniciarContador(equipoId)
       EB -> DB : EQUIPO_REINICIAR_CONTADOR\n(uso = 0, estado "Operativo")
+      DB --> EB : OK
+      EB --> IB : OK
       IB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Resuelta")\n(AlertaRevisionBLL)
+      DB --> IB : OK
     else 5a. repuesto pendiente
       IB -> EB : MarcarEnMantenimiento(equipoId)
       EB -> DB : EQUIPO_MARCAR_EN_MANTENIMIENTO
+      DB --> EB : OK
+      EB --> IB : OK
     end
     IB -> DB : INFORME_MARCAR_CERRADO
     F --> SYS : mensaje de cierre confirmado
     SYS --> A : mensaje de cierre confirmado
     F -> IB : ListarPendientesCierre()
+    IB --> F : resultado
+    DB --> IB : OK
+    IB --> F : OK
   end
 end
 

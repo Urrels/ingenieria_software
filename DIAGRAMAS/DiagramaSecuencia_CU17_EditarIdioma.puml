@@ -25,6 +25,8 @@ alt 1a. sin selección
   F --> SYS : "Seleccioná un idioma."
   SYS --> A : "Seleccioná un idioma."
 else "Renombrar"
+  F --> SYS : OK
+  SYS --> A : OK
   A -> SYS : click "Renombrar"
   SYS -> F : click "Renombrar"
   F --> SYS : InputBox "Nuevo nombre:"
@@ -36,27 +38,40 @@ else "Renombrar"
   else
     F -> IB : Renombrar(id, nombre)
     IB -> DB : IDIOMA_RENOMBRAR
+    DB --> IB : OK
+    IB --> F : OK
   end
+    F --> SYS : OK
+    SYS --> A : OK
 else "Habilitar / Deshabilitar"
+  F --> SYS : OK
+  SYS --> A : OK
   A -> SYS : click "Habilitar/Deshabilitar"
   SYS -> F : click "Habilitar/Deshabilitar"
   F -> IB : ActualizarEstado(id, !habilitado)
   opt deshabilitar
     IB -> DB : IDIOMA_OBTENER_POR_ID + IDIOMA_ESTA_EN_USO
     alt 3b. es el predeterminado
+      DB --> IB : filas
       IB --> F : InvalidOperationException
       F --> SYS : "No se puede deshabilitar el idioma predeterminado."
       SYS --> A : "No se puede deshabilitar el idioma predeterminado."
     else 3c. lo usa algún usuario
+      DB --> IB : filas
       IB --> F : InvalidOperationException
       F --> SYS : "No se puede deshabilitar un idioma en uso."
       SYS --> A : "No se puede deshabilitar un idioma en uso."
     end
   end
   IB -> DB : IDIOMA_ACTUALIZAR_ESTADO
+  DB --> IB : OK
+  IB --> F : OK
+  F --> SYS : OK
+  SYS --> A : OK
 end
 F -> IB : ListarTodos()
 F --> SYS : grilla refrescada
 SYS --> A : grilla refrescada
 
+IB --> F : resultado
 @enduml

@@ -20,8 +20,14 @@ namespace ConfiguradorBD
         private static readonly Color Acento = Color.FromArgb(59, 111, 182);
         private static readonly Color Texto = Color.FromArgb(43, 45, 66);
 
+        private const int ReintentosTrasArranque = 10;
+
         private readonly RegistroInstalacion _log = new RegistroInstalacion();
         private List<InstanciaSql> _instancias = new List<InstanciaSql>();
+        private readonly bool _automatico;
+        private readonly string _servidorForzado;
+        private bool _silencioso;
+        private bool _motorRecienIniciado;
 
         private readonly ComboBox cboServidor = new ComboBox();
         private readonly Label lblEstadoServicio = new Label();
@@ -38,11 +44,85 @@ namespace ConfiguradorBD
         private readonly ProgressBar prgProgreso = new ProgressBar();
         private readonly TextBox txtRegistro = new TextBox();
 
-        internal frmConfigurador()
+        internal frmConfigurador(bool automatico = false, string servidorForzado = null)
         {
+            _automatico = automatico;
+            _servidorForzado = servidorForzado;
             ArmarPantalla();
             _log.LineaAgregada += AgregarAlRegistro;
-            Load += async (s, e) => await BuscarInstanciasAsync();
+            Load += async (s, e) =>
+            {
+                await BuscarInstanciasAsync();
+                if (_automatico) await ConfigurarAutomaticoAsync();
+            };
+        }
+
+        // Modo automático (lo usa el instalador): elige una instancia, la deja lista y crea la base sin que el usuario toque nada.
+        // Si no puede, la pantalla queda abierta con el detalle para configurar a mano.
+        private async Task ConfigurarAutomaticoAsync()
+        {
+            _log.Escribir("Modo automático: se configura la base de datos sin intervención.");
+            var candidatos = new List<string>();
+            if (!string.IsNullOrEmpty(_servidorForzado))
+            {
+                candidatos.Add(_servidorForzado);
+            }
+            else
+            {
+                candidatos.AddRange(_instancias
+                    .OrderBy(i => i.EsLocalDb ? 1 : 0)
+                    .ThenBy(i => InstanciaSql.EstadoServicio(i.NombreServicio) == ServiceControllerStatus.Running ? 0 : 1)
+                    .Select(i => i.Servidor));
+            }
+
+            if (candidatos.Count == 0)
+            {
+                string msi = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Prerequisitos", "SqlLocalDB.msi");
+                if (File.Exists(msi))
+                {
+                    _log.Escribir("No hay ningún motor de SQL Server: se instala LocalDB.");
+                    await InstalarMotorAsync();
+                    if (LocalDb.EstaInstalado()) candidatos.Add(LocalDb.Servidor);
+                }
+            }
+
+            if (candidatos.Count == 0)
+            {
+                _log.Escribir("No se encontró ningún motor de SQL Server y no hay LocalDB para instalar.");
+                MessageBox.Show(this,
+                    "No se encontró ningún motor de SQL Server en este equipo.\n\n" +
+                    "Instalá SQL Server Express LocalDB con el botón de abajo (o escribí un servidor de la red) y tocá \"Crear base de datos\".",
+                    "Falta el motor de base de datos", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            rbWindows.Checked = true;
+            for (int i = 0; i < candidatos.Count; i++)
+            {
+                cboServidor.Text = candidatos[i];
+                _silencioso = i < candidatos.Count - 1;
+                bool configurada = await InstalarAsync();
+                _silencioso = false;
+                if (configurada) return;
+                if (i < candidatos.Count - 1) _log.Escribir("No se pudo con " + candidatos[i] + ": se prueba con la siguiente instancia.");
+            }
+            _log.Escribir("No se pudo configurar automáticamente: revisá el detalle y elegí el servidor a mano.");
+        }
+
+        private bool Confirmar(string mensaje, string titulo, MessageBoxIcon icono, bool respuestaAutomatica)
+        {
+            if (_automatico)
+            {
+                _log.Escribir($"{titulo}: {(respuestaAutomatica ? "sí" : "no")} (modo automático).");
+                return respuestaAutomatica;
+            }
+            return MessageBox.Show(this, mensaje, titulo, MessageBoxButtons.YesNo, icono) == DialogResult.Yes;
+        }
+
+        private void Avisar(string mensaje, string titulo, MessageBoxIcon icono)
+        {
+            _log.Escribir($"{titulo}: {mensaje.Replace("\n", " ")}");
+            if (!_silencioso) MessageBox.Show(this, mensaje, titulo, MessageBoxButtons.OK, icono);
         }
 
         private void ArmarPantalla()
@@ -245,50 +325,50 @@ namespace ConfiguradorBD
                 resultado.VersionCompatible ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
         }
 
-        private async Task InstalarAsync()
+        private async Task<bool> InstalarAsync()
         {
             SqlConnectionStringBuilder cadena = ArmarCadena();
-            if (cadena == null) return;
+            if (cadena == null) return false;
 
             string esquema = BuscarScript("script.sql");
             string traducciones = BuscarScript("traducciones.sql");
             if (esquema == null || traducciones == null)
             {
-                MessageBox.Show(this, "No se encontraron los scripts script.sql y traducciones.sql en la carpeta Scripts.",
-                    "Faltan archivos", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                Avisar("No se encontraron los scripts script.sql y traducciones.sql en la carpeta Scripts.",
+                    "Faltan archivos", MessageBoxIcon.Error);
+                return false;
             }
-            if (!VerificarEspacioEnDisco(cadena.DataSource)) return;
-            if (!VerificarPuerto(cadena.DataSource)) return;
-            if (!PrepararMotor(cadena.DataSource)) return;
+            if (!VerificarEspacioEnDisco(cadena.DataSource)) return false;
+            if (!VerificarPuerto(cadena.DataSource)) return false;
+            if (!PrepararMotor(cadena.DataSource)) return false;
 
-            var instalador = new InstaladorBaseDatos(cadena, _log);
+            var instalador = new InstaladorBaseDatos(cadena, _log, _motorRecienIniciado ? ReintentosTrasArranque : 1);
             ResultadoVerificacion verificacion = null;
-            if (!await EjecutarAsync(() => verificacion = instalador.Verificar())) return;
+            if (!await EjecutarAsync(() => verificacion = instalador.Verificar())) return false;
 
             if (!verificacion.VersionCompatible)
             {
-                MessageBox.Show(this, $"El servidor tiene SQL Server {verificacion.Version}. Se necesita SQL Server 2019 o posterior.",
-                    "Versión no compatible", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                Avisar($"El servidor tiene SQL Server {verificacion.Version}. Se necesita SQL Server 2019 o posterior.",
+                    "Versión no compatible", MessageBoxIcon.Error);
+                return false;
             }
 
             bool soloTraducciones = false;
             if (verificacion.ExisteBase)
             {
-                if (MessageBox.Show(this,
+                if (!Confirmar(
                         "La base de datos ya existe en este servidor y no se va a modificar su estructura ni sus datos.\n\n" +
                         "¿Querés actualizar las traducciones y configurar el sistema para usar esta base?",
-                        "La base ya existe", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-                    return;
+                        "La base ya existe", MessageBoxIcon.Question, true))
+                    return false;
                 soloTraducciones = true;
             }
             else if (!verificacion.PuedeCrearBases)
             {
-                MessageBox.Show(this, "El usuario no tiene permiso para crear bases de datos en este servidor. " +
-                                      "Usá un usuario administrador del SQL Server.",
-                    "Permisos insuficientes", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                Avisar("El usuario no tiene permiso para crear bases de datos en este servidor. " +
+                       "Usá un usuario administrador del SQL Server.",
+                    "Permisos insuficientes", MessageBoxIcon.Error);
+                return false;
             }
 
             bool ok = await EjecutarAsync(() =>
@@ -300,7 +380,7 @@ namespace ConfiguradorBD
                 ConfiguracionApp.GuardarCadena(instalador.CadenaParaAplicacion());
                 _log.Escribir("El sistema quedó configurado para usar " + cadena.DataSource + ".");
             });
-            if (!ok) return;
+            if (!ok) return false;
 
             MessageBox.Show(this,
                 "La base de datos quedó lista y el sistema configurado para usarla.\n\n" +
@@ -308,6 +388,7 @@ namespace ConfiguradorBD
                 "Al ingresar por primera vez, el sistema te ofrece cargar datos de demostración (empleados, grillas, fichajes y equipos) " +
                 "para probar los procesos de negocio. También está en Administración → Cargar datos de demostración.",
                 "Instalación completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return true;
         }
 
         private async Task InstalarMotorAsync()
@@ -315,6 +396,11 @@ namespace ConfiguradorBD
             string msi = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Prerequisitos", "SqlLocalDB.msi");
             if (!File.Exists(msi))
             {
+                if (_automatico)
+                {
+                    _log.Escribir("Este instalador no incluye LocalDB (Prerequisitos\\SqlLocalDB.msi).");
+                    return;
+                }
                 if (MessageBox.Show(this,
                         "Este instalador no incluye LocalDB. Se va a abrir la página oficial de Microsoft para descargarlo.\n\n" +
                         "Después de instalarlo, volvé a esta pantalla y tocá \"Buscar instancias\".",
@@ -329,8 +415,8 @@ namespace ConfiguradorBD
                 await BuscarInstanciasAsync();
                 cboServidor.Text = LocalDb.Servidor;
             }
-            else if (MessageBox.Show(this, "No se pudo instalar LocalDB automáticamente. ¿Abrir la página de descarga de SQL Server Express?",
-                         "Instalación fallida", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            else if (Confirmar("No se pudo instalar LocalDB automáticamente. ¿Abrir la página de descarga de SQL Server Express?",
+                         "Instalación fallida", MessageBoxIcon.Warning, false))
             {
                 AbrirEnNavegador(UrlSqlExpress);
             }
@@ -339,14 +425,18 @@ namespace ConfiguradorBD
         private bool PrepararMotor(string servidor)
         {
             if (servidor.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase))
-                return EjecutarSincronico(() => LocalDb.AsegurarInstancia(_log));
+            {
+                bool listo = EjecutarSincronico(() => LocalDb.AsegurarInstancia(_log));
+                if (listo) _motorRecienIniciado = true;
+                return listo;
+            }
 
             string servicio = InstanciaSql.ServicioDe(servidor);
             ServiceControllerStatus? estado = InstanciaSql.EstadoServicio(servicio);
             if (servicio == null || estado == null || estado == ServiceControllerStatus.Running) return true;
 
-            if (MessageBox.Show(this, $"El servicio de SQL Server ({servicio}) está detenido.\n\n¿Querés iniciarlo ahora?",
-                    "Servicio detenido", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (!Confirmar($"El servicio de SQL Server ({servicio}) está detenido.\n\n¿Querés iniciarlo ahora?",
+                    "Servicio detenido", MessageBoxIcon.Question, true))
                 return false;
 
             bool ok = EjecutarSincronico(() =>
@@ -356,10 +446,12 @@ namespace ConfiguradorBD
                 _log.Escribir("Servicio " + servicio + " iniciado.");
             });
             ActualizarEstadoServicio();
-            if (!ok)
-                MessageBox.Show(this, "No se pudo iniciar el servicio. Verificá en services.msc que no esté deshabilitado " +
-                                      "y que este programa se esté ejecutando como administrador.",
-                    "Servicio detenido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            if (ok)
+                _motorRecienIniciado = true;
+            else
+                Avisar("No se pudo iniciar el servicio. Verificá en services.msc que no esté deshabilitado " +
+                       "y que este programa se esté ejecutando como administrador.",
+                    "Servicio detenido", MessageBoxIcon.Warning);
             return ok;
         }
 
@@ -369,10 +461,10 @@ namespace ConfiguradorBD
             _log.Escribir($"Verificando el puerto TCP {puerto} de {equipo}...");
             if (InstanciaSql.PuertoAbierto(equipo, puerto, TimeSpan.FromSeconds(5))) return true;
             _log.Escribir($"El puerto TCP {puerto} de {equipo} no responde.");
-            MessageBox.Show(this, $"No se pudo llegar al puerto TCP {puerto} de {equipo}.\n\n" +
-                                  "Verificá que el servidor esté encendido, que SQL Server acepte conexiones TCP/IP " +
-                                  "y que el firewall permita ese puerto.",
-                "Puerto cerrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            Avisar($"No se pudo llegar al puerto TCP {puerto} de {equipo}.\n\n" +
+                   "Verificá que el servidor esté encendido, que SQL Server acepte conexiones TCP/IP " +
+                   "y que el firewall permita ese puerto.",
+                "Puerto cerrado", MessageBoxIcon.Warning);
             return false;
         }
 
@@ -383,9 +475,9 @@ namespace ConfiguradorBD
             var unidad = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory));
             if (unidad.AvailableFreeSpace >= EspacioMinimoBytes) return true;
             _log.Escribir($"Espacio libre insuficiente en {unidad.Name}: {unidad.AvailableFreeSpace / 1024 / 1024} MB.");
-            return MessageBox.Show(this, $"Queda poco espacio libre en {unidad.Name} ({unidad.AvailableFreeSpace / 1024 / 1024} MB). " +
-                                         "La creación de la base puede fallar. ¿Continuar igual?",
-                "Poco espacio en disco", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes;
+            return Confirmar($"Queda poco espacio libre en {unidad.Name} ({unidad.AvailableFreeSpace / 1024 / 1024} MB). " +
+                             "La creación de la base puede fallar. ¿Continuar igual?",
+                "Poco espacio en disco", MessageBoxIcon.Warning, false);
         }
 
         private SqlConnectionStringBuilder ArmarCadena()
@@ -471,8 +563,9 @@ namespace ConfiguradorBD
             string detalle = ex is SqlException sql && (sql.Number == -1 || sql.Number == 2 || sql.Number == 53 || sql.Number == 26)
                 ? "No se encontró el servidor o no responde. Verificá el nombre de la instancia y que el servicio esté iniciado."
                 : ex.Message;
-            MessageBox.Show(this, detalle + "\n\nEl detalle completo quedó en:\n" + _log.Ruta,
-                "No se pudo completar la operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (!_silencioso)
+                MessageBox.Show(this, detalle + "\n\nEl detalle completo quedó en:\n" + _log.Ruta,
+                    "No se pudo completar la operación", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void HabilitarControles(bool habilitar)

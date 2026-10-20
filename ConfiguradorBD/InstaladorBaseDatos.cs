@@ -14,13 +14,19 @@ namespace ConfiguradorBD
         private static readonly Regex SeparadorLotes =
             new Regex(@"^\s*GO\s*(--.*)?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        private const int EsperaEntreReintentosMs = 3000;
+
         private readonly SqlConnectionStringBuilder _cadena;
         private readonly RegistroInstalacion _log;
+        private readonly int _intentos;
 
-        internal InstaladorBaseDatos(SqlConnectionStringBuilder cadena, RegistroInstalacion log)
+        // "intentos" > 1 se usa justo después de iniciar el servicio o LocalDB: el motor tarda unos segundos
+        // en aceptar conexiones y sin reintentos el primer intento fallaba.
+        internal InstaladorBaseDatos(SqlConnectionStringBuilder cadena, RegistroInstalacion log, int intentos = 1)
         {
             _cadena = cadena;
             _log = log;
+            _intentos = Math.Max(1, intentos);
         }
 
         internal string CadenaParaAplicacion()
@@ -146,10 +152,29 @@ namespace ConfiguradorBD
         private SqlConnection AbrirMaster()
         {
             var cadena = new SqlConnectionStringBuilder(_cadena.ConnectionString) { InitialCatalog = "master" };
-            var conexion = new SqlConnection(cadena.ConnectionString);
-            conexion.Open();
-            return conexion;
+            for (int intento = 1; ; intento++)
+            {
+                var conexion = new SqlConnection(cadena.ConnectionString);
+                try
+                {
+                    conexion.Open();
+                    return conexion;
+                }
+                catch (SqlException ex) when (intento < _intentos && !EsErrorDeCredenciales(ex))
+                {
+                    conexion.Dispose();
+                    _log.Escribir($"El servidor todavía no responde (intento {intento} de {_intentos}): se reintenta en {EsperaEntreReintentosMs / 1000} s.");
+                    System.Threading.Thread.Sleep(EsperaEntreReintentosMs);
+                }
+                catch
+                {
+                    conexion.Dispose();
+                    throw;
+                }
+            }
         }
+
+        private static bool EsErrorDeCredenciales(SqlException ex) => ex.Number == 18456 || ex.Number == 18452 || ex.Number == 18451;
 
         private static object Escalar(SqlConnection conexion, string sql)
         {

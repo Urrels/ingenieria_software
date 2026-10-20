@@ -1,0 +1,48 @@
+@startuml DiagramaSecuencia_CU43_CorregirFichaje
+
+title CU-43 — Corregir fichaje (modificación) — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
+participant ":frmCorregirFichajes" as F #FEFECE
+participant ":AsistenciaPersonalBLL" as AB #E8F4E8
+participant ":BitacoraBLL" as B #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> SYS : abrir "Corregir fichajes" (permiso "Liquidar horas")
+SYS -> F : abrir "Corregir fichajes"
+F -> AB : Listar(desde, hasta, soloIncompletos)
+AB -> DB : ASISTENCIA_LISTAR_RANGO + PARAMETRO_LIQUIDACION_LISTAR
+DB --> AB : filas
+AB --> F : resultado
+F --> SYS : fichajes (por defecto, los ingresos sin egreso que superan el máximo de horas)
+SYS --> A : fichajes (por defecto, los ingresos sin egreso que superan el máximo de horas)
+A -> SYS : seleccionar fichaje, indicar ingreso, egreso y motivo, "Corregir seleccionado"
+SYS -> F : seleccionar fichaje, indicar ingreso, egreso y motivo, "Corregir seleccionado"
+F -> AB : Corregir(id, ingreso, egreso, motivo, administrador)
+alt 3a. sin motivo, fecha dentro de un período liquidado\no se superpone con otro fichaje del empleado
+  AB --> F : InvalidOperationException (mensaje)
+  F --> SYS : motivo del rechazo
+  SYS --> A : motivo del rechazo
+else
+  AB -> DB : ASISTENCIA_CORREGIR (guarda quién, cuándo y los valores anteriores en el motivo)
+  DB --> AB : OK
+  AB -> B : RegistrarAccion("FICHAJE_CORREGIDO:" + empleado)
+  B --> AB : OK
+  AB --> F : OK
+  F --> SYS : "Fichaje corregido."
+  SYS --> A : "Fichaje corregido."
+end
+
+@enduml

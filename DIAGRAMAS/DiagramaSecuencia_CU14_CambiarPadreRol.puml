@@ -28,27 +28,38 @@ note right of F
   muestra en gris los ancestros
   por encima del padre actual
 end note
+F --> SYS : OK
+SYS --> A : OK
 A -> SYS : elegir padre en el combo
 SYS -> F : elegir padre en el combo
 opt 3a. eligió un padre en gris
   F -> F : volver a la opción anterior
 end
+F --> SYS : OK
+SYS --> A : OK
 A -> SYS : click "Asignar padre"
 SYS -> F : click "Asignar padre"
 F -> PB : CambiarPadre(rolId, nuevoPadreId)
 PB -> DB : ROL_LISTAR_TODOS
 alt 4a. GenerariaCiclo
+  DB --> PB : filas
   PB --> F : InvalidOperationException
   F --> SYS : "No se puede asignar ese padre:\ngeneraría una referencia circular."
   SYS --> A : "No se puede asignar ese padre:\ngeneraría una referencia circular."
 else 4b. EsAncestroDelPadreActual
+  DB --> PB : filas
   PB --> F : InvalidOperationException
   F --> SYS : "No se puede asignar como padre a un\nancestro del padre actual del rol."
   SYS --> A : "No se puede asignar como padre a un\nancestro del padre actual del rol."
 else válido
+  DB --> PB : filas
   PB -> DB : ROL_CAMBIAR_PADRE(rolId, padreId)
+  DB --> PB : OK
   PB -> BB : RegistrarAccion(admin, "ROL_PADRE_CAMBIADO:X")
+  BB --> PB : OK
+  PB --> F : OK
   F -> PB : ObtenerArbol()
+  PB --> F : resultado
   F -> F : volver a seleccionar el rol
   F --> SYS : árbol con la nueva jerarquía
   SYS --> A : árbol con la nueva jerarquía

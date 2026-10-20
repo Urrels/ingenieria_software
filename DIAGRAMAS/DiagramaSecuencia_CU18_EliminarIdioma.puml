@@ -31,9 +31,13 @@ else
   F -> IB : EstaEnUso(id)
   IB -> DB : IDIOMA_ESTA_EN_USO
   alt 3a. lo usa algún usuario
+    DB --> IB : filas
+    IB --> F : resultado
     F --> SYS : "No se puede eliminar un idioma que está\nen uso por algún usuario."
     SYS --> A : "No se puede eliminar un idioma que está\nen uso por algún usuario."
   else libre
+    DB --> IB : filas
+    IB --> F : resultado
     F --> SYS : "¿Eliminar el idioma 'X'?\nSe borrarán todas sus traducciones."
     SYS --> A : "¿Eliminar el idioma 'X'?\nSe borrarán todas sus traducciones."
     alt 4a. cancela
@@ -54,6 +58,9 @@ else
       F -> IB : ListarTodos()
       F --> SYS : grilla de idiomas refrescada
       SYS --> A : grilla de idiomas refrescada
+      IB --> F : resultado
+      DB --> IB : OK
+      IB --> F : OK
     end
   end
 end

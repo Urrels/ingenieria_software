@@ -24,24 +24,37 @@ database ":DB" as DB #E8E8F4
 A -> SYS : abrir "Evaluar cobertura"
 SYS -> F : abrir "Evaluar cobertura"
 F -> F : proponer la semana anterior
+F --> SYS : OK
+SYS --> A : OK
 A -> SYS : click "Evaluar"
 SYS -> F : click "Evaluar"
 F -> EV : EvaluarSemana(lunes)
 EV -> G : ObtenerConTurnosPorSemana(lunes)
 G -> DB : GRILLA_OBTENER_POR_SEMANA + TURNO_LISTAR_POR_GRILLA
 alt 3a. no hay grilla
+  DB --> G : filas
+  G --> EV : resultado
   EV --> F : lista vacía
   F --> SYS : "No hay una grilla confirmada para esa semana..."
   SYS --> A : "No hay una grilla confirmada para esa semana..."
 else
   loop por cada franja de la grilla que ya terminó
+    DB --> G : filas
+    G --> EV : resultado
     EV -> DB : TURNO_CONTAR_ASIGNADOS_POR_FRANJA (asignados)
+    DB --> EV : filas
     EV -> P : EmpleadosPresentes(fichajes de la semana, franja)
     P -> DB : ASISTENCIA_LISTAR_RANGO (una vez por semana)
+    DB --> P : filas
+    P --> EV : OK
     EV -> DB : HISTORIAL_ASISTENCIA_OBTENER_POR_FRANJA_Y_SEMANA
+    DB --> EV : resultado
     EV -> EV : necesario = máx(1, socios / 15)\npresentes < necesario → "Falta"\npresentes > necesario → "Exceso"\nsi no → "Ajustado"
     EV -> DB : EVALUACION_COBERTURA_INSERTAR
+    DB --> EV : OK
   end
+  DB --> G : filas
+  G --> EV : resultado
   EV --> F : resultados por franja
   F --> SYS : grilla de resultados + "Se usará para ajustar\nla próxima planificación."
   SYS --> A : grilla de resultados + "Se usará para ajustar\nla próxima planificación."

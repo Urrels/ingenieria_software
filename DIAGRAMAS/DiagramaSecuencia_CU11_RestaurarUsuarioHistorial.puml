@@ -39,25 +39,37 @@ else
     SYS --> H : Sí
     H -> HB : Rollback(historialId, admin)
     HB -> DB : USUARIO_HISTORIAL_OBTENER
+    DB --> HB : resultado
     HB -> HB : backstop: tipo ≠ ROLLBACK
     HB -> PB : ValidarQueQuedeAdministracion(...)
     alt 5a. quedaría sin administración
       PB --> H : InvalidOperationException
       H --> SYS : mensaje con el permiso que se perdería
       SYS --> A : mensaje con el permiso que se perdería
+      PB --> HB : OK
     else permitido
+      PB --> HB : OK
       HB -> DB : USUARIO_APLICAR_ESTADO\n(rol, bloqueado, intentos)
+      DB --> HB : resultado
       HB -> DB : ReemplazarAsignaciones(perfiles)
+      DB --> HB : resultado
       HB -> DB : USUARIO_ACTUALIZAR_DATOS\n(nombre, apellido, teléfono, email)
+      DB --> HB : OK
       HB -> DB : HISTORIAL: ROLLBACK\n(VERSION_ORIGEN = historialId)
+      DB --> HB : OK
       HB -> I : RecalcularIntegridadUsuarios()
       opt es el usuario de la sesión
+        I --> HB : OK
         HB -> S : setUsuario(u) + setPermisos(p)
+        S --> HB : OK
       end
       H --> SYS : "Estado restaurado correctamente."
       SYS --> A : "Estado restaurado correctamente."
       H -> HB : ObtenerHistorialPaginado(...)
+      HB --> H : resultado
+      I --> HB : OK
     end
+      HB --> H : OK
   end
 end
 

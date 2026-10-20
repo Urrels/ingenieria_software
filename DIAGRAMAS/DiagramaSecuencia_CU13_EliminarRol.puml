@@ -23,6 +23,8 @@ database ":DB" as DB #E8E8F4
 A -> SYS : seleccionar nodo
 SYS -> F : seleccionar nodo
 F -> F : btnEliminar.Enabled = no protegido
+F --> SYS : OK
+SYS --> A : OK
 A -> SYS : click "Eliminar"
 SYS -> F : click "Eliminar"
 alt 1a. el nodo es un permiso
@@ -40,23 +42,31 @@ else es un rol
     F -> PB : Eliminar(id)
     PB -> DB : ROL_LISTAR_TODOS
     alt 1b. rol protegido
+      DB --> PB : filas
       PB --> F : InvalidOperationException
       F --> SYS : "Este rol es del sistema y no puede eliminarse."
       SYS --> A : "Este rol es del sistema y no puede eliminarse."
     else
+      DB --> PB : filas
       PB -> DB : ROL_TIENE_USUARIOS(id)\n(CTE recursiva sobre el subárbol)
       alt 4a. hay usuarios asignados
+        DB --> PB : resultado
         PB --> F : InvalidOperationException
         F --> SYS : "No se puede eliminar un rol que tiene\nusuarios asignados. Reasignálos primero."
         SYS --> A : "No se puede eliminar un rol que tiene\nusuarios asignados. Reasignálos primero."
       else sin usuarios
+        DB --> PB : resultado
         PB -> DB : ROL_ELIMINAR(id)
         note right of DB : borra el subárbol y sus filas\nde USUARIO_PERFIL y ROL_PERMISO
+        DB --> PB : OK
         PB -> BB : RegistrarAccion(admin, "ROL_ELIMINADO:X")
         F -> F : ocultar panel de permisos
         F -> PB : ObtenerArbol()
         F --> SYS : árbol refrescado
         SYS --> A : árbol refrescado
+        PB --> F : resultado
+        BB --> PB : OK
+        PB --> F : OK
       end
     end
   end

@@ -30,14 +30,21 @@ DB --> G : turnos agrupados por empleado
 loop por cada empleado con turnos
   G -> UB : ObtenerPorId(empleadoId)
   UB -> DB : USUARIO_OBTENER_POR_ID
+  DB --> UB : filas
+  UB --> G : resultado
   G -> N : Notificar(empleado, grilla,\n"Tenés N turno(s) asignado(s) para la semana del dd/MM.")
   alt tiene email o teléfono
     N -> DB : NOTIFICACION_INSERTAR (estado "Enviada")
+    DB --> N : OK
   else 4a. sin medio de contacto
     N -> DB : NOTIFICACION_INSERTAR (estado "Fallida")
+    DB --> N : OK
   end
+    N --> G : OK
 end
 G -> DB : GRILLA_MARCAR_COMUNICADA
+DB --> G : OK
+G --> F : OK
 F --> SYS : "Horarios comunicados al equipo."
 SYS --> A : "Horarios comunicados al equipo."
 note over N, DB : cada empleado ve su notificación en "Mis notificaciones"

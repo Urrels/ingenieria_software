@@ -14,31 +14,50 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmMenu / DemoUI" as F #FEFECE
 participant ":DatosDemoBLL" as D #E8F4E8
 participant ":PlanificadorFichajes" as PF #E8F4E8
 database ":DB" as DB #E8E8F4
 collections "datos_demo.json" as J
 
-A -> F : primer ingreso como admin (o Administración → "Cargar datos de demostración")
+A -> SYS : primer ingreso como admin (o Administración → "Cargar datos de demostración")
+SYS -> F : primer ingreso como admin (o Administración → "Cargar datos de demostración")
 F -> D : ContarDatos()
 D -> DB : DATOS_NEGOCIO_CONTAR
 alt el sistema ya tiene datos
-  F --> A : no se ofrece / "solo se puede cargar en un sistema vacío"
+  DB --> D : filas
+  D --> F : resultado
+  F --> SYS : no se ofrece / "solo se puede cargar en un sistema vacío"
+  SYS --> A : no se ofrece / "solo se puede cargar en un sistema vacío"
 else sistema vacío
-  F --> A : "¿Querés cargar datos de demostración?"
-  A -> F : Sí
+  DB --> D : filas
+  D --> F : resultado
+  F --> SYS : "¿Querés cargar datos de demostración?"
+  SYS --> A : "¿Querés cargar datos de demostración?"
+  A -> SYS : Sí
+  SYS -> F : Sí
   F -> D : Leer(Scripts\\datos_demo.json) → Cargar(datos)
   D -> J : deserializar (JSON → BE.DatosDemo) y validar
+  J --> D : OK
   D -> DB : empleados (USUARIO + valor hora), franjas, historial de socios, equipos, feriados
   loop cada semana pasada con grilla
+    DB --> D : OK
     D -> DB : disponibilidad → GenerarGrilla → asignación → ConfirmarGrilla
+    DB --> D : OK
     D -> PF : Planificar(semana) → ingresos y egresos con ausencias, tardanzas, extras
+    PF --> D : resultado
     D -> DB : ASISTENCIA_REGISTRAR_INGRESO / EGRESO
+    DB --> D : OK
     D -> DB : EvaluarSemana(lunes) → EVALUACION_COBERTURA_INSERTAR
+    DB --> D : OK
   end
+  DB --> D : OK
   D -> DB : disponibilidad de la próxima semana + bitácora "DATOS_DEMO_CARGADOS"
-  F --> A : resumen de lo cargado (y contraseña de los empleados de ejemplo)
+  DB --> D : resultado
+  D --> F : resultado
+  F --> SYS : resumen de lo cargado (y contraseña de los empleados de ejemplo)
+  SYS --> A : resumen de lo cargado (y contraseña de los empleados de ejemplo)
 end
 
 @enduml

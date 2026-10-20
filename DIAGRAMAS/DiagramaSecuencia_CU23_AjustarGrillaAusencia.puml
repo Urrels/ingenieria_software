@@ -24,9 +24,11 @@ A -> SYS : día de la semana + "Buscar"
 SYS -> F : día de la semana + "Buscar"
 F -> DB : GRILLA_OBTENER_POR_SEMANA\n+ TURNO_LISTAR_POR_GRILLA\n(GrillaBLL)
 alt 2a. sin grilla o no confirmada
+  DB --> F : filas
   F --> SYS : aviso correspondiente
   SYS --> A : aviso correspondiente
 else
+  DB --> F : filas
   F --> SYS : turnos de la semana
   SYS --> A : turnos de la semana
   A -> SYS : doble clic en el turno
@@ -41,26 +43,40 @@ else
     SYS -> F : Sí
     F -> T : BuscarEmpleadosCompatibles()
     T -> DB : TURNO_BUSCAR_COMPATIBLES\n(rol + disponibilidad)
+    DB --> T : filas
+    T --> F : resultado
     F -> F : excluir al ausente
     alt 5a. sin compatibles
       F -> T : MarcarDeficitCobertura()
       T -> DB : TURNO_ACTUALIZAR_ASIGNACION
+      DB --> T : OK
+      T --> F : OK
       F --> SYS : "...queda marcado\ncomo sin cobertura."
       SYS --> A : "...queda marcado\ncomo sin cobertura."
     else
       F -> F : frmSeleccionarReemplazo
+      F --> SYS : OK
+      SYS --> A : OK
       A -> SYS : elegir reemplazo
       SYS -> F : elegir reemplazo
       F -> T : ReemplazarPorAusencia()
       T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
       alt 7a. supera el límite
+        DB --> T : resultado
+        T --> F : OK
         F --> SYS : "X superaría su límite..."
         SYS --> A : "X superaría su límite..."
       else
+        DB --> T : resultado
         T -> DB : TURNO_ACTUALIZAR_ASIGNACION
+        DB --> T : OK
+        T --> F : OK
         F -> N : Notificar(reemplazante)
+        N --> F : OK
         F -> N : Notificar(ausente)
         N -> DB : NOTIFICACION_INSERTAR × 2
+        DB --> N : OK
+        N --> F : OK
         F --> SYS : "Turno reasignado y ambos\nempleados notificados."
         SYS --> A : "Turno reasignado y ambos\nempleados notificados."
       end

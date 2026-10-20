@@ -27,11 +27,16 @@ M -> S : getUsuario().Usuario
 S --> M : nombre de usuario
 M -> B : RegistrarLogout(usuario)
 B -> DB : BITACORA_INSERTAR(usuario, "LOGOUT")
+DB --> B : OK
+B --> M : OK
 M -> S : cerrarSesion()
 note right of S : _instance = null:\nla próxima sesión arranca limpia
+S --> M : OK
 M -> L : new LogIn().Show()
+L --> M : OK
 M -> M : Close()
 L --> SYS : pantalla de inicio de sesión
+M --> SYS : OK
 SYS --> U : pantalla de inicio de sesión
 
 @enduml

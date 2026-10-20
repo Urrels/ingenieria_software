@@ -26,6 +26,7 @@ SYS -> F : seleccionar idioma
 F -> IB : ListarControlesConTraduccion(idiomaId)
 IB -> DB : TRADUCCION_LISTAR_CONTROLES
 DB --> IB : clave, texto por defecto, traducción
+IB --> F : resultado
 F --> SYS : grilla de traducciones (solo "Traducción" editable)
 SYS --> A : grilla de traducciones (solo "Traducción" editable)
 A -> SYS : editar traducciones + "Guardar traducciones"
@@ -36,6 +37,8 @@ loop por cada fila
   else con texto
     F -> IB : GuardarTraduccion(idiomaId, controlId, texto)
     IB -> DB : TRADUCCION_GUARDAR (alta o modificación)
+    DB --> IB : OK
+    IB --> F : OK
   end
 end
 F --> SYS : "Traducciones guardadas."
@@ -43,8 +46,11 @@ SYS --> A : "Traducciones guardadas."
 F -> FA : RecargarSiEstaActivo(idiomaId)
 opt es el idioma activo
   FA -> IB : CargarTraducciones(idiomaId)
+  IB --> FA : resultado
   FA -> IM : CambiarIdioma(idioma, traducciones)
   IM -> IM : Notificar() → ActualizarIdioma()\nen las pantallas abiertas
+  IM --> FA : OK
 end
 
+  FA --> F : OK
 @enduml

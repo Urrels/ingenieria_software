@@ -24,22 +24,32 @@ A -> SYS : seleccionar un rol
 SYS -> F : seleccionar un rol
 alt 1a. el nodo es un permiso
   F -> F : panelPermisos.Visible = false
+  F --> SYS : OK
+  SYS --> A : OK
 else es un rol
   F -> F : PopularCheckPermisos(rol)
   note right of F : marca los permisos propios del rol\n(ROL_PERMISO), sin heredar del padre
+  F --> SYS : OK
+  SYS --> A : OK
   A -> SYS : marcar / desmarcar + "Guardar"
   SYS -> F : marcar / desmarcar + "Guardar"
   F -> PB : ActualizarPermisosDeRol(rolId, permisoIds)
   PB -> PB : ValidarQueQuedeAdministracion(rolId, permisoIds)
   PB -> DB : USUARIO_PERFIL_LISTAR_ACTIVOS\n+ ROL_PERMISO_LISTAR_TODOS
   alt 4a. quedaría sin administración
+    DB --> PB : filas
     PB --> F : InvalidOperationException
     F --> SYS : mensaje con el permiso que se perdería
     SYS --> A : mensaje con el permiso que se perdería
   else permitido
+    DB --> PB : filas
     PB -> DB : GuardarPermisosDeRol (transacción:\nLIMPIAR + N × INSERTAR)
+    DB --> PB : resultado
     PB -> BB : RegistrarAccion(admin, "ROL_PERMISOS_MODIFICADOS:X")
+    BB --> PB : OK
+    PB --> F : OK
     F -> PB : ObtenerArbol()
+    PB --> F : resultado
     F -> F : volver a seleccionar el rol
     F --> SYS : árbol con los permisos actualizados
     SYS --> A : árbol con los permisos actualizados

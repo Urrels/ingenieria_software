@@ -24,11 +24,14 @@ T -> SYS : abrir "Realizar revisión"
 SYS -> F : abrir "Realizar revisión"
 F -> VB : ListarPendientesPorTecnico()
 VB -> DB : VISITA_LISTAR_PENDIENTES_TECNICO
+DB --> VB : filas
+VB --> F : resultado
 F --> SYS : visitas coordinadas
 SYS --> T : visitas coordinadas
 T -> SYS : seleccionar visita
 SYS -> F : seleccionar visita
 F -> DB : alerta y equipo\n(AlertaRevisionBLL, EquipoBLL)
+DB --> F : resultado
 F --> SYS : "Equipo: X\n(uso acumulado: N)"
 SYS --> T : "Equipo: X\n(uso acumulado: N)"
 T -> SYS : resultado (+ "Pendiente de\nrepuesto") + "Registrar informe"
@@ -41,9 +44,14 @@ else
   IB -> DB : INFORME_INSERTAR
   note right of DB : informe pendiente de cierre;\nvisita → "Realizada"
   opt 5a. pendiente de repuesto
+    DB --> IB : OK
     IB -> DB : ALERTA_ACTUALIZAR_ESTADO\n("Pendiente")
+    DB --> IB : OK
   end
+  DB --> IB : OK
   IB -> DB : NOTIFICACION_INSERTAR\n(a cada administrador)\n(NotificacionBLL)
+  DB --> IB : OK
+  IB --> F : OK
   F --> SYS : "Informe registrado.\nSe notificó al Administrador."
   SYS --> T : "Informe registrado.\nSe notificó al Administrador."
 end

@@ -26,10 +26,14 @@ opt 1a. consultar el panel predictivo
   SYS -> MP : abrir "Mantenimiento predictivo"
   MP -> EB : ListarTodos()
   loop por cada equipo con nivel crítico
+    EB --> MP : resultado
     MP -> EB : EstimarDiasHastaCritico(equipo, 14)
     EB -> DB : EQUIPO_USO_LOG_ULTIMOS_DIAS
+    DB --> EB : resultado
     EB -> EB : (nivel crítico − uso acumulado)\n/ uso diario promedio
+    EB --> MP : resultado
   end
+  EB --> MP : resultado
   MP --> SYS : equipos por días estimados\n(Alta ≤ 3, Media ≤ 10, Baja)
   SYS --> A : equipos por días estimados\n(Alta ≤ 3, Media ≤ 10, Baja)
 end
@@ -38,23 +42,32 @@ A -> SYS : abrir "Evaluar y autorizar"
 SYS -> F : abrir "Evaluar y autorizar"
 F -> AB : ListarPendientes()
 AB -> DB : ALERTA_LISTAR_PENDIENTES
+DB --> AB : filas
+AB --> F : resultado
 F --> SYS : alertas pendientes
 SYS --> A : alertas pendientes
 A -> SYS : seleccionar alerta
 SYS -> F : seleccionar alerta
 alt "Autorizar"
+  F --> SYS : OK
+  SYS --> A : OK
   A -> SYS : click "Autorizar"
   SYS -> F : click "Autorizar"
   F -> AB : ObtenerEquipoDeAlerta(alerta)
+  AB --> F : resultado
   F --> SYS : "¿Autorizar la visita técnica para 'X'?"
   SYS --> A : "¿Autorizar la visita técnica para 'X'?"
   A -> SYS : Sí
   SYS -> F : Sí
   F -> AB : AutorizarVisita(alerta)
   AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Autorizada")
+  DB --> AB : OK
+  AB --> F : OK
   F --> SYS : "Visita autorizada."
   SYS --> A : "Visita autorizada."
 else 2a. "Descartar"
+  F --> SYS : OK
+  SYS --> A : OK
   A -> SYS : click "Descartar"
   SYS -> F : click "Descartar"
   F --> SYS : "¿Descartar esta alerta como falso positivo?"
@@ -63,9 +76,12 @@ else 2a. "Descartar"
   SYS -> F : Sí
   F -> AB : DescartarAlerta(alerta)
   AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Descartada")
+  DB --> AB : OK
+  AB --> F : OK
   F --> SYS : "Alerta descartada."
   SYS --> A : "Alerta descartada."
 end
 F -> AB : ListarPendientes()
 
+AB --> F : resultado
 @enduml

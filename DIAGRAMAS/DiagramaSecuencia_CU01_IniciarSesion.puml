@@ -31,30 +31,44 @@ else
   F -> L : AutenticarUsuario(usuario, contraseña)
   L -> DB : USUARIO_VERIFICAR_BLOQUEO
   alt 3a. bloqueado
+    DB --> L : filas
     L --> F : UsuarioBloqueado
     F -> I : Recalcular (si integridad válida)
+    I --> F : OK
     F --> SYS : "Usuario bloqueado..."
     SYS --> U : "Usuario bloqueado..."
   else
+    DB --> L : filas
     L -> L : Hasher.Hashear()\n(SHA-256)
     L -> DB : USUARIO_LOGIN(usuario, hash)
     alt 4a/4b. credenciales inválidas
+      DB --> L : filas
       L -> DB : USUARIO_INCREMENTAR_INTENTOS\n(bloquea al 3.º)
+      DB --> L : OK
       L -> DB : BITACORA: LOGIN_FALLIDO\n(+ USUARIO_BLOQUEADO\ny BLOQUEO en historial)
+      DB --> L : resultado
       L --> F : CredencialesInvalidas
       F -> I : Recalcular (si integridad válida)
+      I --> F : OK
       F --> SYS : mensaje de error
       SYS --> U : mensaje de error
     else válidas
+      DB --> L : filas
       L -> DB : USUARIO_RESETEAR_INTENTOS
+      DB --> L : OK
       L -> DB : USUARIO_PERMISOS_LISTAR
+      DB --> L : filas
       L -> S : setUsuario(u)\nsetPermisos(permisos)
+      S --> L : OK
       L -> DB : BITACORA: LOGIN
+      DB --> L : resultado
       L -> L : FachadaIdioma\n.AplicarPreferencia(u)
       L --> F : Exito
       alt integridad válida
         F -> I : RecalcularIntegridadUsuarios()
         I -> DB : DVH / DVV
+        DB --> I : resultado
+        I --> F : OK
         F --> SYS : "Bienvenido" + abre frmMenu
         SYS --> U : "Bienvenido" + abre frmMenu
       else 9a. comprometida, admin íntegro
@@ -65,6 +79,7 @@ else
         F --> SYS : "El sistema no puede iniciarse..."
         SYS --> U : "El sistema no puede iniciarse..."
         F -> S : cerrarSesion()
+        S --> F : OK
       end
     end
   end
