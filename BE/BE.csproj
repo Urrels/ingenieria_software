@@ -44,6 +44,7 @@
     <Compile Include="AlertaRevision.cs" />
     <Compile Include="BITACORA.cs" />
     <Compile Include="CONTROL_IDIOMA.cs" />
+    <Compile Include="DatosDemo.cs" />
     <Compile Include="DemandaEstimada.cs" />
     <Compile Include="Disponibilidad.cs" />
     <Compile Include="Equipo.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="FranjaHoraria.cs" />
     <Compile Include="GrillaDeTurnos.cs" />
     <Compile Include="IDIOMA.cs" />
+    <Compile Include="InformeGestion.cs" />
     <Compile Include="InformeMantenimiento.cs" />
     <Compile Include="LoginResultado.cs" />
     <Compile Include="NodoPermiso.cs" />

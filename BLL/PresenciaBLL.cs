@@ -17,7 +17,7 @@ namespace BLL
         }
 
         public static HashSet<int> EmpleadosPresentes(IEnumerable<BE.RegistroAsistenciaPersonal> fichajes,
-            DateTime inicioFranja, DateTime finFranja, DateTime ahora, int maxHorasFichajeAbierto)
+            DateTime inicioFranja, DateTime finFranja, DateTime ahora, int maxHorasFichajeAbierto, string rolRequerido = null)
         {
             var presentes = new HashSet<int>();
             double minutosFranja = (finFranja - inicioFranja).TotalMinutes;
@@ -25,6 +25,9 @@ namespace BLL
 
             foreach (var f in fichajes)
             {
+                // Una franja de Sala solo cuenta al personal de Sala (Recepción trabaja en horarios que se superponen).
+                if (rolRequerido != null && f.Rol != null && f.Rol != rolRequerido) continue;
+
                 // Un ingreso sin egreso todavía vigente cuenta hasta ahora; uno vencido no se puede medir.
                 DateTime? fin = f.Egreso;
                 if (!fin.HasValue && (ahora - f.Ingreso).TotalHours <= maxHorasFichajeAbierto)

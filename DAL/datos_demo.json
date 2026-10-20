@@ -1,0 +1,477 @@
+{
+    "Version":  1,
+    "ContrasenaEmpleados":  "Demo1234",
+    "Semilla":  2026,
+    "SemanasConGrilla":  3,
+    "Comportamiento":  {
+                           "Ausencias":  4,
+                           "HorasExtra":  10,
+                           "SalidasAnticipadas":  5,
+                           "Tardanzas":  15
+                       },
+    "Empleados":  [
+                      {
+                          "Rol":  "Sala",
+                          "Nombre":  "Lucía",
+                          "Telefono":  "11-5555-1000",
+                          "Usuario":  "lucia.fernandez",
+                          "Turno":  "Manana",
+                          "ValorHora":  3200,
+                          "Apellido":  "Fernández",
+                          "Email":  "lucia.fernandez@gimnasio.demo"
+                      },
+                      {
+                          "Rol":  "Sala",
+                          "Nombre":  "Matías",
+                          "Telefono":  "11-5555-1111",
+                          "Usuario":  "matias.rojas",
+                          "Turno":  "Manana",
+                          "ValorHora":  3100,
+                          "Apellido":  "Rojas",
+                          "Email":  "matias.rojas@gimnasio.demo"
+                      },
+                      {
+                          "Rol":  "Sala",
+                          "Nombre":  "Camila",
+                          "Telefono":  "11-5555-1222",
+                          "Usuario":  "camila.diaz",
+                          "Turno":  "Tarde",
+                          "ValorHora":  3300,
+                          "Apellido":  "Díaz",
+                          "Email":  "camila.diaz@gimnasio.demo"
+                      },
+                      {
+                          "Rol":  "Sala",
+                          "Nombre":  "Bruno",
+                          "Telefono":  "11-5555-1333",
+                          "Usuario":  "bruno.gomez",
+                          "Turno":  "Tarde",
+                          "ValorHora":  3000,
+                          "Apellido":  "Gómez",
+                          "Email":  "bruno.gomez@gimnasio.demo"
+                      },
+                      {
+                          "Rol":  "Recepcion",
+                          "Nombre":  "Sofía",
+                          "Telefono":  "11-5555-1444",
+                          "Usuario":  "sofia.perez",
+                          "Turno":  "",
+                          "ValorHora":  2900,
+                          "Apellido":  "Pérez",
+                          "Email":  "sofia.perez@gimnasio.demo"
+                      },
+                      {
+                          "Rol":  "Recepcion",
+                          "Nombre":  "Nicolás",
+                          "Telefono":  "11-5555-1555",
+                          "Usuario":  "nicolas.silva",
+                          "Turno":  "",
+                          "ValorHora":  2800,
+                          "Apellido":  "Silva",
+                          "Email":  "nicolas.silva@gimnasio.demo"
+                      },
+                      {
+                          "Rol":  "Tecnico",
+                          "Nombre":  "Tomás",
+                          "Telefono":  "11-5555-1666",
+                          "Usuario":  "tomas.herrera",
+                          "Turno":  "",
+                          "ValorHora":  0,
+                          "Apellido":  "Herrera",
+                          "Email":  "tomas.herrera@gimnasio.demo"
+                      }
+                  ],
+    "Franjas":  [
+                    {
+                        "Inicio":  "07:00",
+                        "Fin":  "15:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Monday",
+                        "Socios":  [
+                                       28,
+                                       30,
+                                       29,
+                                       32,
+                                       31,
+                                       33,
+                                       32,
+                                       34
+                                   ]
+                    },
+                    {
+                        "Inicio":  "07:00",
+                        "Fin":  "15:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Tuesday",
+                        "Socios":  [
+                                       26,
+                                       28,
+                                       27,
+                                       29,
+                                       28,
+                                       30,
+                                       31,
+                                       31
+                                   ]
+                    },
+                    {
+                        "Inicio":  "07:00",
+                        "Fin":  "15:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Wednesday",
+                        "Socios":  [
+                                       40,
+                                       42,
+                                       41,
+                                       44,
+                                       43,
+                                       46,
+                                       47,
+                                       48
+                                   ]
+                    },
+                    {
+                        "Inicio":  "07:00",
+                        "Fin":  "15:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Thursday",
+                        "Socios":  [
+                                       16,
+                                       17,
+                                       16,
+                                       18,
+                                       17,
+                                       18,
+                                       17,
+                                       19
+                                   ]
+                    },
+                    {
+                        "Inicio":  "07:00",
+                        "Fin":  "15:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Friday",
+                        "Socios":  [
+                                       28,
+                                       29,
+                                       30,
+                                       31,
+                                       30,
+                                       32,
+                                       31,
+                                       33
+                                   ]
+                    },
+                    {
+                        "Inicio":  "15:00",
+                        "Fin":  "23:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Monday",
+                        "Socios":  [
+                                       44,
+                                       46,
+                                       45,
+                                       48,
+                                       47,
+                                       50,
+                                       52,
+                                       54
+                                   ]
+                    },
+                    {
+                        "Inicio":  "15:00",
+                        "Fin":  "23:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Tuesday",
+                        "Socios":  [
+                                       30,
+                                       31,
+                                       32,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       35
+                                   ]
+                    },
+                    {
+                        "Inicio":  "15:00",
+                        "Fin":  "23:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Wednesday",
+                        "Socios":  [
+                                       30,
+                                       31,
+                                       32,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       34
+                                   ]
+                    },
+                    {
+                        "Inicio":  "15:00",
+                        "Fin":  "23:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Thursday",
+                        "Socios":  [
+                                       30,
+                                       32,
+                                       31,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       35
+                                   ]
+                    },
+                    {
+                        "Inicio":  "15:00",
+                        "Fin":  "23:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Friday",
+                        "Socios":  [
+                                       46,
+                                       48,
+                                       47,
+                                       50,
+                                       49,
+                                       52,
+                                       54,
+                                       56
+                                   ]
+                    },
+                    {
+                        "Inicio":  "09:00",
+                        "Fin":  "15:00",
+                        "Rol":  "Sala",
+                        "Dia":  "Saturday",
+                        "Socios":  [
+                                       30,
+                                       31,
+                                       32,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       34
+                                   ]
+                    },
+                    {
+                        "Inicio":  "09:00",
+                        "Fin":  "17:00",
+                        "Rol":  "Recepcion",
+                        "Dia":  "Monday",
+                        "Socios":  [
+                                       30,
+                                       31,
+                                       32,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       34
+                                   ]
+                    },
+                    {
+                        "Inicio":  "09:00",
+                        "Fin":  "17:00",
+                        "Rol":  "Recepcion",
+                        "Dia":  "Tuesday",
+                        "Socios":  [
+                                       28,
+                                       30,
+                                       29,
+                                       31,
+                                       30,
+                                       32,
+                                       31,
+                                       33
+                                   ]
+                    },
+                    {
+                        "Inicio":  "09:00",
+                        "Fin":  "17:00",
+                        "Rol":  "Recepcion",
+                        "Dia":  "Wednesday",
+                        "Socios":  [
+                                       20,
+                                       22,
+                                       21,
+                                       23,
+                                       22,
+                                       24,
+                                       23,
+                                       25
+                                   ]
+                    },
+                    {
+                        "Inicio":  "09:00",
+                        "Fin":  "17:00",
+                        "Rol":  "Recepcion",
+                        "Dia":  "Thursday",
+                        "Socios":  [
+                                       30,
+                                       31,
+                                       32,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       34
+                                   ]
+                    },
+                    {
+                        "Inicio":  "09:00",
+                        "Fin":  "17:00",
+                        "Rol":  "Recepcion",
+                        "Dia":  "Friday",
+                        "Socios":  [
+                                       30,
+                                       32,
+                                       31,
+                                       33,
+                                       32,
+                                       34,
+                                       33,
+                                       35
+                                   ]
+                    }
+                ],
+    "Equipos":  [
+                    {
+                        "Critico":  1000,
+                        "Nombre":  "Cinta de correr 1",
+                        "UsoDiario":  [
+                                          38,
+                                          41,
+                                          45,
+                                          40,
+                                          36,
+                                          44,
+                                          47,
+                                          39,
+                                          42,
+                                          40,
+                                          43,
+                                          46,
+                                          41,
+                                          44
+                                      ],
+                        "Uso":  940
+                    },
+                    {
+                        "Critico":  1000,
+                        "Nombre":  "Cinta de correr 2",
+                        "UsoDiario":  [
+                                          35,
+                                          38,
+                                          40,
+                                          36,
+                                          34,
+                                          41,
+                                          43,
+                                          37,
+                                          39,
+                                          38,
+                                          40,
+                                          42,
+                                          39,
+                                          41
+                                      ],
+                        "Uso":  1015
+                    },
+                    {
+                        "Critico":  800,
+                        "Nombre":  "Bicicleta fija 1",
+                        "UsoDiario":  [
+                                          18,
+                                          20,
+                                          22,
+                                          19,
+                                          17,
+                                          21,
+                                          23,
+                                          18,
+                                          20,
+                                          19,
+                                          21,
+                                          22,
+                                          20,
+                                          21
+                                      ],
+                        "Uso":  430
+                    },
+                    {
+                        "Critico":  700,
+                        "Nombre":  "Elíptico 1",
+                        "UsoDiario":  [
+                                          20,
+                                          22,
+                                          24,
+                                          21,
+                                          19,
+                                          23,
+                                          25,
+                                          20,
+                                          22,
+                                          21,
+                                          23,
+                                          24,
+                                          22,
+                                          23
+                                      ],
+                        "Uso":  640
+                    },
+                    {
+                        "Critico":  600,
+                        "Nombre":  "Remo 1",
+                        "UsoDiario":  [
+                                          6,
+                                          7,
+                                          8,
+                                          6,
+                                          5,
+                                          7,
+                                          8,
+                                          6,
+                                          7,
+                                          6,
+                                          7,
+                                          8,
+                                          7,
+                                          7
+                                      ],
+                        "Uso":  150
+                    },
+                    {
+                        "Critico":  1200,
+                        "Nombre":  "Multiestación",
+                        "UsoDiario":  [
+                                          25,
+                                          27,
+                                          30,
+                                          26,
+                                          24,
+                                          28,
+                                          31,
+                                          25,
+                                          27,
+                                          26,
+                                          28,
+                                          30,
+                                          27,
+                                          29
+                                      ],
+                        "Uso":  710
+                    }
+                ],
+    "Feriados":  [
+                     {
+                         "Descripcion":  "Feriado de ejemplo",
+                         "SemanasAtras":  2,
+                         "Dia":  "Wednesday"
+                     }
+                 ]
+}

@@ -1,3 +1,4 @@
+using BLL;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -23,7 +24,11 @@ namespace EmuladorFichaje
             Simulador sim;
             try
             {
-                var planificador = new Planificador(o);
+                var planificador = new PlanificadorFichajes(new ProbabilidadesFichaje
+                {
+                    Ausencia = o.PorcentajeAusencia, Tardanza = o.PorcentajeTardanza, HorasExtra = o.PorcentajeHorasExtra,
+                    SalidaAnticipada = o.PorcentajeSalidaAnticipada, OlvidoEgreso = o.PorcentajeOlvidoEgreso
+                }, o.Semilla);
                 var eventos = o.SinEmpleados
                     ? new System.Collections.Generic.List<EventoFichaje>()
                     : planificador.Planificar(o.Desde, o.Hasta);

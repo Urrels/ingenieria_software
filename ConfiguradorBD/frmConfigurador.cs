@@ -304,7 +304,9 @@ namespace ConfiguradorBD
 
             MessageBox.Show(this,
                 "La base de datos quedó lista y el sistema configurado para usarla.\n\n" +
-                "Usuario inicial: admin\nContraseña: 1234\n\nCambiá la contraseña después del primer ingreso.",
+                "Usuario inicial: admin\nContraseña: 1234\n\nCambiá la contraseña después del primer ingreso.\n\n" +
+                "Al ingresar por primera vez, el sistema te ofrece cargar datos de demostración (empleados, grillas, fichajes y equipos) " +
+                "para probar los procesos de negocio. También está en Administración → Cargar datos de demostración.",
                 "Instalación completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 

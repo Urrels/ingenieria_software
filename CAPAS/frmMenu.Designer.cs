@@ -38,6 +38,8 @@ namespace CAPAS
             this.evaluarCoberturaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.liquidarHorasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.corregirFichajesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.informeGestionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cargarDemoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configuraciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cambiarContraseñaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -221,7 +223,8 @@ namespace CAPAS
             this.registrarAsistenciaSociosToolStripMenuItem,
             this.evaluarCoberturaToolStripMenuItem,
             this.liquidarHorasToolStripMenuItem,
-            this.corregirFichajesToolStripMenuItem});
+            this.corregirFichajesToolStripMenuItem,
+            this.informeGestionToolStripMenuItem});
             this.asistenciaToolStripMenuItem.Name = "asistenciaToolStripMenuItem";
             this.asistenciaToolStripMenuItem.Size = new System.Drawing.Size(100, 29);
             this.asistenciaToolStripMenuItem.Text = "Asistencia";
@@ -261,6 +264,13 @@ namespace CAPAS
             this.corregirFichajesToolStripMenuItem.Text = "Corregir fichajes";
             this.corregirFichajesToolStripMenuItem.Click += new System.EventHandler(this.corregirFichajesToolStripMenuItem_Click);
             //
+            // informeGestionToolStripMenuItem
+            //
+            this.informeGestionToolStripMenuItem.Name = "informeGestionToolStripMenuItem";
+            this.informeGestionToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.informeGestionToolStripMenuItem.Text = "Informe de gestión";
+            this.informeGestionToolStripMenuItem.Click += new System.EventHandler(this.informeGestionToolStripMenuItem_Click);
+            //
             // panelToolStripMenuItem
             //
             this.panelToolStripMenuItem.Name = "panelToolStripMenuItem";
@@ -295,7 +305,8 @@ namespace CAPAS
             this.administracionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.usuariosBloqueadosToolStripMenuItem,
             this.perfilesToolStripMenuItem,
-            this.idiomasToolStripMenuItem});
+            this.idiomasToolStripMenuItem,
+            this.cargarDemoToolStripMenuItem});
             this.administracionToolStripMenuItem.Name = "administracionToolStripMenuItem";
             this.administracionToolStripMenuItem.Size = new System.Drawing.Size(140, 29);
             this.administracionToolStripMenuItem.Text = "Administración";
@@ -320,6 +331,13 @@ namespace CAPAS
             this.idiomasToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
             this.idiomasToolStripMenuItem.Text = "Gestión de idiomas";
             this.idiomasToolStripMenuItem.Click += new System.EventHandler(this.idiomasToolStripMenuItem_Click);
+            //
+            // cargarDemoToolStripMenuItem
+            //
+            this.cargarDemoToolStripMenuItem.Name = "cargarDemoToolStripMenuItem";
+            this.cargarDemoToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.cargarDemoToolStripMenuItem.Text = "Cargar datos de demostración";
+            this.cargarDemoToolStripMenuItem.Click += new System.EventHandler(this.cargarDemoToolStripMenuItem_Click);
             //
             // statusStrip1
             //
@@ -393,6 +411,8 @@ namespace CAPAS
         private System.Windows.Forms.ToolStripMenuItem evaluarCoberturaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem liquidarHorasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem corregirFichajesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem informeGestionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cargarDemoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem panelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configuraciónToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;

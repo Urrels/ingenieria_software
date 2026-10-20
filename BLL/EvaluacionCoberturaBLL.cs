@@ -25,7 +25,12 @@ namespace BLL
         private const int SOCIOS_POR_EMPLEADO = 15;
 
         // Evalúa cada franja ya terminada de la semana contra el personal que realmente fichó en ella.
-        public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana)
+        public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana) => Calcular(semana, true);
+
+        // Igual que EvaluarSemana pero sin guardar el resultado (lo usan los informes).
+        public List<ResultadoEvaluacionFranjaVM> SimularEvaluacion(DateTime semana) => Calcular(semana, false);
+
+        private List<ResultadoEvaluacionFranjaVM> Calcular(DateTime semana, bool persistir)
         {
             var grilla = _grillaBLL.ObtenerConTurnosPorSemana(semana);
             if (grilla == null) return new List<ResultadoEvaluacionFranjaVM>();
@@ -51,14 +56,14 @@ namespace BLL
                 if (fin > ahora) continue; // la franja todavía no terminó: no hay nada que evaluar
 
                 int asignados = _turnoDAL.ContarAsignadosPorFranja(grilla.Id, franjaId);
-                int presentes = PresenciaBLL.EmpleadosPresentes(fichajes, inicio, fin, ahora, maxHorasAbierto).Count;
+                int presentes = PresenciaBLL.EmpleadosPresentes(fichajes, inicio, fin, ahora, maxHorasAbierto, franja.RolRequerido).Count;
 
                 var mediciones = historialDAL.ObtenerPorFranjaYSemana(franjaId, semana);
                 int socios = mediciones.Count > 0 ? (int)mediciones.Average() : 0;
 
                 string resultado = Clasificar(presentes, socios);
 
-                _demandaDAL.InsertarEvaluacionCobertura(new BE.EvaluacionCobertura
+                if (persistir) _demandaDAL.InsertarEvaluacionCobertura(new BE.EvaluacionCobertura
                 {
                     FranjaId = franjaId,
                     Semana = semana,

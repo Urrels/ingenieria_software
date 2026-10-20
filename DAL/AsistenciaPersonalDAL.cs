@@ -145,6 +145,8 @@ namespace DAL
             };
             if (fila.Table.Columns.Contains("USUARIO"))
                 registro.Empleado = NombreEmpleado(fila);
+            if (fila.Table.Columns.Contains("ROL") && fila["ROL"] != DBNull.Value)
+                registro.Rol = fila["ROL"].ToString();
             if (fila.Table.Columns.Contains("CORREGIDO"))
             {
                 registro.Corregido = Convert.ToBoolean(fila["CORREGIDO"]);

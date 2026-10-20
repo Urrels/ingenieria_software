@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EmuladorFichaje
+namespace BLL
 {
     public enum TipoFichaje { Ingreso, Egreso }
 
@@ -16,27 +16,38 @@ namespace EmuladorFichaje
         public bool Omitir { get; set; } // el empleado se olvidó: no se ficha, queda abierto
     }
 
+    // Porcentaje de turnos en que ocurre cada situación.
+    public class ProbabilidadesFichaje
+    {
+        public int Ausencia { get; set; } = 4;
+        public int Tardanza { get; set; } = 15;
+        public int HorasExtra { get; set; } = 10;
+        public int SalidaAnticipada { get; set; } = 5;
+        public int OlvidoEgreso { get; set; } = 2;
+    }
+
     // Convierte los turnos asignados en fichajes "humanos": llegan un poco antes o después,
     // a veces faltan, se quedan de más, se van antes o se olvidan de fichar la salida.
-    public class Planificador
+    // Lo usan el emulador de fichaje y la carga de datos de demostración.
+    public class PlanificadorFichajes
     {
-        private readonly Opciones _o;
+        private readonly ProbabilidadesFichaje _p;
         private readonly Random _azar;
 
         public int Bloques { get; private set; }
         public int Ausencias { get; private set; }
         public int Omitidos { get; private set; }
 
-        public Planificador(Opciones opciones)
+        public PlanificadorFichajes(ProbabilidadesFichaje probabilidades, int semilla)
         {
-            _o = opciones;
-            _azar = new Random(opciones.Semilla);
+            _p = probabilidades;
+            _azar = new Random(semilla);
         }
 
         public List<EventoFichaje> Planificar(DateTime desde, DateTime hasta)
         {
             var turnos = new DAL.LiquidacionDAL().ListarTurnosAsignados(desde, hasta);
-            var yaFichados = new BLL.PresenciaBLL().ObtenerFichajes(desde, hasta)
+            var yaFichados = new PresenciaBLL().ObtenerFichajes(desde, hasta)
                 .Select(f => (f.UsuarioId, f.Fecha.Date)).ToList();
             var eventos = new List<EventoFichaje>();
 
@@ -74,24 +85,22 @@ namespace EmuladorFichaje
 
         private IEnumerable<EventoFichaje> Simular(int usuarioId, string empleado, DateTime inicio, DateTime fin)
         {
-            if (Tirada(_o.PorcentajeAusencia))
+            if (Tirada(_p.Ausencia))
             {
                 Ausencias++;
                 yield break;
             }
 
-            // Llegada
             int minutosIngreso;
-            string notaIngreso;
-            if (Tirada(_o.PorcentajeTardanza)) { minutosIngreso = _azar.Next(12, 36); notaIngreso = "llegó tarde"; }
-            else { minutosIngreso = _azar.Next(-10, 6); notaIngreso = null; }
+            string notaIngreso = null;
+            if (Tirada(_p.Tardanza)) { minutosIngreso = _azar.Next(12, 36); notaIngreso = "llegó tarde"; }
+            else minutosIngreso = _azar.Next(-10, 6);
 
-            // Salida
             int minutosEgreso;
             string notaEgreso = null;
-            bool olvida = Tirada(_o.PorcentajeOlvidoEgreso);
-            if (Tirada(_o.PorcentajeHorasExtra)) { minutosEgreso = _azar.Next(30, 91); notaEgreso = "se quedó de más"; }
-            else if (Tirada(_o.PorcentajeSalidaAnticipada)) { minutosEgreso = -_azar.Next(20, 46); notaEgreso = "se fue antes"; }
+            bool olvida = Tirada(_p.OlvidoEgreso);
+            if (Tirada(_p.HorasExtra)) { minutosEgreso = _azar.Next(30, 91); notaEgreso = "se quedó de más"; }
+            else if (Tirada(_p.SalidaAnticipada)) { minutosEgreso = -_azar.Next(20, 46); notaEgreso = "se fue antes"; }
             else minutosEgreso = _azar.Next(-3, 11);
 
             DateTime ingreso = inicio.AddMinutes(minutosIngreso);
@@ -99,10 +108,11 @@ namespace EmuladorFichaje
             if (egreso <= ingreso.AddMinutes(30)) egreso = ingreso.AddMinutes(30);
 
             yield return new EventoFichaje { Cuando = ingreso, UsuarioId = usuarioId, Empleado = empleado, Tipo = TipoFichaje.Ingreso, Nota = notaIngreso };
-            if (olvida)
-                yield return new EventoFichaje { Cuando = egreso, UsuarioId = usuarioId, Empleado = empleado, Tipo = TipoFichaje.Egreso, Nota = "se olvidó de fichar la salida", Omitir = true };
-            else
-                yield return new EventoFichaje { Cuando = egreso, UsuarioId = usuarioId, Empleado = empleado, Tipo = TipoFichaje.Egreso, Nota = notaEgreso };
+            yield return new EventoFichaje
+            {
+                Cuando = egreso, UsuarioId = usuarioId, Empleado = empleado, Tipo = TipoFichaje.Egreso,
+                Nota = olvida ? "se olvidó de fichar la salida" : notaEgreso, Omitir = olvida
+            };
         }
 
         private bool Tirada(int porcentaje) => _azar.Next(100) < porcentaje;

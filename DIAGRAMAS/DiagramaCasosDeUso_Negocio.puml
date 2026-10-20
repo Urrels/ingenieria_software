@@ -30,6 +30,8 @@ rectangle "Control operativo" #FEFECE {
   usecase "CU-36 Evaluar cobertura" as CU36
   usecase "CU-38 Liquidar horas\nde empleados" as CU38
   usecase "CU-39 Corregir fichajes" as CU39
+  usecase "CU-40 Cargar datos\nde demostración" as CU40
+  usecase "CU-41 Informe de gestión\n(exportar a PDF)" as CU41
 }
 
 rectangle "Mantenimiento de equipamiento" #E8E8F4 {
@@ -47,6 +49,8 @@ A --> CU23
 A --> CU36
 A --> CU38
 A --> CU39
+A --> CU40
+A --> CU41
 A --> CU28
 A --> CU29
 A --> CU31
