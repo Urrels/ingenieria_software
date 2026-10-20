@@ -307,6 +307,7 @@ All diagram sources, generated images, and doc-generation scripts live under `DI
 | `DIAGRAMAS/DiagramaSecuencia_CU01..CU44_*.puml` / `.png` | Secuencia por CU | Nivel UI/BLL/DB, uno por caso de uso (CU-21 en dos partes: `CU21` propuesta y `CU21b` asignación/confirmación). Alineados con el código: los nombres de SP coinciden con los de `DAL/` |
 | `DIAGRAMAS/CasosDeUso.docx` | Documento unificado | Versión anterior con los 20 CUs de seguridad (no incluye CU-21..CU-37) |
 | `DIAGRAMAS/generar_casos_uso_docx.py` | Generador | Regenera `CasosDeUso.docx` desde el dict `CUS` definido en el script |
+| `DIAGRAMAS/Entrega_SistemaGimnasio.docx` | Documento de entrega | Los 44 CU (plantilla Cockburn) con su diagrama de secuencia, diagramas de casos de uso, casos especiales del instalador y serialización. Se regenera con `DIAGRAMAS/entrega/generar_word.ps1 -Salida <ruta.docx>` (requiere Word; los datos están en `DIAGRAMAS/entrega/*.json`) |
 
 Sin acceso a kroki.io se puede renderizar localmente con el jar de PlantUML (requiere Java y Graphviz). Los diagramas grandes superan el límite por defecto de 4096 px, por eso se sube `PLANTUML_LIMIT_SIZE`:
 
