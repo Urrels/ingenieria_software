@@ -185,7 +185,7 @@ Clases de datos sin lógica. Las principales:
 
 | Clase | Descripción |
 |---|---|
-| `USUARIO` | Usuario del sistema. Incluye `DVH int` para integridad. |
+| `USUARIO` | Usuario del sistema (la integridad se guarda en la columna `DVH` de la tabla). |
 | `BITACORA` | Registro de eventos de sesión. |
 | `IDIOMA`, `CONTROL_IDIOMA` | Soporte multiidioma. |
 | `NodoPermiso` | Clase abstracta base del árbol de roles/permisos. |
@@ -228,7 +228,7 @@ No referencia BLL ni DAL. Sus componentes:
 | Tabla | Descripción |
 |---|---|
 | `USUARIO` | Usuarios del sistema. Columna `DVH` para integridad. |
-| `NODO_PERMISO` | Árbol de roles y permisos. `TIPO='PERFIL'` = rol, `TIPO='PERMISO'` = permiso catálogo. |
+| `ROL`, `PERMISO`, `ROL_PERMISO` | Roles (con jerarquía por `PADRE_ID`), catálogo de permisos y la relación entre ambos. |
 | `ROL_PERMISO` | Relación N:M entre roles y permisos. |
 | `USUARIO_PERFIL` | Relación N:M entre usuarios y roles. |
 | `BITACORA` | Auditoría de eventos (login, logout, acciones). |
@@ -302,7 +302,7 @@ Flujo post-login en `LogIn.cs`:
 
 ### Permisos
 
-Los permisos se cargan en `SessionManager` al hacer login vía `USUARIO_PERMISOS_LISTAR` (join `USUARIO_PERFIL → ROL_PERMISO → NODO_PERMISO`).
+Los permisos se cargan en `SessionManager` al hacer login vía `USUARIO_PERMISOS_LISTAR` (join `USUARIO_PERFIL → ROL_PERMISO → PERMISO`).
 
 La UI consulta `SessionManager.TienePermiso("nombre del permiso")` para mostrar u ocultar elementos. **Nunca usar el campo `ROL` del usuario para controlar visibilidad** — no está alineado con el sistema de permisos (el antiguo método `EsAdmin()` que lo hacía fue eliminado).
 
@@ -315,7 +315,7 @@ La UI consulta `SessionManager.TienePermiso("nombre del permiso")` para mostrar 
 
 ## Sistema de integridad (DVH/DVV)
 
-Protege la tabla `USUARIO` contra modificaciones externas a la aplicación. `BITACORA`, `NODO_PERMISO` y `ROL_PERMISO` **no están protegidas**.
+Protege la tabla `USUARIO` contra modificaciones externas a la aplicación. `BITACORA`, `ROL`, `PERMISO` y `ROL_PERMISO` **no están protegidas**.
 
 ### DVH (Dígito Verificador Horizontal)
 

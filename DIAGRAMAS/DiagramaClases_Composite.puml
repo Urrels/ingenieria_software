@@ -13,7 +13,6 @@ package "BE" #FEFECE {
     + Id : int
     + Nombre : string
     + PadreId : int?
-    + DVH : int
     --
     + {abstract} Agregar(nodo : NodoPermiso)
     + {abstract} Quitar(nodo : NodoPermiso)

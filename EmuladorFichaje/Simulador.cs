@@ -5,8 +5,6 @@ using System.Globalization;
 
 namespace EmuladorFichaje
 {
-    // Reloj acelerado + ejecución de los fichajes planificados. Todo el acceso pasa por un candado
-    // para que la API y el bucle del reloj vean siempre la misma hora.
     public class Simulador
     {
         private static readonly CultureInfo Es = new CultureInfo("es-AR");
@@ -53,7 +51,6 @@ namespace EmuladorFichaje
             lock (_candado) Pausado = pausado;
         }
 
-        // Avanza el reloj según el tiempo real transcurrido y ejecuta los fichajes que vencieron.
         public void Avanzar(TimeSpan tiempoReal)
         {
             lock (_candado)
@@ -63,7 +60,6 @@ namespace EmuladorFichaje
                 DateTime destino = _reloj.AddSeconds(tiempoReal.TotalSeconds * Velocidad);
                 if (destino > _fin) destino = _fin;
 
-                // Cada fichaje se guarda con su hora exacta, no con la del paso del reloj.
                 while (_pendientes.Count > 0 && _pendientes.Peek().Cuando <= destino)
                 {
                     var evento = _pendientes.Dequeue();
@@ -74,7 +70,6 @@ namespace EmuladorFichaje
             }
         }
 
-        // Ficha a mano (API) con la hora simulada actual.
         public string FicharAhora(string nombreUsuario, TipoFichaje tipo, out BE.ResultadoFichaje resultado)
         {
             lock (_candado)

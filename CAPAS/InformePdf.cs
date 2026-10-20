@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace CAPAS
 {
-    // Dibuja el informe de gestión en un PDF A4: resumen, conclusiones, horas, cobertura y mantenimiento.
     internal static class InformePdf
     {
         private static readonly CultureInfo Es = new CultureInfo("es-AR");
@@ -29,8 +28,6 @@ namespace CAPAS
             Mantenimiento(pdf, i);
             return pdf;
         }
-
-        // ---------- Secciones ----------
 
         private static void Encabezado(PdfDocumento pdf, BE.InformeGestion i)
         {
@@ -171,8 +168,6 @@ namespace CAPAS
                 pdf.Y += 16;
             }
         }
-
-        // ---------- Componentes ----------
 
         private static void Seccion(PdfDocumento pdf, string titulo)
         {

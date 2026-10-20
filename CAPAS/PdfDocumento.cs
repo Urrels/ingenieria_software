@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -7,8 +6,6 @@ using System.Text;
 
 namespace CAPAS
 {
-    // Escritor de PDF mínimo (sin librerías externas): páginas A4, texto Helvetica (WinAnsi), líneas y rectángulos.
-    // Alcanza para informes con tablas y gráficos de barras dibujados con rectángulos.
     internal class PdfDocumento
     {
         internal const float Ancho = 595.28f;
@@ -21,10 +18,7 @@ namespace CAPAS
         private readonly List<MemoryStream> _paginas = new List<MemoryStream>();
         private MemoryStream _actual;
 
-        // Posición vertical actual (se mide desde arriba: 0 = borde superior).
         internal float Y { get; set; }
-
-        internal int CantidadPaginas => _paginas.Count;
 
         internal PdfDocumento()
         {
@@ -38,15 +32,12 @@ namespace CAPAS
             Y = Margen;
         }
 
-        // Si no entra "alto" en lo que queda de la página, pasa a la siguiente.
         internal bool Asegurar(float alto)
         {
             if (Y + alto <= Alto - Margen - 14) return false;
             NuevaPagina();
             return true;
         }
-
-        // ---------- Primitivas (coordenadas desde arriba a la izquierda) ----------
 
         internal void Texto(float x, float yArriba, string texto, float tam = 10, bool negrita = false, Color? color = null)
         {
@@ -74,8 +65,6 @@ namespace CAPAS
         {
             Escribir($"{Color3(color, true)} RG {F(grosor)} w {F(x1)} {F(Alto - y1Arriba)} m {F(x2)} {F(Alto - y2Arriba)} l S\n");
         }
-
-        // ---------- Texto con medidas (Arial tiene las mismas métricas que Helvetica) ----------
 
         internal static float Medir(string texto, float tam, bool negrita = false)
         {
@@ -115,8 +104,6 @@ namespace CAPAS
             return texto + "…";
         }
 
-        // ---------- Salida ----------
-
         internal void Guardar(string ruta)
         {
             File.WriteAllBytes(ruta, Generar());
@@ -124,7 +111,6 @@ namespace CAPAS
 
         internal byte[] Generar()
         {
-            // Objetos: 1 catálogo, 2 páginas, 3 y 4 fuentes, luego (página, contenido) por cada página.
             var salida = new MemoryStream();
             var posiciones = new List<long>();
 
@@ -153,7 +139,6 @@ namespace CAPAS
                 Objeto($"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {F(Ancho)} {F(Alto)}] " +
                        $"/Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents {contenido} 0 R >>");
 
-                // Pie de página con el número de página, agregado al contenido.
                 var pagina = new MemoryStream();
                 byte[] cuerpo = _paginas[i].ToArray();
                 pagina.Write(cuerpo, 0, cuerpo.Length);
@@ -178,8 +163,6 @@ namespace CAPAS
             salida.Write(bytesXref, 0, bytesXref.Length);
             return salida.ToArray();
         }
-
-        // ---------- Utilidades ----------
 
         private void Escribir(string texto)
         {

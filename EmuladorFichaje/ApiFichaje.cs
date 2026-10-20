@@ -9,7 +9,6 @@ using System.Web.Script.Serialization;
 
 namespace EmuladorFichaje
 {
-    // API HTTP mínima para fichar "desde afuera" usando la hora simulada (como un reloj de fichaje real).
     public class ApiFichaje
     {
         private readonly Simulador _sim;

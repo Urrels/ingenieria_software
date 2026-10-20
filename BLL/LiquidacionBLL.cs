@@ -10,8 +10,6 @@ namespace BLL
         private readonly PresenciaBLL _presenciaBLL = new PresenciaBLL();
         private readonly BitacoraBLL _bitacora = new BitacoraBLL();
 
-        // ---------- Cálculo ----------
-
         public List<BE.LiquidacionDia> Calcular(DateTime desde, DateTime hasta, int? usuarioId = null)
         {
             ValidarRango(desde, hasta);
@@ -35,13 +33,10 @@ namespace BLL
         public List<BE.LiquidacionResumenEmpleado> Resumir(IEnumerable<BE.LiquidacionDia> dias) =>
             LiquidacionCalculo.Resumir(dias);
 
-        // Ingresos sin egreso dentro del período (impiden cerrarlo hasta que el administrador los corrija).
         public List<BE.RegistroAsistenciaPersonal> ObtenerIncompletos(DateTime desde, DateTime hasta)
         {
             return _presenciaBLL.ObtenerFichajes(desde, hasta).Where(f => !f.HoraEgreso.HasValue).ToList();
         }
-
-        // ---------- Cierre y pago ----------
 
         public int Cerrar(DateTime desde, DateTime hasta, BE.USUARIO administrador)
         {
@@ -85,8 +80,6 @@ namespace BLL
         public List<BE.LiquidacionDia> ObtenerDiasDeLiquidacion(int liquidacionId) =>
             _dal.ListarDiasDeLiquidacion(liquidacionId);
 
-        // ---------- Excedentes ----------
-
         public void AprobarExcedente(int usuarioId, string empleado, DateTime fecha, BE.USUARIO administrador)
         {
             ValidarPeriodoAbierto(fecha);
@@ -100,8 +93,6 @@ namespace BLL
             _dal.RevocarExcedente(usuarioId, fecha);
             _bitacora.RegistrarAccion(administrador.Usuario, $"EXCEDENTE_REVOCADO:{fecha:yyyyMMdd} {empleado}");
         }
-
-        // ---------- Parámetros, valor hora y feriados ----------
 
         public BE.ParametrosLiquidacion ObtenerParametros() => _dal.ObtenerParametros();
 
@@ -148,17 +139,12 @@ namespace BLL
             _bitacora.RegistrarAccion(administrador.Usuario, "FERIADO_ELIMINADO:" + fecha.ToString("yyyyMMdd"));
         }
 
-        // ---------- Indicadores ----------
-
-        // Horas fichadas contra horas asignadas por empleado en los últimos días (panel de indicadores).
         public List<BE.LiquidacionResumenEmpleado> ResumenReciente(int dias)
         {
             DateTime hasta = Reloj.Hoy;
             DateTime desde = hasta.AddDays(-(dias - 1));
             return Resumir(Calcular(desde, hasta));
         }
-
-        // ---------- Validaciones ----------
 
         private static void ValidarRango(DateTime desde, DateTime hasta)
         {

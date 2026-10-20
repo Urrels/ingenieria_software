@@ -8,8 +8,6 @@ using System.Text;
 
 namespace BLL
 {
-    // Carga datos de demostración a partir de un archivo JSON (datos_demo.json) para que el sistema no
-    // se muestre vacío: empleados, franjas, historial de socios, grillas, fichajes, equipos y evaluaciones.
     public class DatosDemoBLL
     {
         public const string NombreArchivo = "datos_demo.json";
@@ -29,8 +27,6 @@ namespace BLL
         private readonly BitacoraBLL _bitacora = new BitacoraBLL();
         private readonly Dictionary<int, string> _turnoPorUsuario = new Dictionary<int, string>();
 
-        // ---------- Archivo serializado ----------
-
         public static BE.DatosDemo Leer(string ruta)
         {
             if (!File.Exists(ruta))
@@ -39,12 +35,6 @@ namespace BLL
                    ?? throw new InvalidDataException("El archivo de datos de demostración está vacío.");
         }
 
-        public static void Guardar(BE.DatosDemo datos, string ruta)
-        {
-            File.WriteAllText(ruta, JsonConvert.SerializeObject(datos, Formatting.Indented), new UTF8Encoding(false));
-        }
-
-        // Instalado: Scripts\datos_demo.json junto al exe. En desarrollo: DAL\datos_demo.json subiendo carpetas.
         public static string BuscarArchivo()
         {
             var carpeta = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
@@ -60,8 +50,6 @@ namespace BLL
 
         public BE.DatosNegocio ContarDatos() => _gestionDAL.ContarDatosNegocio();
 
-        // ---------- Carga ----------
-
         public BE.ResultadoCargaDemo Cargar(BE.DatosDemo datos)
         {
             Validar(datos);
@@ -75,7 +63,6 @@ namespace BLL
             int semanasHistorial = datos.Franjas.Max(f => f.Socios.Count);
             var roles = new DAL.PerfilDAL().ListarRoles().ToDictionary(r => r.Nombre, r => r.Id);
 
-            // 1. Empleados (con valor hora vigente desde antes de la primera semana simulada)
             var empleados = new List<BE.USUARIO>();
             _turnoPorUsuario.Clear();
             DateTime vigenteDesde = lunesActual.AddDays(-7 * (semanasHistorial + 1));
@@ -92,7 +79,6 @@ namespace BLL
             }
             resultado.Empleados = empleados.Count;
 
-            // 2. Franjas e historial de asistencia de socios (la base del motor predictivo)
             var franjas = new List<BE.FranjaHoraria>();
             foreach (var f in datos.Franjas)
             {
@@ -108,7 +94,6 @@ namespace BLL
             }
             resultado.Franjas = franjas.Count;
 
-            // 3. Equipos (Proceso 2): uso reciente con fecha y alerta si ya pasaron el nivel crítico
             foreach (var q in datos.Equipos)
             {
                 int equipoId = _gestionDAL.InsertarEquipo(q.Nombre, q.Uso, q.Critico);
@@ -118,11 +103,9 @@ namespace BLL
             }
             resultado.Equipos = datos.Equipos.Count;
 
-            // 4. Feriados
             foreach (var f in datos.Feriados)
                 _liquidacionDAL.GuardarFeriado(FechaDelDia(lunesActual.AddDays(-7 * f.SemanasAtras), f.Dia), f.Descripcion);
 
-            // 5. Semanas pasadas: disponibilidad -> grilla -> asignación -> confirmación -> fichajes -> evaluación
             var prob = new ProbabilidadesFichaje
             {
                 Ausencia = datos.Comportamiento.Ausencias, Tardanza = datos.Comportamiento.Tardanzas,
@@ -139,7 +122,6 @@ namespace BLL
 
                 var planificador = new PlanificadorFichajes(prob, datos.Semilla + s);
                 var eventos = planificador.Planificar(lunes, lunes.AddDays(6));
-                // En la semana más reciente un empleado "se olvida" de fichar la salida: sirve para probar Corregir fichajes.
                 if (s == 1)
                 {
                     var egresos = eventos.Where(e => e.Tipo == TipoFichaje.Egreso).ToList();
@@ -154,7 +136,6 @@ namespace BLL
                 resultado.Evaluaciones += _evaluacionBLL.EvaluarSemana(lunes).Count;
             }
 
-            // 6. La próxima semana queda lista para probar "Generar grilla": solo con la disponibilidad cargada
             DateTime proxima = lunesActual.AddDays(7);
             RegistrarDisponibilidades(personal, franjas, proxima);
             resultado.DisponibilidadesProximaSemana = personal.Count;
@@ -184,7 +165,6 @@ namespace BLL
             foreach (var turno in grilla.Turnos.Where(t => t.UsuarioId == null).ToList())
             {
                 var franja = franjas.First(f => f.Id == turno.FranjaId);
-                // El que menos turnos lleva en la semana: reparte parejo, como lo haría un administrador.
                 var candidatos = _turnoBLL.BuscarEmpleadosCompatibles(turno.RolRequerido, franja, grilla.Id)
                     .OrderBy(c => cargaPorUsuario.TryGetValue(c.Id, out int n) ? n : 0).ThenBy(c => c.Id).ToList();
                 bool asignado = false;

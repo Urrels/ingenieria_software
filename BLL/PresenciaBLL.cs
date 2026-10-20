@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace BLL
 {
-    // Único cálculo de "quién estuvo presente": lo usan la evaluación de cobertura (CU-36) y la liquidación (CU-38).
     public class PresenciaBLL
     {
-        // Un empleado cuenta como presente en una franja si estuvo al menos esta parte de ella.
         public const double PorcentajeMinimoDeFranja = 0.5;
 
         private readonly DAL.AsistenciaPersonalDAL _dal = new DAL.AsistenciaPersonalDAL();
@@ -25,10 +23,8 @@ namespace BLL
 
             foreach (var f in fichajes)
             {
-                // Una franja de Sala solo cuenta al personal de Sala (Recepción trabaja en horarios que se superponen).
                 if (rolRequerido != null && f.Rol != null && f.Rol != rolRequerido) continue;
 
-                // Un ingreso sin egreso todavía vigente cuenta hasta ahora; uno vencido no se puede medir.
                 DateTime? fin = f.Egreso;
                 if (!fin.HasValue && (ahora - f.Ingreso).TotalHours <= maxHorasFichajeAbierto)
                     fin = ahora;

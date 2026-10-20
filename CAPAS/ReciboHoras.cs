@@ -8,7 +8,6 @@ using System.Windows.Forms;
 
 namespace CAPAS
 {
-    // Recibo de horas de un empleado: vista previa e impresión (también sirve para guardar en PDF con la impresora de Windows).
     public class ReciboHoras
     {
         private readonly List<BE.LiquidacionDia> _dias;

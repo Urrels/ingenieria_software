@@ -1,4 +1,3 @@
-using BE;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,7 +9,6 @@ namespace DAL
     {
         private readonly Acceso _acceso = new Acceso();
 
-        // Último ingreso sin egreso del empleado, de cualquier fecha (un turno nocturno se cierra al día siguiente).
         public BE.RegistroAsistenciaPersonal ObtenerAbierta(int usuarioId)
         {
             List<SqlParameter> parametros = new List<SqlParameter>

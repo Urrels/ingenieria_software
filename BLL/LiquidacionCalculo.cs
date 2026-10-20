@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace BLL
 {
-    // Reglas de la liquidación de horas, sin acceso a datos (se prueban con listas en memoria).
     public static class LiquidacionCalculo
     {
         public static string Hhmm(int minutos)
@@ -58,15 +57,12 @@ namespace BLL
                 int asignados = turnosDia.Sum(t => t.Minutos);
                 bool hayIncompleto = fichajesDia.Any(f => !f.HoraEgreso.HasValue);
 
-                // Un turno que todavía no terminó y sin fichajes no es una ausencia: no genera fila.
                 if (fichajesDia.Count == 0 && turnosDia.Any(t => t.Fin > e.Ahora)) continue;
 
-                // Tolerancia (diferencia chica contra lo asignado se ignora) y redondeo del día.
                 int efectivo = crudo;
                 if (asignados > 0 && Math.Abs(crudo - asignados) <= p.ToleranciaMinutos) efectivo = asignados;
                 efectivo = Redondear(efectivo, p.RedondeoMinutos);
 
-                // Lo fichado de más (o sin turno) solo se paga si el administrador lo aprobó.
                 int excedente = asignados > 0 ? Math.Max(0, efectivo - asignados) : efectivo;
                 bool aprobado = excedente > 0 && e.ExcedentesAprobados.Contains((clave.UsuarioId, clave.Fecha));
                 int pagables = Math.Min(efectivo, asignados) + (aprobado ? excedente : 0);

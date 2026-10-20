@@ -7,7 +7,6 @@ namespace BE
         public int Id { get; set; }
         public string Nombre { get; set; }
         public int? PadreId { get; set; }
-        public int DVH { get; set; }
 
         public abstract void Agregar(NodoPermiso nodo);
         public abstract void Quitar(NodoPermiso nodo);

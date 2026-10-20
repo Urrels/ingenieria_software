@@ -24,13 +24,7 @@ namespace BLL
 
         private const int SOCIOS_POR_EMPLEADO = 15;
 
-        // Evalúa cada franja ya terminada de la semana contra el personal que realmente fichó en ella.
-        public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana) => Calcular(semana, true);
-
-        // Igual que EvaluarSemana pero sin guardar el resultado (lo usan los informes).
-        public List<ResultadoEvaluacionFranjaVM> SimularEvaluacion(DateTime semana) => Calcular(semana, false);
-
-        private List<ResultadoEvaluacionFranjaVM> Calcular(DateTime semana, bool persistir)
+        public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana)
         {
             var grilla = _grillaBLL.ObtenerConTurnosPorSemana(semana);
             if (grilla == null) return new List<ResultadoEvaluacionFranjaVM>();
@@ -39,7 +33,6 @@ namespace BLL
             var resultados = new List<ResultadoEvaluacionFranjaVM>();
             var historialDAL = new DAL.HistorialAsistenciaSociosDAL();
 
-            // Un turno nocturno de la noche anterior puede cubrir el comienzo de la primera franja.
             var fichajes = _presenciaBLL.ObtenerFichajes(semana.AddDays(-1), semana.AddDays(7));
             int maxHorasAbierto = _liquidacionDAL.ObtenerParametros().MaxHorasFichajeAbierto;
             DateTime ahora = Reloj.Ahora;
@@ -53,7 +46,7 @@ namespace BLL
                 DateTime inicio = fecha.Value + franja.HoraInicio;
                 DateTime fin = fecha.Value + franja.HoraFin;
                 if (fin <= inicio) fin = fin.AddDays(1);
-                if (fin > ahora) continue; // la franja todavía no terminó: no hay nada que evaluar
+                if (fin > ahora) continue;
 
                 int asignados = _turnoDAL.ContarAsignadosPorFranja(grilla.Id, franjaId);
                 int presentes = PresenciaBLL.EmpleadosPresentes(fichajes, inicio, fin, ahora, maxHorasAbierto, franja.RolRequerido).Count;
@@ -63,7 +56,7 @@ namespace BLL
 
                 string resultado = Clasificar(presentes, socios);
 
-                if (persistir) _demandaDAL.InsertarEvaluacionCobertura(new BE.EvaluacionCobertura
+                _demandaDAL.InsertarEvaluacionCobertura(new BE.EvaluacionCobertura
                 {
                     FranjaId = franjaId,
                     Semana = semana,
@@ -83,7 +76,6 @@ namespace BLL
             return resultados;
         }
 
-        // 1 empleado cada 15 socios (mínimo 1): menos presentes que los necesarios es Falta, más es Exceso.
         public static string Clasificar(int personalPresente, int socios)
         {
             int necesario = Math.Max(1, socios / SOCIOS_POR_EMPLEADO);

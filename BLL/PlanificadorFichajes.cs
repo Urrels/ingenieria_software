@@ -13,10 +13,9 @@ namespace BLL
         public string Empleado { get; set; }
         public TipoFichaje Tipo { get; set; }
         public string Nota { get; set; }
-        public bool Omitir { get; set; } // el empleado se olvidó: no se ficha, queda abierto
+        public bool Omitir { get; set; }
     }
 
-    // Porcentaje de turnos en que ocurre cada situación.
     public class ProbabilidadesFichaje
     {
         public int Ausencia { get; set; } = 4;
@@ -26,9 +25,6 @@ namespace BLL
         public int OlvidoEgreso { get; set; } = 2;
     }
 
-    // Convierte los turnos asignados en fichajes "humanos": llegan un poco antes o después,
-    // a veces faltan, se quedan de más, se van antes o se olvidan de fichar la salida.
-    // Lo usan el emulador de fichaje y la carga de datos de demostración.
     public class PlanificadorFichajes
     {
         private readonly ProbabilidadesFichaje _p;
@@ -53,7 +49,6 @@ namespace BLL
 
             foreach (var grupo in turnos.GroupBy(t => new { t.UsuarioId, Dia = t.Fecha.Date }))
             {
-                // Franjas contiguas del mismo día (9–13 y 13–17) son un solo bloque de trabajo.
                 foreach (var bloque in Unir(grupo.OrderBy(t => t.Inicio).ToList()))
                 {
                     Bloques++;

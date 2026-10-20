@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 namespace BE
 {
-    // Contenido de datos_demo.json: lo que se carga para no mostrar el sistema vacío.
     public class DatosDemo
     {
         public int Version { get; set; }
@@ -34,7 +33,6 @@ namespace BE
         public string Email { get; set; }
         public string Telefono { get; set; }
 
-        // "Manana" o "Tarde": solo declara disponibilidad en franjas de ese turno ("" = cualquiera).
         public string Turno { get; set; }
     }
 
@@ -45,7 +43,6 @@ namespace BE
         public string Fin { get; set; }
         public string Rol { get; set; }
 
-        // Socios que asistieron en esa franja, de la semana más antigua a la más reciente.
         public List<int> Socios { get; set; } = new List<int>();
     }
 
@@ -55,7 +52,6 @@ namespace BE
         public int Uso { get; set; }
         public int Critico { get; set; }
 
-        // Incrementos de uso de los últimos días (el último es el de ayer).
         public List<int> UsoDiario { get; set; } = new List<int>();
     }
 
