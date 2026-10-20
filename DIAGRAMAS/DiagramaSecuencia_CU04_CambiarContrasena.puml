@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Usuario" as U
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmContraseña" as F #FEFECE
 participant ":ValidadorContrasena" as V #F4E8E8
 participant ":UsuarioBLL" as B #E8F4E8
@@ -21,22 +22,27 @@ participant ":Hasher" as H #F4E8E8
 participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
-U -> F : contraseña actual, nueva y confirmación\n+ click "Continuar"
+U -> SYS : contraseña actual, nueva y confirmación\n+ click "Continuar"
+SYS -> F : contraseña actual, nueva y confirmación\n+ click "Continuar"
 alt 2a. algún campo vacío
-  F --> U : "Completá todos los campos."
+  F --> SYS : "Completá todos los campos."
+  SYS --> U : "Completá todos los campos."
 else 3a. nueva ≠ confirmación
-  F --> U : "Las contraseñas no coinciden."
+  F --> SYS : "Las contraseñas no coinciden."
+  SYS --> U : "Las contraseñas no coinciden."
 else campos válidos
   F -> V : ObtenerError(nueva)
   V --> F : null o regla incumplida
   alt 4a. no cumple las reglas
-    F --> U : regla incumplida (6 caracteres,\nuna mayúscula, un número)
+    F --> SYS : regla incumplida (6 caracteres,\nuna mayúscula, un número)
+    SYS --> U : regla incumplida (6 caracteres,\nuna mayúscula, un número)
   else cumple
     F -> B : VerificarContrasena(usuario, actual)
     B -> H : Hashear(actual)
     B -> DB : USUARIO_LOGIN(usuario, hash)
     alt 5a. contraseña actual incorrecta
-      F --> U : "La contraseña actual es incorrecta."
+      F --> SYS : "La contraseña actual es incorrecta."
+      SYS --> U : "La contraseña actual es incorrecta."
     else correcta
       F -> B : CambiarContrasena(usuario, nueva)
       B -> H : Hashear(nueva)
@@ -45,7 +51,8 @@ else campos válidos
       B -> I : RecalcularIntegridadUsuarios()
       B -> DB : HISTORIAL: CAMBIO_CLAVE
       B --> F : true
-      F --> U : "Contraseña cambiada exitosamente."
+      F --> SYS : "Contraseña cambiada exitosamente."
+      SYS --> U : "Contraseña cambiada exitosamente."
     end
   end
 end

@@ -14,13 +14,17 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmIdiomas" as F #FEFECE
 participant ":IdiomaBLL" as IB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : click "Agregar idioma"
-F --> A : InputBox "Nombre del nuevo idioma:"
-A -> F : nombre + Aceptar
+A -> SYS : click "Agregar idioma"
+SYS -> F : click "Agregar idioma"
+F --> SYS : InputBox "Nombre del nuevo idioma:"
+SYS --> A : InputBox "Nombre del nuevo idioma:"
+A -> SYS : nombre + Aceptar
+SYS -> F : nombre + Aceptar
 alt 3a. nombre vacío o cancela
   note right of F : no se crea el idioma
 else
@@ -29,7 +33,8 @@ else
   DB --> IB : nuevo ID
   F -> IB : ListarTodos()
   IB -> DB : IDIOMA_LISTAR_TODOS
-  F --> A : grilla con el idioma nuevo (deshabilitado)
+  F --> SYS : grilla con el idioma nuevo (deshabilitado)
+  SYS --> A : grilla con el idioma nuevo (deshabilitado)
 end
 note over F, DB : No aparece en los selectores hasta que se habilite (CU-17).
 

@@ -14,6 +14,7 @@ scale 0.7
 ' Participantes en orden de aparición
 ' ─────────────────────────────────────────
 actor       "Usuario"               as U
+boundary ":Sistema" as SYS #FFFFFF
 participant "Program"               as P  #FEFECE
 participant "IntegridadBLL"         as IB #E8F4E8
 participant "IntegridadDAL"         as ID #E8E8F4
@@ -74,7 +75,8 @@ P -> L : Application.Run(new LogIn())
 ' ─────────────────────────────────────────
 == 2. Autenticación (btnIngresar_Click) ==
 
-U -> L : usuario + contraseña\n+ click Ingresar
+U -> SYS : usuario + contraseña\n+ click Ingresar
+SYS -> L : usuario + contraseña\n+ click Ingresar
 L -> LB : AutenticarUsuario(usuario, contrasena)
 activate LB
 LB -> UD : EstaBloqueado(usuario)
@@ -180,11 +182,13 @@ alt resultado == Exito
       else admin cancela
         FR --> L : DialogResult.Cancel
         L -> SM : cerrarSesion()
-        L --> U : (vuelve al login)
+        L --> SYS : (vuelve al login)
+        SYS --> U : (vuelve al login)
       end
       deactivate FR
     else no autorizado para restaurar
-      L --> U : MessageBox "Error del sistema"
+      L --> SYS : MessageBox "Error del sistema"
+      SYS --> U : MessageBox "Error del sistema"
       L -> SM : cerrarSesion()
     end
 
@@ -196,7 +200,8 @@ alt resultado == Exito
     end note
   end
 
-  L --> U : MessageBox "Bienvenido"
+  L --> SYS : MessageBox "Bienvenido"
+  SYS --> U : MessageBox "Bienvenido"
   L -> FM : new frmMenu().Show()
   L -> L : this.Hide()
 
@@ -204,7 +209,8 @@ else resultado == UsuarioBloqueado / CredencialesInvalidas
   opt integridad OK
     L -> IB : RecalcularIntegridadUsuarios()
   end
-  L --> U : MessageBox de error
+  L --> SYS : MessageBox de error
+  SYS --> U : MessageBox de error
 end
 
 @enduml

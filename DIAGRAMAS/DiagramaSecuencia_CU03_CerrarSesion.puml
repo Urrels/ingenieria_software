@@ -14,13 +14,15 @@ skinparam dpi 140
 hide footbox
 
 actor ":Usuario" as U
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmMenu" as M #FEFECE
 participant ":BitacoraBLL" as B #E8F4E8
 participant ":SessionManager" as S #F4E8E8
 participant ":LogIn" as L #FEFECE
 database ":DB" as DB #E8E8F4
 
-U -> M : click "Cerrar sesión"
+U -> SYS : click "Cerrar sesión"
+SYS -> M : click "Cerrar sesión"
 M -> S : getUsuario().Usuario
 S --> M : nombre de usuario
 M -> B : RegistrarLogout(usuario)
@@ -29,6 +31,7 @@ M -> S : cerrarSesion()
 note right of S : _instance = null:\nla próxima sesión arranca limpia
 M -> L : new LogIn().Show()
 M -> M : Close()
-L --> U : pantalla de inicio de sesión
+L --> SYS : pantalla de inicio de sesión
+SYS --> U : pantalla de inicio de sesión
 
 @enduml

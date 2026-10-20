@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmGenerarGrilla" as F #FEFECE
 participant ":frmAsignarEmpleado" as AE #FEFECE
 participant ":TurnoBLL" as T #E8F4E8
@@ -21,34 +22,41 @@ participant ":GrillaBLL" as G #E8F4E8
 database ":DB" as DB #E8E8F4
 
 loop 7–10. por cada turno
-  A -> F : doble clic en un turno
+  A -> SYS : doble clic en un turno
+  SYS -> F : doble clic en un turno
   F -> AE : ShowDialog()
   AE -> T : BuscarEmpleados\nCompatibles()
   T -> DB : TURNO_BUSCAR_COMPATIBLES
   note right of DB : rol requerido + disponibilidad\ndeclarada para la franja en\nesa semana (CU-22)
   alt 7a. "Sin cobertura"
-    A -> AE : "Sin cobertura"\n+ confirmar
+    A -> SYS : "Sin cobertura"\n+ confirmar
+    SYS -> AE : "Sin cobertura"\n+ confirmar
     AE -> T : MarcarDeficitCobertura()
     T -> DB : TURNO_ACTUALIZAR_ASIGNACION\n("DeficitCobertura")
   else elegir empleado
-    A -> AE : empleado + "Asignar"
+    A -> SYS : empleado + "Asignar"
+    SYS -> AE : empleado + "Asignar"
     AE -> T : AsignarEmpleado()
     T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
     alt 9a. supera el límite
-      AE --> A : "X superaría su límite\nde horas semanales..."
+      AE --> SYS : "X superaría su límite\nde horas semanales..."
+      SYS --> A : "X superaría su límite\nde horas semanales..."
     else
       T -> DB : TURNO_ACTUALIZAR_ASIGNACION\n("Asignado")
     end
   end
 end
-A -> F : "Confirmar grilla"
+A -> SYS : "Confirmar grilla"
+SYS -> F : "Confirmar grilla"
 F -> G : ConfirmarGrilla(grilla)
 alt 12a. quedan turnos sin resolver
   G --> F : false
-  F --> A : "Todavía quedan franjas\nsin asignar..."
+  F --> SYS : "Todavía quedan franjas\nsin asignar..."
+  SYS --> A : "Todavía quedan franjas\nsin asignar..."
 else
   G -> DB : GRILLA_CONFIRMAR
-  F --> A : "Grilla confirmada\ncorrectamente."
+  F --> SYS : "Grilla confirmada\ncorrectamente."
+  SYS --> A : "Grilla confirmada\ncorrectamente."
 end
 
 @enduml

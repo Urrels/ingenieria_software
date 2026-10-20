@@ -14,18 +14,22 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmAdminUsuarios" as F #FEFECE
 participant ":frmNuevoUsuario" as N #FEFECE
 participant ":UsuarioBLL" as B #E8F4E8
 participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : click "Nuevo"
+A -> SYS : click "Nuevo"
+SYS -> F : click "Nuevo"
 F -> N : ShowDialog()
 N -> DB : ROL_LISTAR_PARA_COMBO\n(PerfilBLL)
-A -> N : datos + "Aceptar"
+A -> SYS : datos + "Aceptar"
+SYS -> N : datos + "Aceptar"
 alt 4a. falta un dato obligatorio
-  N --> A : "Ingresá un nombre\nde usuario." / ...
+  N --> SYS : "Ingresá un nombre\nde usuario." / ...
+  SYS --> A : "Ingresá un nombre\nde usuario." / ...
 else 3a. cancela
   N --> F : Cancel
 else
@@ -36,12 +40,14 @@ else
   note right of DB : USUARIO + rol\nen USUARIO_PERFIL
   alt 6a. nombre existente
     B --> F : false
-    F --> A : "El nombre de usuario\nya existe."
+    F --> SYS : "El nombre de usuario\nya existe."
+    SYS --> A : "El nombre de usuario\nya existe."
   else
     B -> I : RecalcularIntegridadUsuarios()
     B -> DB : HISTORIAL: ALTA
     B --> F : true
-    F --> A : "Usuario creado\ncorrectamente."
+    F --> SYS : "Usuario creado\ncorrectamente."
+    SYS --> A : "Usuario creado\ncorrectamente."
   end
 end
 

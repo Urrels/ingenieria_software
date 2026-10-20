@@ -14,28 +14,36 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmAdminUsuarios" as F #FEFECE
 participant ":UsuarioBLL" as B #E8F4E8
 participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar usuario\n+ "Desbloquear"
+A -> SYS : seleccionar usuario\n+ "Desbloquear"
+SYS -> F : seleccionar usuario\n+ "Desbloquear"
 alt 1a. sin selección
-  F --> A : "Seleccioná un usuario."
+  F --> SYS : "Seleccioná un usuario."
+  SYS --> A : "Seleccioná un usuario."
 else 2a. no está bloqueado
-  F --> A : "El usuario no está bloqueado."
+  F --> SYS : "El usuario no está bloqueado."
+  SYS --> A : "El usuario no está bloqueado."
 else
-  F --> A : "¿Desbloquear al usuario 'X'?"
+  F --> SYS : "¿Desbloquear al usuario 'X'?"
+  SYS --> A : "¿Desbloquear al usuario 'X'?"
   alt 3a. cancela
-    A --> F : No
+    A --> SYS : No
+    SYS --> F : No
   else
-    A --> F : Sí
+    A --> SYS : Sí
+    SYS --> F : Sí
     F -> B : Desbloquear(usuario)
     B -> DB : USUARIO_DESBLOQUEAR\n(bloqueado 0, intentos 0)
     B -> DB : BITACORA:\nDESBLOQUEO_USUARIO:X
     B -> I : RecalcularIntegridadUsuarios()
     B -> DB : HISTORIAL: DESBLOQUEO
-    F --> A : "Usuario desbloqueado."
+    F --> SYS : "Usuario desbloqueado."
+    SYS --> A : "Usuario desbloqueado."
   end
 end
 
