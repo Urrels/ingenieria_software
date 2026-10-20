@@ -35,11 +35,6 @@ namespace BLL
                    ?? throw new InvalidDataException("El archivo de datos de demostración está vacío.");
         }
 
-        public static void Guardar(BE.DatosDemo datos, string ruta)
-        {
-            File.WriteAllText(ruta, JsonConvert.SerializeObject(datos, Formatting.Indented), new UTF8Encoding(false));
-        }
-
         public static string BuscarArchivo()
         {
             var carpeta = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);

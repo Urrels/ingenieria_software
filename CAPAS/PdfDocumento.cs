@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -20,8 +19,6 @@ namespace CAPAS
         private MemoryStream _actual;
 
         internal float Y { get; set; }
-
-        internal int CantidadPaginas => _paginas.Count;
 
         internal PdfDocumento()
         {

@@ -20,7 +20,6 @@ package "BE" #FEFECE {
   class USUARIO {
     + Id : int
     + Usuario : string
-    + Contrasena : string
     + IntentosFallidos : int
     + Bloqueado : bool
     + Rol : string
@@ -30,7 +29,6 @@ package "BE" #FEFECE {
     + Apellido : string
     + Telefono : string
     + Email : string
-    + DVH : int
     + IdiomaId : int?
   }
 
@@ -39,7 +37,6 @@ package "BE" #FEFECE {
     + Usuario : string
     + Accion : string
     + Fecha : DateTime
-    + DVH : int
   }
 
   class IDIOMA {
@@ -88,7 +85,6 @@ package "BE" #FEFECE {
     + Id : int
     + Nombre : string
     + PadreId : int?
-    + DVH : int
     + {abstract} Agregar(n : NodoPermiso) : void
     + {abstract} Quitar(n : NodoPermiso) : void
     + {abstract} ObtenerHijos() : IList<NodoPermiso>

@@ -107,7 +107,6 @@ namespace CAPAS
 
             if (dgvUsuarios.Columns.Count > 0)
             {
-                if (dgvUsuarios.Columns["Contrasena"] != null) dgvUsuarios.Columns["Contrasena"].Visible = false;
                 if (dgvUsuarios.Columns["IntentosFallidos"] != null) dgvUsuarios.Columns["IntentosFallidos"].Visible = false;
                 if (dgvUsuarios.Columns["IdiomaId"] != null) dgvUsuarios.Columns["IdiomaId"].Visible = false;
                 if (dgvUsuarios.Columns["Rol"] != null) dgvUsuarios.Columns["Rol"].Visible = false;

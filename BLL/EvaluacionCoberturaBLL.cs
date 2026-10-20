@@ -24,11 +24,7 @@ namespace BLL
 
         private const int SOCIOS_POR_EMPLEADO = 15;
 
-        public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana) => Calcular(semana, true);
-
-        public List<ResultadoEvaluacionFranjaVM> SimularEvaluacion(DateTime semana) => Calcular(semana, false);
-
-        private List<ResultadoEvaluacionFranjaVM> Calcular(DateTime semana, bool persistir)
+        public List<ResultadoEvaluacionFranjaVM> EvaluarSemana(DateTime semana)
         {
             var grilla = _grillaBLL.ObtenerConTurnosPorSemana(semana);
             if (grilla == null) return new List<ResultadoEvaluacionFranjaVM>();
@@ -60,7 +56,7 @@ namespace BLL
 
                 string resultado = Clasificar(presentes, socios);
 
-                if (persistir) _demandaDAL.InsertarEvaluacionCobertura(new BE.EvaluacionCobertura
+                _demandaDAL.InsertarEvaluacionCobertura(new BE.EvaluacionCobertura
                 {
                     FranjaId = franjaId,
                     Semana = semana,

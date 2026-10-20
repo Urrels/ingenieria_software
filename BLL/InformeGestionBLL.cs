@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using SeguridadYServicios;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -173,9 +172,6 @@ namespace BLL
 
         public static string ADatosJson(BE.InformeGestion informe) =>
             JsonConvert.SerializeObject(informe, Formatting.Indented);
-
-        public static BE.InformeGestion DesdeJson(string json) =>
-            JsonConvert.DeserializeObject<BE.InformeGestion>(json);
 
         public static void GuardarJson(BE.InformeGestion informe, string ruta) =>
             File.WriteAllText(ruta, ADatosJson(informe), new UTF8Encoding(false));

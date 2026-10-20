@@ -16,13 +16,6 @@
             set { usuario = value; }
         }
 
-        private string contrasena;
-        public string Contrasena
-        {
-            get { return contrasena; }
-            set { contrasena = value; }
-        }
-
         public int IntentosFallidos { get; set; }
         public bool Bloqueado { get; set; }
         public string Rol { get; set; }
@@ -32,7 +25,6 @@
         public string Apellido { get; set; }
         public string Telefono { get; set; }
         public string Email { get; set; }
-        public int DVH { get; set; }
         public int? IdiomaId { get; set; }
         public int? LimiteHorasSemanales { get; set; }
     }
