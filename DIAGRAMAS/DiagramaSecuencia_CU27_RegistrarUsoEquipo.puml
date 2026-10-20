@@ -15,6 +15,7 @@ hide footbox
 
 actor ":Empleado" as E
 actor ":Sensor IoT" as SI
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmRegistrarUsoMaquina" as F #FEFECE
 participant ":ApiSensoresEquipos" as API #FEFECE
 participant ":EquipoBLL" as EB #E8F4E8
@@ -22,18 +23,22 @@ participant ":AlertaRevisionBLL" as AB #E8F4E8
 database ":DB" as DB #E8E8F4
 
 alt carga manual
-  E -> F : abrir "Registrar uso"
+  E -> SYS : abrir "Registrar uso"
+  SYS -> F : abrir "Registrar uso"
   F -> EB : ListarTodos()
   EB -> DB : EQUIPO_LISTAR_TODOS
   F -> F : mostrar solo equipos "Operativo"
-  E -> F : elegir equipo + "Registrar"
+  E -> SYS : elegir equipo + "Registrar"
+  SYS -> F : elegir equipo + "Registrar"
   F -> EB : RegistrarUso(equipoId, 1)
 else 1a. sensor IoT
-  SI -> API : POST /api/equipos/uso\n{NombreEquipo, Incremento}
+  SI -> SYS : POST /api/equipos/uso\n{NombreEquipo, Incremento}
+  SYS -> API : POST /api/equipos/uso\n{NombreEquipo, Incremento}
   API -> EB : ObtenerPorNombre(nombre)
   EB -> DB : EQUIPO_OBTENER_POR_NOMBRE
   alt equipo inexistente
-    API --> SI : 400 {ok: false}
+    API --> SYS : 400 {ok: false}
+    SYS --> SI : 400 {ok: false}
   else
     API -> EB : RegistrarUso(equipoId, incremento)
   end
@@ -44,7 +49,8 @@ EB -> DB : EQUIPO_USO_LOG_INSERTAR
 alt 4a. sin nivel crítico configurado
   EB -> DB : NOTIFICACION_EXISTE_HOY\n+ NOTIFICACION_INSERTAR a cada admin\n(NotificacionBLL, una vez por día)
   EB --> F : false
-  F --> E : "El equipo no tiene un nivel de uso crítico configurado..."
+  F --> SYS : "El equipo no tiene un nivel de uso crítico configurado..."
+  SYS --> E : "El equipo no tiene un nivel de uso crítico configurado..."
 else con nivel crítico
   opt uso acumulado >= nivel crítico
     EB -> AB : GenerarAlerta(equipoId)
@@ -52,8 +58,10 @@ else con nivel crítico
     note right of DB : si el equipo ya tiene una alerta\nabierta devuelve esa; si no,\ncrea una "Pendiente"
   end
   EB --> F : true
-  F --> E : "Registro de uso guardado correctamente."
-  API --> SI : 200 {ok: true}
+  F --> SYS : "Registro de uso guardado correctamente."
+  SYS --> E : "Registro de uso guardado correctamente."
+  API --> SYS : 200 {ok: true}
+  SYS --> SI : 200 {ok: true}
 end
 
 @enduml

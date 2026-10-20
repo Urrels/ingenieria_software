@@ -14,20 +14,24 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmEvaluarCobertura" as F #FEFECE
 participant ":EvaluacionCoberturaBLL" as EV #E8F4E8
 participant ":GrillaBLL" as G #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : abrir "Evaluar cobertura"
+A -> SYS : abrir "Evaluar cobertura"
+SYS -> F : abrir "Evaluar cobertura"
 F -> F : proponer la semana anterior
-A -> F : click "Evaluar"
+A -> SYS : click "Evaluar"
+SYS -> F : click "Evaluar"
 F -> EV : EvaluarSemana(lunes)
 EV -> G : ObtenerConTurnosPorSemana(lunes)
 G -> DB : GRILLA_OBTENER_POR_SEMANA + TURNO_LISTAR_POR_GRILLA
 alt 3a. no hay grilla
   EV --> F : lista vacía
-  F --> A : "No hay una grilla confirmada para esa semana..."
+  F --> SYS : "No hay una grilla confirmada para esa semana..."
+  SYS --> A : "No hay una grilla confirmada para esa semana..."
 else
   loop por cada franja de la grilla
     EV -> DB : TURNO_CONTAR_ASIGNADOS_POR_FRANJA
@@ -36,7 +40,8 @@ else
     EV -> DB : EVALUACION_COBERTURA_INSERTAR
   end
   EV --> F : resultados por franja
-  F --> A : grilla de resultados + "Se usará para ajustar\nla próxima planificación."
+  F --> SYS : grilla de resultados + "Se usará para ajustar\nla próxima planificación."
+  SYS --> A : grilla de resultados + "Se usará para ajustar\nla próxima planificación."
 end
 
 @enduml

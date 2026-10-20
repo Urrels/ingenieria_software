@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmAsignarPerfiles" as AP #FEFECE
 participant ":UsuarioPerfilBLL" as UP #E8F4E8
 participant ":PerfilBLL" as PB #E8F4E8
@@ -21,17 +22,21 @@ participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
 note over AP : 1a. sin usuario seleccionado:\n"Seleccioná un usuario."
-A -> AP : "Modificar perfiles"
+A -> SYS : "Modificar perfiles"
+SYS -> AP : "Modificar perfiles"
 AP -> PB : ObtenerArbol()
 AP -> UP : ObtenerPerfilesAsignados()
 UP -> DB : USUARIO_PERFIL_LISTAR
-AP --> A : árbol de roles\n(asignados marcados)
-A -> AP : marcar roles + "Guardar"
+AP --> SYS : árbol de roles\n(asignados marcados)
+SYS --> A : árbol de roles\n(asignados marcados)
+A -> SYS : marcar roles + "Guardar"
+SYS -> AP : marcar roles + "Guardar"
 AP -> UP : GuardarAsignaciones(id, rolIds)
 UP -> PB : ValidarQueQuede\nAdministracion()
 alt 4a. sin administración
   PB --> AP : InvalidOperationException
-  AP --> A : permiso que se perdería
+  AP --> SYS : permiso que se perdería
+  SYS --> A : permiso que se perdería
 else
   UP -> DB : transacción: BORRAR_TODOS\n+ N × ASIGNAR
   UP -> I : RecalcularIntegridadUsuarios()
@@ -39,7 +44,8 @@ else
   opt es el usuario de la sesión
     UP -> UP : actualizar permisos\nen SessionManager
   end
-  AP --> A : "Asignaciones guardadas."
+  AP --> SYS : "Asignaciones guardadas."
+  SYS --> A : "Asignaciones guardadas."
 end
 
 @enduml

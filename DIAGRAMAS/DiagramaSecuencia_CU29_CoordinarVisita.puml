@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmCoordinarVisita" as F #FEFECE
 participant ":frmSeleccionarReemplazo" as SR #FEFECE
 participant ":AlertaRevisionBLL" as AB #E8F4E8
@@ -21,36 +22,46 @@ participant ":VisitaTecnicaBLL" as VB #E8F4E8
 participant ":EquipoBLL" as EB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : abrir "Coordinar visita"
+A -> SYS : abrir "Coordinar visita"
+SYS -> F : abrir "Coordinar visita"
 F -> F : fecha propuesta = mañana
 F -> AB : ListarAutorizadas()
 AB -> DB : ALERTA_LISTAR_AUTORIZADAS
-F --> A : alertas autorizadas
-A -> F : seleccionar alerta
+F --> SYS : alertas autorizadas
+SYS --> A : alertas autorizadas
+A -> SYS : seleccionar alerta
+SYS -> F : seleccionar alerta
 F -> EB : ObtenerPorId(equipoId)
 F -> VB : ObtenerTecnicoHabitual(equipo)
 VB -> DB : USUARIO_OBTENER_POR_ID
-F --> A : "Técnico habitual: X"\n(o "Sin técnico habitual asignado")
+F --> SYS : "Técnico habitual: X"\n(o "Sin técnico habitual asignado")
+SYS --> A : "Técnico habitual: X"\n(o "Sin técnico habitual asignado")
 opt 2a. buscar técnico alternativo
-  A -> F : click "Buscar alternativo"
+  A -> SYS : click "Buscar alternativo"
+  SYS -> F : click "Buscar alternativo"
   F -> VB : ListarTecnicosAlternativos()
   VB -> DB : VISITA_TECNICOS_ALTERNATIVOS
   alt no hay alternativos
-    F --> A : "No hay técnicos alternativos registrados..."
+    F --> SYS : "No hay técnicos alternativos registrados..."
+    SYS --> A : "No hay técnicos alternativos registrados..."
   else
     F -> SR : ShowDialog(alternativos)
-    A -> SR : elegir técnico
+    A -> SYS : elegir técnico
+    SYS -> SR : elegir técnico
   end
 end
-A -> F : ajustar fecha + "Confirmar"
+A -> SYS : ajustar fecha + "Confirmar"
+SYS -> F : ajustar fecha + "Confirmar"
 alt 3a. sin técnico elegido
-  F --> A : "Elegí un técnico (habitual o alternativo)..."
+  F --> SYS : "Elegí un técnico (habitual o alternativo)..."
+  SYS --> A : "Elegí un técnico (habitual o alternativo)..."
 else
   F -> VB : CoordinarVisita(alertaId, tecnicoId, fecha)
   VB -> DB : VISITA_INSERTAR (estado "Coordinada")
   F -> AB : MarcarCoordinada(alerta)
   AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Coordinada")
-  F --> A : "Solicitud de visita confirmada."
+  F --> SYS : "Solicitud de visita confirmada."
+  SYS --> A : "Solicitud de visita confirmada."
 end
 
 @enduml

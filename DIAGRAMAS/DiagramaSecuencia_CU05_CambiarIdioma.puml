@@ -14,13 +14,15 @@ skinparam dpi 140
 hide footbox
 
 actor ":Usuario" as U
+boundary ":Sistema" as SYS #FFFFFF
 participant ":Formulario" as F #FEFECE
 participant ":FachadaIdioma" as FA #E8F4E8
 participant ":IdiomaManager" as IM #F4E8E8
 participant ":Pantallas abiertas" as O #FEFECE
 database ":DB" as DB #E8E8F4
 
-U -> F : elegir idioma\nen el selector
+U -> SYS : elegir idioma\nen el selector
+SYS -> F : elegir idioma\nen el selector
 F -> FA : Cambiar(idioma)
 FA -> DB : TRADUCCION_LISTAR_CONTROLES\n(IdiomaBLL)
 DB --> FA : clave → texto
@@ -36,6 +38,7 @@ alt hay sesión iniciada
 else 5a. sin sesión
   note right of FA : no se guarda\nla preferencia
 end
-F --> U : pantallas traducidas
+F --> SYS : pantallas traducidas
+SYS --> U : pantallas traducidas
 
 @enduml

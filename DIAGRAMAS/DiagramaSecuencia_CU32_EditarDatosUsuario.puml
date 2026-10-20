@@ -14,19 +14,24 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmAdminUsuarios" as F #FEFECE
 participant ":frmEditarUsuario" as E #FEFECE
 participant ":UsuarioBLL" as B #E8F4E8
 participant ":UsuarioHistorialBLL" as HB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar usuario + "Editar datos"
+A -> SYS : seleccionar usuario + "Editar datos"
+SYS -> F : seleccionar usuario + "Editar datos"
 alt 1a. sin selección
-  F --> A : "Seleccioná un usuario."
+  F --> SYS : "Seleccioná un usuario."
+  SYS --> A : "Seleccioná un usuario."
 else
   F -> E : new(usuario).ShowDialog()
-  E --> A : nombre, apellido, teléfono y email actuales
-  A -> E : modificar datos
+  E --> SYS : nombre, apellido, teléfono y email actuales
+  SYS --> A : nombre, apellido, teléfono y email actuales
+  A -> SYS : modificar datos
+  SYS -> E : modificar datos
   alt 3a. "Cancelar"
     E --> F : DialogResult.Cancel
   else "Aceptar"
@@ -37,7 +42,8 @@ else
     HB -> DB : USUARIO_HISTORIAL_INSERTAR
     note right of B : no recalcula dígitos verificadores:\nestos datos no forman parte del DVH
     F -> B : ListarPaginado(...)
-    F --> A : grilla refrescada
+    F --> SYS : grilla refrescada
+    SYS --> A : grilla refrescada
   end
 end
 

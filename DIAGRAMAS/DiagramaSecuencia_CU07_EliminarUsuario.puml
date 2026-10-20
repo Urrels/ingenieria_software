@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmAdminUsuarios" as F #FEFECE
 participant ":UsuarioBLL" as B #E8F4E8
 participant ":PerfilBLL" as PB #E8F4E8
@@ -21,30 +22,38 @@ participant ":UsuarioHistorialBLL" as HB #E8F4E8
 participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar usuario + click "Eliminar"
+A -> SYS : seleccionar usuario + click "Eliminar"
+SYS -> F : seleccionar usuario + click "Eliminar"
 alt 1a. sin selección
-  F --> A : "Seleccioná un usuario."
+  F --> SYS : "Seleccioná un usuario."
+  SYS --> A : "Seleccioná un usuario."
 else 2a. es el usuario de la sesión
-  F --> A : "No podés eliminar tu propio usuario."
+  F --> SYS : "No podés eliminar tu propio usuario."
+  SYS --> A : "No podés eliminar tu propio usuario."
 else
-  F --> A : "¿Eliminar al usuario 'X'?\nEsta acción no se puede deshacer."
+  F --> SYS : "¿Eliminar al usuario 'X'?\nEsta acción no se puede deshacer."
+  SYS --> A : "¿Eliminar al usuario 'X'?\nEsta acción no se puede deshacer."
   alt 4a. cancela
-    A --> F : No
+    A --> SYS : No
+    SYS --> F : No
   else confirma
-    A --> F : Sí
+    A --> SYS : Sí
+    SYS --> F : Sí
     F -> B : Eliminar(id)
     B -> PB : ValidarQueQuedeAdministracion(usuarioId, [])
     PB -> DB : USUARIO_PERFIL_LISTAR_ACTIVOS\n+ ROL_PERMISO_LISTAR_TODOS
     alt 5a. quedaría sin administración
       PB --> F : InvalidOperationException
-      F --> A : "No se puede guardar: el sistema quedaría\nsin ningún usuario activo con el permiso '...'."
+      F --> SYS : "No se puede guardar: el sistema quedaría\nsin ningún usuario activo con el permiso '...'."
+      SYS --> A : "No se puede guardar: el sistema quedaría\nsin ningún usuario activo con el permiso '...'."
     else permitido
       B -> HB : RegistrarCambio(id, "BAJA", admin)
       note right of HB : la BAJA se registra antes de borrar\npara guardar el último estado
       B -> DB : USUARIO_ELIMINAR
       B -> I : RecalcularIntegridadUsuarios()
       F -> B : ListarPaginado(...)
-      F --> A : grilla refrescada
+      F --> SYS : grilla refrescada
+      SYS --> A : grilla refrescada
     end
   end
 end

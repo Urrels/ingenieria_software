@@ -14,27 +14,36 @@ skinparam dpi 140
 hide footbox
 
 actor ":Empleado" as E
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmMisTurnos" as F #FEFECE
 participant ":TurnoBLL" as T #E8F4E8
 participant ":NotificacionBLL" as N #E8F4E8
 participant ":UsuarioBLL" as UB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-E -> F : abrir "Mis turnos"
+E -> SYS : abrir "Mis turnos"
+SYS -> F : abrir "Mis turnos"
 F -> T : ListarPorUsuario(usuarioId)
 T -> DB : TURNO_LISTAR_POR_USUARIO
-F --> E : turnos del empleado
-E -> F : seleccionar turno + "Cancelar turno"
+F --> SYS : turnos del empleado
+SYS --> E : turnos del empleado
+E -> SYS : seleccionar turno + "Cancelar turno"
+SYS -> F : seleccionar turno + "Cancelar turno"
 alt 1a. sin selección
-  F --> E : "Seleccioná un turno de la lista."
+  F --> SYS : "Seleccioná un turno de la lista."
+  SYS --> E : "Seleccioná un turno de la lista."
 else 2a. el turno ya no está "Asignado"
-  F --> E : "Este turno ya no está asignado..."
+  F --> SYS : "Este turno ya no está asignado..."
+  SYS --> E : "Este turno ya no está asignado..."
 else
-  F --> E : "¿Seguro que querés cancelar el turno...?"
+  F --> SYS : "¿Seguro que querés cancelar el turno...?"
+  SYS --> E : "¿Seguro que querés cancelar el turno...?"
   alt 3a. no confirma
-    E --> F : No
+    E --> SYS : No
+    SYS --> F : No
   else confirma
-    E --> F : Sí
+    E --> SYS : Sí
+    SYS --> F : Sí
     F -> T : CancelarPorEmpleado(turno, empleado)
     T -> DB : TURNO_ACTUALIZAR_ASIGNACION (null, "PendienteCobertura")
     T -> DB : TURNO_BUSCAR_COMPATIBLES\n(rol + disponibilidad)
@@ -48,7 +57,8 @@ else
     end
     N -> DB : NOTIFICACION_INSERTAR
     T --> F : candidatos notificados
-    F --> E : "Turno cancelado. Se notificó al administrador\ny a N empleado(s) disponible(s)."
+    F --> SYS : "Turno cancelado. Se notificó al administrador\ny a N empleado(s) disponible(s)."
+    SYS --> E : "Turno cancelado. Se notificó al administrador\ny a N empleado(s) disponible(s)."
   end
 end
 

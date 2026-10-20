@@ -14,24 +14,31 @@ skinparam dpi 140
 hide footbox
 
 actor ":Empleado (Recepción)" as E
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmRegistrarAsistenciaSocios" as F #FEFECE
 participant ":FranjaHorariaBLL" as FB #E8F4E8
 participant ":HistorialAsistenciaSociosBLL" as HB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-E -> F : abrir "Asistencia de socios"
+E -> SYS : abrir "Asistencia de socios"
+SYS -> F : abrir "Asistencia de socios"
 F -> FB : ListarTodas()
 FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
-F --> E : fecha de hoy + combo de franjas
-E -> F : elegir franja, fecha y cantidad + "Registrar"
+F --> SYS : fecha de hoy + combo de franjas
+SYS --> E : fecha de hoy + combo de franjas
+E -> SYS : elegir franja, fecha y cantidad + "Registrar"
+SYS -> F : elegir franja, fecha y cantidad + "Registrar"
 alt 2a. sin franja
-  F --> E : "Seleccioná una franja."
+  F --> SYS : "Seleccioná una franja."
+  SYS --> E : "Seleccioná una franja."
 else 4a. cantidad inválida
-  F --> E : "Ingresá una cantidad válida de socios."
+  F --> SYS : "Ingresá una cantidad válida de socios."
+  SYS --> E : "Ingresá una cantidad válida de socios."
 else
   F -> HB : RegistrarAsistencia(franja, fecha, cantidad)
   HB -> DB : HISTORIAL_ASISTENCIA_INSERTAR
-  F --> E : "Asistencia de socios registrada."
+  F --> SYS : "Asistencia de socios registrada."
+  SYS --> E : "Asistencia de socios registrada."
 end
 note over HB, DB : de este historial sale la demanda estimada (CU-21)
 

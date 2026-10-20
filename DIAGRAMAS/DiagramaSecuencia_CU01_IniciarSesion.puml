@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Usuario" as U
+boundary ":Sistema" as SYS #FFFFFF
 participant ":LogIn" as F #FEFECE
 participant ":LoginBLL" as L #E8F4E8
 participant ":SessionManager" as S #F4E8E8
@@ -21,16 +22,19 @@ participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
 note over F : Program.cs ya verificó la integridad al arrancar
-U -> F : usuario + contraseña\n+ "Ingresar"
+U -> SYS : usuario + contraseña\n+ "Ingresar"
+SYS -> F : usuario + contraseña\n+ "Ingresar"
 alt 2a. campo vacío
-  F --> U : "Completá usuario y contraseña."
+  F --> SYS : "Completá usuario y contraseña."
+  SYS --> U : "Completá usuario y contraseña."
 else
   F -> L : AutenticarUsuario(usuario, contraseña)
   L -> DB : USUARIO_VERIFICAR_BLOQUEO
   alt 3a. bloqueado
     L --> F : UsuarioBloqueado
     F -> I : Recalcular (si integridad válida)
-    F --> U : "Usuario bloqueado..."
+    F --> SYS : "Usuario bloqueado..."
+    SYS --> U : "Usuario bloqueado..."
   else
     L -> L : Hasher.Hashear()\n(SHA-256)
     L -> DB : USUARIO_LOGIN(usuario, hash)
@@ -39,7 +43,8 @@ else
       L -> DB : BITACORA: LOGIN_FALLIDO\n(+ USUARIO_BLOQUEADO\ny BLOQUEO en historial)
       L --> F : CredencialesInvalidas
       F -> I : Recalcular (si integridad válida)
-      F --> U : mensaje de error
+      F --> SYS : mensaje de error
+      SYS --> U : mensaje de error
     else válidas
       L -> DB : USUARIO_RESETEAR_INTENTOS
       L -> DB : USUARIO_PERMISOS_LISTAR
@@ -50,12 +55,15 @@ else
       alt integridad válida
         F -> I : RecalcularIntegridadUsuarios()
         I -> DB : DVH / DVV
-        F --> U : "Bienvenido" + abre frmMenu
+        F --> SYS : "Bienvenido" + abre frmMenu
+        SYS --> U : "Bienvenido" + abre frmMenu
       else 9a. comprometida, admin íntegro
         F -> F : CU-02 «extend»
-        F --> U : si se restauró: "Bienvenido"\n+ abre frmMenu
+        F --> SYS : si se restauró: "Bienvenido"\n+ abre frmMenu
+        SYS --> U : si se restauró: "Bienvenido"\n+ abre frmMenu
       else 9b. cualquier otro usuario
-        F --> U : "El sistema no puede iniciarse..."
+        F --> SYS : "El sistema no puede iniciarse..."
+        SYS --> U : "El sistema no puede iniciarse..."
         F -> S : cerrarSesion()
       end
     end

@@ -14,37 +14,44 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmPerfiles" as F #FEFECE
 participant ":PerfilBLL" as PB #E8F4E8
 participant ":BitacoraBLL" as BB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar un rol
+A -> SYS : seleccionar un rol
+SYS -> F : seleccionar un rol
 F -> F : PopularComboPadre(rol)
 note right of F
   excluye al rol y su subárbol;
   muestra en gris los ancestros
   por encima del padre actual
 end note
-A -> F : elegir padre en el combo
+A -> SYS : elegir padre en el combo
+SYS -> F : elegir padre en el combo
 opt 3a. eligió un padre en gris
   F -> F : volver a la opción anterior
 end
-A -> F : click "Asignar padre"
+A -> SYS : click "Asignar padre"
+SYS -> F : click "Asignar padre"
 F -> PB : CambiarPadre(rolId, nuevoPadreId)
 PB -> DB : ROL_LISTAR_TODOS
 alt 4a. GenerariaCiclo
   PB --> F : InvalidOperationException
-  F --> A : "No se puede asignar ese padre:\ngeneraría una referencia circular."
+  F --> SYS : "No se puede asignar ese padre:\ngeneraría una referencia circular."
+  SYS --> A : "No se puede asignar ese padre:\ngeneraría una referencia circular."
 else 4b. EsAncestroDelPadreActual
   PB --> F : InvalidOperationException
-  F --> A : "No se puede asignar como padre a un\nancestro del padre actual del rol."
+  F --> SYS : "No se puede asignar como padre a un\nancestro del padre actual del rol."
+  SYS --> A : "No se puede asignar como padre a un\nancestro del padre actual del rol."
 else válido
   PB -> DB : ROL_CAMBIAR_PADRE(rolId, padreId)
   PB -> BB : RegistrarAccion(admin, "ROL_PADRE_CAMBIADO:X")
   F -> PB : ObtenerArbol()
   F -> F : volver a seleccionar el rol
-  F --> A : árbol con la nueva jerarquía
+  F --> SYS : árbol con la nueva jerarquía
+  SYS --> A : árbol con la nueva jerarquía
 end
 note over F, DB : La jerarquía es solo organizativa: no hay herencia de permisos.
 

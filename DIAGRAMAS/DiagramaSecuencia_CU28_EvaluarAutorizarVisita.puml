@@ -14,6 +14,7 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmMantenimientoPredictivo" as MP #FEFECE
 participant ":frmEvaluarAutorizarVisita" as F #FEFECE
 participant ":EquipoBLL" as EB #E8F4E8
@@ -21,36 +22,49 @@ participant ":AlertaRevisionBLL" as AB #E8F4E8
 database ":DB" as DB #E8E8F4
 
 opt 1a. consultar el panel predictivo
-  A -> MP : abrir "Mantenimiento predictivo"
+  A -> SYS : abrir "Mantenimiento predictivo"
+  SYS -> MP : abrir "Mantenimiento predictivo"
   MP -> EB : ListarTodos()
   loop por cada equipo con nivel crítico
     MP -> EB : EstimarDiasHastaCritico(equipo, 14)
     EB -> DB : EQUIPO_USO_LOG_ULTIMOS_DIAS
     EB -> EB : (nivel crítico − uso acumulado)\n/ uso diario promedio
   end
-  MP --> A : equipos por días estimados\n(Alta ≤ 3, Media ≤ 10, Baja)
+  MP --> SYS : equipos por días estimados\n(Alta ≤ 3, Media ≤ 10, Baja)
+  SYS --> A : equipos por días estimados\n(Alta ≤ 3, Media ≤ 10, Baja)
 end
 
-A -> F : abrir "Evaluar y autorizar"
+A -> SYS : abrir "Evaluar y autorizar"
+SYS -> F : abrir "Evaluar y autorizar"
 F -> AB : ListarPendientes()
 AB -> DB : ALERTA_LISTAR_PENDIENTES
-F --> A : alertas pendientes
-A -> F : seleccionar alerta
+F --> SYS : alertas pendientes
+SYS --> A : alertas pendientes
+A -> SYS : seleccionar alerta
+SYS -> F : seleccionar alerta
 alt "Autorizar"
-  A -> F : click "Autorizar"
+  A -> SYS : click "Autorizar"
+  SYS -> F : click "Autorizar"
   F -> AB : ObtenerEquipoDeAlerta(alerta)
-  F --> A : "¿Autorizar la visita técnica para 'X'?"
-  A -> F : Sí
+  F --> SYS : "¿Autorizar la visita técnica para 'X'?"
+  SYS --> A : "¿Autorizar la visita técnica para 'X'?"
+  A -> SYS : Sí
+  SYS -> F : Sí
   F -> AB : AutorizarVisita(alerta)
   AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Autorizada")
-  F --> A : "Visita autorizada."
+  F --> SYS : "Visita autorizada."
+  SYS --> A : "Visita autorizada."
 else 2a. "Descartar"
-  A -> F : click "Descartar"
-  F --> A : "¿Descartar esta alerta como falso positivo?"
-  A -> F : Sí
+  A -> SYS : click "Descartar"
+  SYS -> F : click "Descartar"
+  F --> SYS : "¿Descartar esta alerta como falso positivo?"
+  SYS --> A : "¿Descartar esta alerta como falso positivo?"
+  A -> SYS : Sí
+  SYS -> F : Sí
   F -> AB : DescartarAlerta(alerta)
   AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Descartada")
-  F --> A : "Alerta descartada."
+  F --> SYS : "Alerta descartada."
+  SYS --> A : "Alerta descartada."
 end
 F -> AB : ListarPendientes()
 

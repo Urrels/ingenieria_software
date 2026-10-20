@@ -14,14 +14,17 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmAdminUsuarios" as F #FEFECE
 participant ":frmHistorialUsuario" as H #FEFECE
 participant ":UsuarioHistorialBLL" as HB #E8F4E8
 database ":DB" as DB #E8E8F4
 
-A -> F : seleccionar usuario + click "Historial"
+A -> SYS : seleccionar usuario + click "Historial"
+SYS -> F : seleccionar usuario + click "Historial"
 alt 1a. sin selección
-  F --> A : "Seleccioná un usuario."
+  F --> SYS : "Seleccioná un usuario."
+  SYS --> A : "Seleccioná un usuario."
 else
   F -> H : new(usuario).ShowDialog()
   H -> HB : ObtenerHistorialPaginado(id, página 1, 20)
@@ -30,20 +33,25 @@ else
   HB --> H : PaginaResultado
   H -> H : mostrar grilla, "Página 1 de N"\nbtnRollback deshabilitado
   alt 2a. sin historial
-    H --> A : grilla vacía
+    H --> SYS : grilla vacía
+    SYS --> A : grilla vacía
   else con historial
-    H --> A : fecha, tipo, rol, bloqueado, intentos,\nperfiles, datos personales, realizado por,\nversión origen
+    H --> SYS : fecha, tipo, rol, bloqueado, intentos,\nperfiles, datos personales, realizado por,\nversión origen
+    SYS --> A : fecha, tipo, rol, bloqueado, intentos,\nperfiles, datos personales, realizado por,\nversión origen
   end
   opt 3a. navegar páginas
-    A -> H : "Anterior" / "Siguiente"
+    A -> SYS : "Anterior" / "Siguiente"
+    SYS -> H : "Anterior" / "Siguiente"
     H -> HB : ObtenerHistorialPaginado(id, página, 20)
   end
   opt seleccionar una entrada
-    A -> H : seleccionar fila
+    A -> SYS : seleccionar fila
+    SYS -> H : seleccionar fila
     H -> H : btnRollback.Enabled = tipo ≠ BAJA
     note right of H : continúa en CU-11
   end
-  A -> H : "Cerrar"
+  A -> SYS : "Cerrar"
+  SYS -> H : "Cerrar"
   F -> F : refrescar grilla de usuarios
 end
 
