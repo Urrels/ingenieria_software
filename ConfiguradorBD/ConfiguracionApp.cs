@@ -19,13 +19,24 @@ namespace ConfiguradorBD
             return (string)add?.Attribute("connectionString");
         }
 
+        // El emulador de fichaje (herramienta incluida en el instalador) usa la misma base que la aplicación.
+        internal static string RutaConfigEmulador =>
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmuladorFichaje.exe.config");
+
         internal static void GuardarCadena(string cadena)
         {
             if (!File.Exists(RutaConfig))
                 throw new FileNotFoundException(
                     "No se encontró CAPAS.exe.config junto al configurador.", RutaConfig);
 
-            XDocument doc = XDocument.Load(RutaConfig);
+            GuardarCadenaEn(RutaConfig, cadena);
+            if (File.Exists(RutaConfigEmulador))
+                GuardarCadenaEn(RutaConfigEmulador, cadena);
+        }
+
+        private static void GuardarCadenaEn(string ruta, string cadena)
+        {
+            XDocument doc = XDocument.Load(ruta);
             XElement add = BuscarCadena(doc);
             if (add == null)
             {
@@ -41,7 +52,7 @@ namespace ConfiguradorBD
                 cadenas.Add(add);
             }
             add.SetAttributeValue("connectionString", cadena);
-            doc.Save(RutaConfig);
+            doc.Save(ruta);
         }
 
         private static XElement BuscarCadena(XDocument doc)

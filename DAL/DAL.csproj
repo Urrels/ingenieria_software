@@ -50,9 +50,11 @@
     <Compile Include="EquipoDAL.cs" />
     <Compile Include="FranjaHorariaDAL.cs" />
     <Compile Include="GtillaDAL.cs" />
+    <Compile Include="GestionDAL.cs" />
     <Compile Include="HistorialAsistenciaSociosDAL.cs" />
     <Compile Include="InformeMantenimientoDAL.cs" />
     <Compile Include="IntegridadDAL.cs" />
+    <Compile Include="LiquidacionDAL.cs" />
     <Compile Include="NotificacionDAL.cs" />
     <Compile Include="TurnoDAL.cs" />
     <Compile Include="UsuarioHistorialDAL.cs" />

@@ -42,7 +42,7 @@ else "Egreso"
   E -> SYS : click "Egreso"
   SYS -> F : click "Egreso"
   F -> AB : RegistrarEgreso(usuario)
-  AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
+  AB -> DB : ASISTENCIA_OBTENER_ABIERTA(último ingreso sin egreso, de cualquier fecha)
   alt 5a. no tiene ingreso abierto
     F --> SYS : "No tenés un ingreso registrado hoy..."
     SYS --> E : "No tenés un ingreso registrado hoy..."

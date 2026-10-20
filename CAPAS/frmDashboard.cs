@@ -11,11 +11,13 @@ namespace CAPAS
         private readonly BLL.EvaluacionCoberturaBLL _evaluacionBLL = new BLL.EvaluacionCoberturaBLL();
         private readonly BLL.HistorialAsistenciaSociosBLL _historialBLL = new BLL.HistorialAsistenciaSociosBLL();
         private readonly BLL.FranjaHorariaBLL _franjaBLL = new BLL.FranjaHorariaBLL();
+        private readonly BLL.LiquidacionBLL _liquidacionBLL = new BLL.LiquidacionBLL();
 
 
         private Chart _chartCobertura;
         private Chart _chartEquipos;
         private Chart _chartAsistencia;
+        private Chart _chartHoras;
 
         private List<BE.FranjaHoraria> _franjas;
 
@@ -43,6 +45,9 @@ namespace CAPAS
 
             _chartAsistencia = CrearChartBase();
             pnlChartAsistencia.Controls.Add(_chartAsistencia);
+
+            _chartHoras = CrearChartBase();
+            pnlChartHoras.Controls.Add(_chartHoras);
         }
 
         private Chart CrearChartBase()
@@ -72,6 +77,7 @@ namespace CAPAS
             CargarChartCobertura();
             CargarChartEquipos();
             CargarChartAsistencia();
+            CargarChartHoras();
         }
 
         private void CargarChartCobertura()
@@ -137,9 +143,32 @@ namespace CAPAS
             _chartAsistencia.Series.Add(serie);
         }
 
+        private void CargarChartHoras()
+        {
+            _chartHoras.Series.Clear();
+            _chartHoras.Titles.Clear();
+            _chartHoras.Titles.Add(Textos.T("chart_HorasPorEmpleado", "Horas por empleado, últimos 30 días (Proceso 3)"));
+
+            var serieAsignadas = new Series(Textos.T("chart_HorasAsignadas", "Horas asignadas")) { ChartType = SeriesChartType.Column };
+            var serieTrabajadas = new Series(Textos.T("chart_HorasTrabajadas", "Horas trabajadas")) { ChartType = SeriesChartType.Column };
+            var seriePagables = new Series(Textos.T("chart_HorasAPagar", "Horas a pagar")) { ChartType = SeriesChartType.Column };
+
+            foreach (var r in _liquidacionBLL.ResumenReciente(30))
+            {
+                serieAsignadas.Points.AddXY(r.Empleado, BLL.LiquidacionCalculo.Horas(r.MinAsignados));
+                serieTrabajadas.Points.AddXY(r.Empleado, BLL.LiquidacionCalculo.Horas(r.MinTrabajados));
+                seriePagables.Points.AddXY(r.Empleado, BLL.LiquidacionCalculo.Horas(r.MinPagables));
+            }
+
+            _chartHoras.Series.Add(serieAsignadas);
+            _chartHoras.Series.Add(serieTrabajadas);
+            _chartHoras.Series.Add(seriePagables);
+        }
+
         private void cboFranjaAsistencia_SelectedIndexChanged(object sender, EventArgs e)
         {
             CargarChartAsistencia();
+            CargarChartHoras();
         }
 
         private void btnActualizar_Click(object sender, EventArgs e)

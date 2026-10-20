@@ -24,6 +24,7 @@ namespace CAPAS
             ActualizarTitulo();
 
             ActualizarVisibilidadMenu();
+            Shown += (s, ev) => DemoUI.OfrecerSiSistemaVacio(this);
 
             GuardarMenuDefaults(menuStrip1.Items);
             GuardarMenuDefaults(statusStrip1.Items);
@@ -54,6 +55,10 @@ namespace CAPAS
                 { ficharAsistenciaToolStripMenuItem, "Fichar asistencia" },
                 { registrarAsistenciaSociosToolStripMenuItem, "Registrar asistencia de socios" },
                 { evaluarCoberturaToolStripMenuItem, "Evaluar cobertura" },
+                { liquidarHorasToolStripMenuItem, "Liquidar horas" },
+                { corregirFichajesToolStripMenuItem, "Liquidar horas" },
+                { informeGestionToolStripMenuItem, "Generar informes de gestión" },
+                { cargarDemoToolStripMenuItem, "Cargar datos de demostración" },
                 { panelToolStripMenuItem, "Ver panel de indicadores" },
                 { cambiarContraseñaToolStripMenuItem, "Cambiar contraseña" },
                 { bitacoraToolStripMenuItem, "Ver bitácora" },
@@ -235,6 +240,27 @@ namespace CAPAS
         private void evaluarCoberturaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new frmEvaluarCobertura().ShowDialog();
+        }
+
+        private void liquidarHorasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmLiquidarHoras().ShowDialog();
+        }
+
+        private void informeGestionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmInformeGestion().ShowDialog();
+        }
+
+        private void cargarDemoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DemoUI.CargarConConfirmacion(this);
+            ActualizarVisibilidadMenu();
+        }
+
+        private void corregirFichajesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmCorregirFichajes().ShowDialog();
         }
 
         private void cambiarContraseñaToolStripMenuItem_Click(object sender, EventArgs e)

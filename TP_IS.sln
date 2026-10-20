@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36401.2
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeguridadYServicios", "SeguridadYServicios\SeguridadYServicios.csproj", "{99BEE6C4-9900-40A3-9A90-162DEF0417EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfiguradorBD", "ConfiguradorBD\ConfiguradorBD.csproj", "{6604C048-7370-467F-BF4A-AE1ECF2195DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuladorFichaje", "EmuladorFichaje\EmuladorFichaje.csproj", "{3E1C5B7A-6D4F-4B8E-9A21-5F0C7D8E9A10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{6604C048-7370-467F-BF4A-AE1ECF2195DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6604C048-7370-467F-BF4A-AE1ECF2195DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6604C048-7370-467F-BF4A-AE1ECF2195DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E1C5B7A-6D4F-4B8E-9A21-5F0C7D8E9A10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E1C5B7A-6D4F-4B8E-9A21-5F0C7D8E9A10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E1C5B7A-6D4F-4B8E-9A21-5F0C7D8E9A10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E1C5B7A-6D4F-4B8E-9A21-5F0C7D8E9A10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,4 +58,6 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {866B5796-2D46-4DBE-AC81-E00DAD401063}
 	EndGlobalSection
-EndGlobal
+EndProject("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuladorFichaje", "EmuladorFichaje\EmuladorFichaje.csproj", "{3E1C5B7A-6D4F-4B8E-9A21-5F0C7D8E9A10}"
+EndProject
+Global

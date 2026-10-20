@@ -50,6 +50,11 @@
   <ItemGroup>
     <Compile Include="ApiSensoresEquipos.cs" />
     <Compile Include="ExcelExportHelper.cs" />
+    <Compile Include="DemoUI.cs" />
+    <Compile Include="InformePdf.cs" />
+    <Compile Include="LiquidacionExcel.cs" />
+    <Compile Include="PdfDocumento.cs" />
+    <Compile Include="ReciboHoras.cs" />
     <Compile Include="frmAjustarPorAusencia.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -95,6 +100,30 @@
     <Compile Include="frmEvaluarCobertura.cs" />
     <Compile Include="frmEvaluarCobertura.Designer.cs">
       <DependentUpon>frmEvaluarCobertura.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCorregirFichajes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCorregirFichajes.Designer.cs">
+      <DependentUpon>frmCorregirFichajes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmLiquidarHoras.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLiquidarHoras.Designer.cs">
+      <DependentUpon>frmLiquidarHoras.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmParametrosLiquidacion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmParametrosLiquidacion.Designer.cs">
+      <DependentUpon>frmParametrosLiquidacion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmInformeGestion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmInformeGestion.Designer.cs">
+      <DependentUpon>frmInformeGestion.cs</DependentUpon>
     </Compile>
     <Compile Include="frmFicharAsistencia.cs">
       <SubType>Form</SubType>

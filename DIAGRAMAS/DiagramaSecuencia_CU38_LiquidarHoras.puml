@@ -1,0 +1,71 @@
+@startuml DiagramaSecuencia_CU38_LiquidarHoras
+
+title CU-38 — Liquidar horas de empleados — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+participant ":frmLiquidarHoras" as F #FEFECE
+participant ":LiquidacionBLL" as L #E8F4E8
+participant ":PresenciaBLL" as P #E8F4E8
+participant ":LiquidacionCalculo" as C #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> F : abrir "Liquidar horas" (permiso "Liquidar horas")
+A -> F : elegir período (desde / hasta) y click "Calcular"
+F -> L : Calcular(desde, hasta)
+L -> P : ObtenerFichajes(desde, hasta)
+P -> DB : ASISTENCIA_LISTAR_RANGO
+L -> DB : TURNO_LISTAR_ASIGNADOS_RANGO + VALOR_HORA_LISTAR + FERIADO_LISTAR + EXCEDENTE_LISTAR + PARAMETRO_LIQUIDACION_LISTAR
+L -> C : Calcular(entrada)
+note right of C
+  Por empleado y día:
+  1. horas fichadas (turnos que cruzan la medianoche incluidos)
+  2. tolerancia contra lo asignado y redondeo
+  3. horas a pagar = mín(fichadas, asignadas) + excedente aprobado
+  4. normales / extra (recargo) / domingo-feriado (recargo)
+  5. importe con el valor hora vigente ese día
+  Ausente = turno terminado sin fichajes
+end note
+C --> L : filas por empleado y día
+F --> A : resumen por empleado + detalle del día + avisos\n(fichajes incompletos, sin valor hora, excedentes a aprobar)
+
+opt aprobar excedente
+  A -> F : seleccionar un día con excedente y "Aprobar excedente"
+  F -> L : AprobarExcedente(empleado, fecha)
+  L -> DB : EXCEDENTE_APROBAR + bitácora
+end
+
+opt exportar o imprimir
+  A -> F : "Exportar a Excel" / "Imprimir recibo"
+  F --> A : libro .xlsx (Resumen, Detalle, Criterios) / vista previa del recibo
+end
+
+opt cerrar el período
+  A -> F : click "Cerrar período" y confirmar
+  F -> L : Cerrar(desde, hasta, administrador)
+  alt 8a. el período no terminó, se superpone con otra liquidación,\nhay fichajes incompletos o falta el valor hora
+    L --> F : InvalidOperationException (mensaje)
+    F --> A : motivo por el que no se puede cerrar
+  else
+    L -> DB : LIQUIDACION_INSERTAR + LIQUIDACION_DIA_INSERTAR x N (una transacción) + bitácora
+    F --> A : período cerrado (los números ya no se recalculan)
+  end
+end
+
+opt marcar como pagada
+  A -> F : seleccionar una liquidación cerrada y "Marcar como pagada"
+  F -> L : MarcarPagada(liquidacion)
+  L -> DB : LIQUIDACION_MARCAR_PAGADA + bitácora
+end
+
+@enduml
