@@ -1,0 +1,50 @@
+@startuml DiagramaSecuencia_CU42_BajaFranja
+
+title CU-42 — Baja de franja horaria — Diagrama de Secuencia
+
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam sequenceArrowThickness 1.2
+skinparam ParticipantPadding 6
+skinparam BoxPadding 4
+skinparam maxMessageSize 115
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 12
+skinparam dpi 140
+hide footbox
+
+actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
+participant ":frmGestionFranjas" as F #FEFECE
+participant ":FranjaHorariaBLL" as FB #E8F4E8
+database ":DB" as DB #E8E8F4
+
+A -> SYS : abrir "Franjas horarias"
+SYS -> F : abrir "Franjas horarias"
+F -> FB : ListarTodas()
+FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
+DB --> FB : filas
+FB --> F : resultado
+F --> SYS : franjas cargadas
+SYS --> A : franjas cargadas
+A -> SYS : seleccionar franja + "Eliminar" + confirmar
+SYS -> F : seleccionar franja + "Eliminar" + confirmar
+F -> FB : Eliminar(id)
+FB -> DB : FRANJA_HORARIA_ELIMINAR
+alt 5a. tiene datos asociados
+  DB --> FB : 0 filas
+  FB --> F : false
+  F --> SYS : "No se puede eliminar: ya tiene disponibilidad,\nturnos, o historial asociado."
+  SYS --> A : "No se puede eliminar: ya tiene disponibilidad,\nturnos, o historial asociado."
+else
+  DB --> FB : OK
+  FB --> F : true
+  F -> FB : ListarTodas()
+  FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
+  DB --> FB : filas
+  FB --> F : resultado
+  F --> SYS : "Franja eliminada."
+  SYS --> A : "Franja eliminada."
+end
+
+@enduml

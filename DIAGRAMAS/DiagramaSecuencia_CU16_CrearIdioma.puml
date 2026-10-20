@@ -27,12 +27,17 @@ A -> SYS : nombre + Aceptar
 SYS -> F : nombre + Aceptar
 alt 3a. nombre vacío o cancela
   note right of F : no se crea el idioma
+F --> SYS : OK
+SYS --> A : OK
 else
   F -> IB : Crear(nombre, habilitado: false)
   IB -> DB : IDIOMA_INSERTAR
   DB --> IB : nuevo ID
+  IB --> F : OK
   F -> IB : ListarTodos()
   IB -> DB : IDIOMA_LISTAR_TODOS
+  DB --> IB : filas
+  IB --> F : resultado
   F --> SYS : grilla con el idioma nuevo (deshabilitado)
   SYS --> A : grilla con el idioma nuevo (deshabilitado)
 end

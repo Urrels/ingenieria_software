@@ -29,20 +29,30 @@ alt 1a. sin selección
 else
   F -> E : new(usuario).ShowDialog()
   E --> SYS : nombre, apellido, teléfono y email actuales
+  E --> F : OK
+  F --> SYS : OK
   SYS --> A : nombre, apellido, teléfono y email actuales
   A -> SYS : modificar datos
   SYS -> E : modificar datos
   alt 3a. "Cancelar"
     E --> F : DialogResult.Cancel
+    E --> SYS : OK
+    SYS --> A : OK
   else "Aceptar"
     E --> F : DialogResult.OK
     F -> B : ActualizarDatos(id, nombre, apellido, teléfono, email)
     B -> DB : USUARIO_ACTUALIZAR_DATOS
+    DB --> B : OK
     B -> HB : RegistrarCambio(id, "EDICION_DATOS", admin)
     HB -> DB : USUARIO_HISTORIAL_INSERTAR
     note right of B : no recalcula dígitos verificadores:\nestos datos no forman parte del DVH
     F -> B : ListarPaginado(...)
     F --> SYS : grilla refrescada
+    B --> F : resultado
+    DB --> HB : OK
+    HB --> B : OK
+    B --> F : OK
+    E --> SYS : OK
     SYS --> A : grilla refrescada
   end
 end

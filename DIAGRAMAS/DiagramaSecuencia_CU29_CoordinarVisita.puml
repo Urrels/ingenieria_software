@@ -27,13 +27,18 @@ SYS -> F : abrir "Coordinar visita"
 F -> F : fecha propuesta = mañana
 F -> AB : ListarAutorizadas()
 AB -> DB : ALERTA_LISTAR_AUTORIZADAS
+DB --> AB : filas
+AB --> F : resultado
 F --> SYS : alertas autorizadas
 SYS --> A : alertas autorizadas
 A -> SYS : seleccionar alerta
 SYS -> F : seleccionar alerta
 F -> EB : ObtenerPorId(equipoId)
+EB --> F : resultado
 F -> VB : ObtenerTecnicoHabitual(equipo)
 VB -> DB : USUARIO_OBTENER_POR_ID
+DB --> VB : filas
+VB --> F : resultado
 F --> SYS : "Técnico habitual: X"\n(o "Sin técnico habitual asignado")
 SYS --> A : "Técnico habitual: X"\n(o "Sin técnico habitual asignado")
 opt 2a. buscar técnico alternativo
@@ -42,12 +47,21 @@ opt 2a. buscar técnico alternativo
   F -> VB : ListarTecnicosAlternativos()
   VB -> DB : VISITA_TECNICOS_ALTERNATIVOS
   alt no hay alternativos
+    DB --> VB : resultado
+    VB --> F : resultado
     F --> SYS : "No hay técnicos alternativos registrados..."
     SYS --> A : "No hay técnicos alternativos registrados..."
   else
+    DB --> VB : resultado
+    VB --> F : resultado
     F -> SR : ShowDialog(alternativos)
+    SR --> F : OK
+    F --> SYS : OK
+    SYS --> A : OK
     A -> SYS : elegir técnico
     SYS -> SR : elegir técnico
+    SR --> SYS : OK
+    SYS --> A : OK
   end
 end
 A -> SYS : ajustar fecha + "Confirmar"
@@ -58,8 +72,12 @@ alt 3a. sin técnico elegido
 else
   F -> VB : CoordinarVisita(alertaId, tecnicoId, fecha)
   VB -> DB : VISITA_INSERTAR (estado "Coordinada")
+  DB --> VB : OK
+  VB --> F : OK
   F -> AB : MarcarCoordinada(alerta)
   AB -> DB : ALERTA_ACTUALIZAR_ESTADO ("Coordinada")
+  DB --> AB : OK
+  AB --> F : OK
   F --> SYS : "Solicitud de visita confirmada."
   SYS --> A : "Solicitud de visita confirmada."
 end

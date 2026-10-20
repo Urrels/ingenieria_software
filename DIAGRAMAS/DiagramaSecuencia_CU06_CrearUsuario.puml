@@ -25,6 +25,10 @@ A -> SYS : click "Nuevo"
 SYS -> F : click "Nuevo"
 F -> N : ShowDialog()
 N -> DB : ROL_LISTAR_PARA_COMBO\n(PerfilBLL)
+DB --> N : filas
+N --> F : OK
+F --> SYS : OK
+SYS --> A : OK
 A -> SYS : datos + "Aceptar"
 SYS -> N : datos + "Aceptar"
 alt 4a. falta un dato obligatorio
@@ -32,6 +36,8 @@ alt 4a. falta un dato obligatorio
   SYS --> A : "Ingresá un nombre\nde usuario." / ...
 else 3a. cancela
   N --> F : Cancel
+  N --> SYS : OK
+  SYS --> A : OK
 else
   N --> F : OK
   F -> B : Crear(usuario, contraseña,\nrolId, datos)
@@ -39,14 +45,20 @@ else
   B -> DB : USUARIO_CREAR
   note right of DB : USUARIO + rol\nen USUARIO_PERFIL
   alt 6a. nombre existente
+    DB --> B : OK
     B --> F : false
     F --> SYS : "El nombre de usuario\nya existe."
+    N --> SYS : OK
     SYS --> A : "El nombre de usuario\nya existe."
   else
+    DB --> B : OK
     B -> I : RecalcularIntegridadUsuarios()
+    I --> B : OK
     B -> DB : HISTORIAL: ALTA
+    DB --> B : OK
     B --> F : true
     F --> SYS : "Usuario creado\ncorrectamente."
+    N --> SYS : OK
     SYS --> A : "Usuario creado\ncorrectamente."
   end
 end

@@ -14,33 +14,49 @@ skinparam dpi 140
 hide footbox
 
 actor ":Administrador" as A
+boundary ":Sistema" as SYS #FFFFFF
 participant ":frmInformeGestion" as F #FEFECE
 participant ":InformeGestionBLL" as I #E8F4E8
 participant ":LiquidacionBLL" as L #E8F4E8
 participant ":InformePdf" as P #FEFECE
 database ":DB" as DB #E8E8F4
 
-A -> F : abrir "Informe de gestión" (permiso "Generar informes de gestión")
-A -> F : elegir período y "Generar informe"
+A -> SYS : abrir "Informe de gestión" (permiso "Generar informes de gestión")
+SYS -> F : abrir "Informe de gestión" (permiso "Generar informes de gestión")
+F --> SYS : OK
+SYS --> A : OK
+A -> SYS : elegir período y "Generar informe"
+SYS -> F : elegir período y "Generar informe"
 F -> I : Generar(desde, hasta)
 I -> L : Calcular(desde, hasta) + Resumir\n(Proceso 3: horas, extras, ausencias, costo)
 L -> DB : ASISTENCIA_LISTAR_RANGO, TURNO_LISTAR_ASIGNADOS_RANGO, VALOR_HORA_LISTAR, ...
+DB --> L : filas
+L --> I : resultado
 I -> DB : EVALUACION_COBERTURA_LISTAR_RANGO + HISTORIAL_ASISTENCIA_LISTAR_RANGO\n(Procesos 1 y 3: cobertura por franja y socios)
+DB --> I : resultado
 I -> DB : EQUIPO_LISTAR_TODOS + ALERTA_REVISION_LISTAR_PENDIENTES\n(Proceso 2: mantenimiento)
+DB --> I : filas
 I -> I : indicadores (cumplimiento, % con recargo,\nausentismo, costo por socio) y conclusiones por reglas
 I --> F : BE.InformeGestion
-F --> A : resumen, conclusiones, horas y costo, cobertura, mantenimiento
+F --> SYS : resumen, conclusiones, horas y costo, cobertura, mantenimiento
+SYS --> A : resumen, conclusiones, horas y costo, cobertura, mantenimiento
 
 alt "Exportar a PDF"
-  A -> F : click "Exportar a PDF" y elegir archivo
+  A -> SYS : click "Exportar a PDF" y elegir archivo
+  SYS -> F : click "Exportar a PDF" y elegir archivo
   F -> P : Guardar(informe, ruta)
   P --> F : PDF A4 (resumen, conclusiones, tablas y gráficos de barras)
   F -> I : RegistrarExportacion("PDF") → bitácora
-  F --> A : "Informe exportado. ¿Querés abrirlo ahora?"
+  I --> F : OK
+  F --> SYS : "Informe exportado. ¿Querés abrirlo ahora?"
+  SYS --> A : "Informe exportado. ¿Querés abrirlo ahora?"
 else "Exportar datos (JSON)"
-  A -> F : click "Exportar datos (JSON)"
+  A -> SYS : click "Exportar datos (JSON)"
+  SYS -> F : click "Exportar datos (JSON)"
   F -> I : GuardarJson(informe, ruta) (serialización del informe)
-  F --> A : "Exportación completada."
+  I --> F : OK
+  F --> SYS : "Exportación completada."
+  SYS --> A : "Exportación completada."
 end
 
 @enduml

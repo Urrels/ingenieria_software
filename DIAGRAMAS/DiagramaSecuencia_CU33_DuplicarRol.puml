@@ -33,6 +33,8 @@ else
   SYS -> F : nombre + Aceptar
   alt 3a. vacío o cancela
     note right of F : no se crea la copia
+  F --> SYS : OK
+  SYS --> A : OK
   else
     F -> PB : DuplicarRol(rolId, nombre)
     PB -> PB : ObtenerArbol() + BuscarRol(rolId)
@@ -41,9 +43,14 @@ else
     R --> PB : copia
     PB -> PB : copia.Nombre = nombre\ncopia.Protegido = false
     PB -> DB : ROL_INSERTAR(nombre, mismo padre)
+    DB --> PB : OK
     PB -> DB : GuardarPermisosDeRol(copia.Id, permisos propios)\n(ROL_PERMISO_LIMPIAR + N × INSERTAR)
+    DB --> PB : resultado
     PB -> BB : RegistrarAccion(admin, "ROL_DUPLICADO:nombre")
+    BB --> PB : OK
+    PB --> F : OK
     F -> PB : ObtenerArbol()
+    PB --> F : resultado
     F --> SYS : árbol con el rol duplicado
     SYS --> A : árbol con el rol duplicado
   end

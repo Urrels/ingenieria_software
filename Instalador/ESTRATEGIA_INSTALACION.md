@@ -21,6 +21,12 @@ que puede aparecer en el equipo del cliente, cómo se detecta y qué hace el sis
 
 Todo queda registrado en `%ProgramData%\GestionGimnasio\install.log`.
 
+## Modo automático (un solo clic)
+
+El instalador abre el configurador con `ConfiguradorBD.exe /auto` (botón "Configurar base de datos" del bundle y casilla de la pantalla final del MSI). En este modo, apenas se detectan las instancias el configurador hace todo sin pedir otro clic: elige la instancia (o LocalDB), inicia el servicio si está detenido, instala LocalDB si no hay motor y el `.msi` está incluido, crea la base y guarda la cadena de conexión. Si algo no se puede resolver solo (no hay `.msi`, servidor remoto sin puerto, permisos), queda el formulario abierto con el mensaje y se continúa a mano. También acepta `/servidor=<nombre>` para forzar una instancia.
+
+**Reintentos tras arrancar el motor:** el servicio o LocalDB recién iniciado tarda unos segundos en aceptar conexiones, y esa era la causa de que la base no se configurara al primer intento. Si el configurador acaba de iniciar el motor, `InstaladorBaseDatos` reintenta la conexión hasta 10 veces (cada 3 s). No se reintentan los errores de credenciales (18456/18452/18451).
+
 ## Sistema que no se ve vacío
 
 Al terminar la instalación, el configurador explica que, al ingresar por primera vez con `admin`, la aplicación

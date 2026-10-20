@@ -23,34 +23,51 @@ database ":DB" as DB #E8E8F4
 A -> SYS : abrir "Generar grilla"
 SYS -> F : abrir "Generar grilla"
 F -> F : proponer lunes de\nla semana siguiente
+F --> SYS : OK
+SYS --> A : OK
 A -> SYS : "Generar" + confirmar
 SYS -> F : "Generar" + confirmar
 F -> G : GenerarGrilla(semana)
 G -> DB : GRILLA_OBTENER_POR_SEMANA
 alt 3a. ya existe
+  DB --> G : filas
   G -> DB : TURNO_LISTAR_POR_GRILLA
   opt grilla en estado "Propuesta"
+    DB --> G : filas
     G -> G : completar las franjas que todavía\nno tienen turnos (mismo cálculo del paso 5)
   end
+  DB --> G : filas
   G --> F : grilla existente\n(no se duplica)
 else
+  DB --> G : filas
   G -> DB : GRILLA_INSERTAR\n("Propuesta")
+  DB --> G : OK
   G -> DB : FRANJA_HORARIA_LISTAR_TODAS
   loop por cada franja
+    DB --> G : filas
     G -> D : CalcularDemanda(semana, franja)
     D -> DB : HISTORIAL_ASISTENCIA\n_OBTENER_POR_FRANJA
     alt 5a. menos de 4 semanas
+      DB --> D : resultado
       D -> DB : DEMANDA_ESTIMADA_INSERTAR\n("Manual", 0 personas)
+      DB --> D : OK
     else
+      DB --> D : resultado
       D -> D : ponderado 40/30/20/10\n+ tendencia; 1 cada 15
       D -> DB : EVALUACION_COBERTURA_OBTENER
+      DB --> D : filas
       D -> D : +1 si la semana anterior\ndio "Falta"
       D -> DB : DEMANDA_ESTIMADA_INSERTAR\n("Calculado")
+      DB --> D : OK
     end
     loop por cada empleado necesario
+      D --> G : resultado
       G -> DB : TURNO_INSERTAR\n("SinAsignar")
+      DB --> G : OK
     end
+      D --> G : resultado
   end
+  DB --> G : filas
   G --> F : grilla propuesta
 end
 F --> SYS : grilla de turnos

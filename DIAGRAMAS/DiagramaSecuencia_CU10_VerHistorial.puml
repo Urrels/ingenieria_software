@@ -34,25 +34,36 @@ else
   H -> H : mostrar grilla, "Página 1 de N"\nbtnRollback deshabilitado
   alt 2a. sin historial
     H --> SYS : grilla vacía
+    H --> F : OK
+    F --> SYS : OK
     SYS --> A : grilla vacía
   else con historial
     H --> SYS : fecha, tipo, rol, bloqueado, intentos,\nperfiles, datos personales, realizado por,\nversión origen
+    H --> F : OK
+    F --> SYS : OK
     SYS --> A : fecha, tipo, rol, bloqueado, intentos,\nperfiles, datos personales, realizado por,\nversión origen
   end
   opt 3a. navegar páginas
     A -> SYS : "Anterior" / "Siguiente"
     SYS -> H : "Anterior" / "Siguiente"
     H -> HB : ObtenerHistorialPaginado(id, página, 20)
+    HB --> H : resultado
+    H --> SYS : OK
+    SYS --> A : OK
   end
   opt seleccionar una entrada
     A -> SYS : seleccionar fila
     SYS -> H : seleccionar fila
     H -> H : btnRollback.Enabled = tipo ≠ BAJA
     note right of H : continúa en CU-11
+    H --> SYS : OK
+    SYS --> A : OK
   end
   A -> SYS : "Cerrar"
   SYS -> H : "Cerrar"
   F -> F : refrescar grilla de usuarios
+  H --> SYS : OK
+  SYS --> A : OK
 end
 
 @enduml

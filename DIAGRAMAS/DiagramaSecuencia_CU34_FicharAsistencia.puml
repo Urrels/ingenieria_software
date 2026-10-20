@@ -23,6 +23,8 @@ E -> SYS : abrir "Fichar asistencia"
 SYS -> F : abrir "Fichar asistencia"
 F -> AB : TieneIngresoAbierto(usuario)
 AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
+DB --> AB : filas
+AB --> F : resultado
 F --> SYS : estado del día (habilita Ingreso o Egreso)
 SYS --> E : estado del día (habilita Ingreso o Egreso)
 alt "Ingreso"
@@ -31,10 +33,15 @@ alt "Ingreso"
   F -> AB : RegistrarIngreso(usuario)
   AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
   alt 3a. ya tiene un ingreso abierto
+    DB --> AB : filas
+    AB --> F : OK
     F --> SYS : "Ya tenés un ingreso registrado hoy sin egreso."
     SYS --> E : "Ya tenés un ingreso registrado hoy sin egreso."
   else
+    DB --> AB : filas
     AB -> DB : ASISTENCIA_REGISTRAR_INGRESO(hoy, hora actual)
+    DB --> AB : OK
+    AB --> F : OK
     F --> SYS : "Ingreso registrado a las HH:mm."
     SYS --> E : "Ingreso registrado a las HH:mm."
   end
@@ -44,10 +51,15 @@ else "Egreso"
   F -> AB : RegistrarEgreso(usuario)
   AB -> DB : ASISTENCIA_OBTENER_ABIERTA(último ingreso sin egreso, de cualquier fecha)
   alt 5a. no tiene ingreso abierto
+    DB --> AB : filas
+    AB --> F : OK
     F --> SYS : "No tenés un ingreso registrado hoy..."
     SYS --> E : "No tenés un ingreso registrado hoy..."
   else
+    DB --> AB : filas
     AB -> DB : ASISTENCIA_REGISTRAR_EGRESO(hora actual)
+    DB --> AB : OK
+    AB --> F : OK
     F --> SYS : "Egreso registrado a las HH:mm."
     SYS --> E : "Egreso registrado a las HH:mm."
   end

@@ -29,20 +29,41 @@ loop 7–10. por cada turno
   T -> DB : TURNO_BUSCAR_COMPATIBLES
   note right of DB : rol requerido + disponibilidad\ndeclarada para la franja en\nesa semana (CU-22)
   alt 7a. "Sin cobertura"
+    DB --> T : filas
+    T --> AE : resultado
+    AE --> F : OK
+    F --> SYS : OK
+    SYS --> A : OK
     A -> SYS : "Sin cobertura"\n+ confirmar
     SYS -> AE : "Sin cobertura"\n+ confirmar
     AE -> T : MarcarDeficitCobertura()
     T -> DB : TURNO_ACTUALIZAR_ASIGNACION\n("DeficitCobertura")
+    DB --> T : OK
+    T --> AE : OK
+    AE --> SYS : OK
+    SYS --> A : OK
   else elegir empleado
+    DB --> T : filas
+    T --> AE : resultado
+    AE --> F : OK
+    F --> SYS : OK
+    SYS --> A : OK
     A -> SYS : empleado + "Asignar"
     SYS -> AE : empleado + "Asignar"
     AE -> T : AsignarEmpleado()
     T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
     alt 9a. supera el límite
+      DB --> T : resultado
+      T --> AE : OK
       AE --> SYS : "X superaría su límite\nde horas semanales..."
       SYS --> A : "X superaría su límite\nde horas semanales..."
     else
+      DB --> T : resultado
       T -> DB : TURNO_ACTUALIZAR_ASIGNACION\n("Asignado")
+      DB --> T : OK
+      T --> AE : OK
+      AE --> SYS : OK
+      SYS --> A : OK
     end
   end
 end
@@ -55,6 +76,8 @@ alt 12a. quedan turnos sin resolver
   SYS --> A : "Todavía quedan franjas\nsin asignar..."
 else
   G -> DB : GRILLA_CONFIRMAR
+  DB --> G : OK
+  G --> F : OK
   F --> SYS : "Grilla confirmada\ncorrectamente."
   SYS --> A : "Grilla confirmada\ncorrectamente."
 end

@@ -25,8 +25,11 @@ note over AP : 1a. sin usuario seleccionado:\n"Seleccioná un usuario."
 A -> SYS : "Modificar perfiles"
 SYS -> AP : "Modificar perfiles"
 AP -> PB : ObtenerArbol()
+PB --> AP : resultado
 AP -> UP : ObtenerPerfilesAsignados()
 UP -> DB : USUARIO_PERFIL_LISTAR
+DB --> UP : filas
+UP --> AP : resultado
 AP --> SYS : árbol de roles\n(asignados marcados)
 SYS --> A : árbol de roles\n(asignados marcados)
 A -> SYS : marcar roles + "Guardar"
@@ -35,15 +38,23 @@ AP -> UP : GuardarAsignaciones(id, rolIds)
 UP -> PB : ValidarQueQuede\nAdministracion()
 alt 4a. sin administración
   PB --> AP : InvalidOperationException
+  PB --> UP : OK
+  UP --> AP : OK
   AP --> SYS : permiso que se perdería
   SYS --> A : permiso que se perdería
 else
+  PB --> UP : OK
   UP -> DB : transacción: BORRAR_TODOS\n+ N × ASIGNAR
+  DB --> UP : OK
   UP -> I : RecalcularIntegridadUsuarios()
+  I --> UP : OK
   UP -> DB : HISTORIAL: ASIGNACION_PERFIL\nBITACORA: PERFILES_ASIGNADOS
   opt es el usuario de la sesión
+    DB --> UP : OK
     UP -> UP : actualizar permisos\nen SessionManager
   end
+  DB --> UP : OK
+  UP --> AP : OK
   AP --> SYS : "Asignaciones guardadas."
   SYS --> A : "Asignaciones guardadas."
 end

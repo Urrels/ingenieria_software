@@ -15,8 +15,10 @@ actor "Técnico" as T
 actor "Sensor IoT" as SI
 
 rectangle "Planificación de horarios" #E8F4E8 {
-  usecase "CU-37 Gestionar franjas horarias" as CU37
-  usecase "CU-22 Registrar disponibilidad" as CU22
+  usecase "CU-37 Alta de franja horaria" as CU37
+  usecase "CU-42 Baja de franja horaria" as CU42
+  usecase "CU-22 Alta de disponibilidad" as CU22
+  usecase "CU-44 Modificar disponibilidad" as CU44
   usecase "CU-21 Generar grilla de turnos" as CU21
   usecase "CU-24 Comunicar horarios" as CU24
   usecase "CU-23 Ajustar grilla por ausencia" as CU23
@@ -29,7 +31,8 @@ rectangle "Control operativo" #FEFECE {
   usecase "CU-35 Registrar asistencia\nde socios" as CU35
   usecase "CU-36 Evaluar cobertura" as CU36
   usecase "CU-38 Liquidar horas\nde empleados" as CU38
-  usecase "CU-39 Corregir fichajes" as CU39
+  usecase "CU-39 Agregar fichaje manual" as CU39
+  usecase "CU-43 Corregir fichaje" as CU43
   usecase "CU-40 Cargar datos\nde demostración" as CU40
   usecase "CU-41 Informe de gestión\n(exportar a PDF)" as CU41
 }
@@ -43,18 +46,21 @@ rectangle "Mantenimiento de equipamiento" #E8E8F4 {
 }
 
 A --> CU37
+A --> CU42
 A --> CU21
 A --> CU24
 A --> CU23
 A --> CU36
 A --> CU38
 A --> CU39
+A --> CU43
 A --> CU40
 A --> CU41
 A --> CU28
 A --> CU29
 A --> CU31
 E --> CU22
+E --> CU44
 E --> CU25
 E --> CU26
 E --> CU34

@@ -23,6 +23,8 @@ database ":DB" as DB #E8E8F4
 opt elegir padre
   A -> SYS : seleccionar un rol en el árbol
   SYS -> F : seleccionar un rol en el árbol
+  F --> SYS : OK
+  SYS --> A : OK
 end
 A -> SYS : click "Agregar rol"
 SYS -> F : click "Agregar rol"
@@ -32,6 +34,8 @@ A -> SYS : nombre + Aceptar
 SYS -> F : nombre + Aceptar
 alt 3a. nombre vacío o cancela
   note right of F : no se crea el rol
+F --> SYS : OK
+SYS --> A : OK
 else
   F -> F : padreId = rol seleccionado\n(null si no hay o es un permiso)
   F -> PB : AgregarRol(nombre, padreId)
@@ -39,8 +43,13 @@ else
   DB --> PB : nuevo ID (PROTEGIDO = 0)
   PB -> BB : RegistrarAccion(admin, "ROL_CREADO:nombre")
   BB -> DB : BITACORA_INSERTAR
+  DB --> BB : OK
+  BB --> PB : OK
+  PB --> F : OK
   F -> PB : ObtenerArbol()
   PB -> DB : ROL_LISTAR_TODOS + ROL_PERMISO_LISTAR_TODOS
+  DB --> PB : filas
+  PB --> F : resultado
   F --> SYS : árbol refrescado con el nuevo rol
   SYS --> A : árbol refrescado con el nuevo rol
 end

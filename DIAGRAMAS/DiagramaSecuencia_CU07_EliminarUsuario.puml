@@ -46,15 +46,24 @@ else
       PB --> F : InvalidOperationException
       F --> SYS : "No se puede guardar: el sistema quedaría\nsin ningún usuario activo con el permiso '...'."
       SYS --> A : "No se puede guardar: el sistema quedaría\nsin ningún usuario activo con el permiso '...'."
+      DB --> PB : filas
+      PB --> B : OK
     else permitido
+      DB --> PB : filas
+      PB --> B : OK
       B -> HB : RegistrarCambio(id, "BAJA", admin)
       note right of HB : la BAJA se registra antes de borrar\npara guardar el último estado
+      HB --> B : OK
       B -> DB : USUARIO_ELIMINAR
+      DB --> B : OK
       B -> I : RecalcularIntegridadUsuarios()
       F -> B : ListarPaginado(...)
       F --> SYS : grilla refrescada
       SYS --> A : grilla refrescada
+      B --> F : resultado
+      I --> B : OK
     end
+      B --> F : OK
   end
 end
 

@@ -25,6 +25,8 @@ E -> SYS : abrir "Mis turnos"
 SYS -> F : abrir "Mis turnos"
 F -> T : ListarPorUsuario(usuarioId)
 T -> DB : TURNO_LISTAR_POR_USUARIO
+DB --> T : filas
+T --> F : resultado
 F --> SYS : turnos del empleado
 SYS --> E : turnos del empleado
 E -> SYS : seleccionar turno + "Cancelar turno"
@@ -46,16 +48,23 @@ else
     SYS --> F : Sí
     F -> T : CancelarPorEmpleado(turno, empleado)
     T -> DB : TURNO_ACTUALIZAR_ASIGNACION (null, "PendienteCobertura")
+    DB --> T : OK
     T -> DB : TURNO_BUSCAR_COMPATIBLES\n(rol + disponibilidad)
+    DB --> T : filas
     T -> T : excluir al empleado que cancela
     loop por cada compatible
       T -> N : Notificar(candidato, "Se necesita cobertura...")
+      N --> T : OK
     end
     T -> UB : ListarAdmins()
     loop por cada administrador
+      UB --> T : resultado
       T -> N : Notificar(admin, "X canceló su turno...\nSe notificó a N empleado(s).")
+      N --> T : OK
     end
     N -> DB : NOTIFICACION_INSERTAR
+    DB --> N : OK
+    UB --> T : resultado
     T --> F : candidatos notificados
     F --> SYS : "Turno cancelado. Se notificó al administrador\ny a N empleado(s) disponible(s)."
     SYS --> E : "Turno cancelado. Se notificó al administrador\ny a N empleado(s) disponible(s)."

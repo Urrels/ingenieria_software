@@ -39,17 +39,27 @@ else campos válidos
   else cumple
     F -> B : VerificarContrasena(usuario, actual)
     B -> H : Hashear(actual)
+    H --> B : OK
     B -> DB : USUARIO_LOGIN(usuario, hash)
     alt 5a. contraseña actual incorrecta
+      DB --> B : filas
+      B --> F : resultado
       F --> SYS : "La contraseña actual es incorrecta."
       SYS --> U : "La contraseña actual es incorrecta."
     else correcta
+      DB --> B : filas
+      B --> F : resultado
       F -> B : CambiarContrasena(usuario, nueva)
       B -> H : Hashear(nueva)
+      H --> B : OK
       B -> DB : USUARIO_CAMBIAR_PASS
+      DB --> B : OK
       B -> DB : BITACORA: CAMBIO_CONTRASENA
+      DB --> B : OK
       B -> I : RecalcularIntegridadUsuarios()
+      I --> B : OK
       B -> DB : HISTORIAL: CAMBIO_CLAVE
+      DB --> B : OK
       B --> F : true
       F --> SYS : "Contraseña cambiada exitosamente."
       SYS --> U : "Contraseña cambiada exitosamente."

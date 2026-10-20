@@ -39,11 +39,16 @@ else
     SYS --> F : Sí
     F -> B : Desbloquear(usuario)
     B -> DB : USUARIO_DESBLOQUEAR\n(bloqueado 0, intentos 0)
+    DB --> B : OK
     B -> DB : BITACORA:\nDESBLOQUEO_USUARIO:X
+    DB --> B : OK
     B -> I : RecalcularIntegridadUsuarios()
+    I --> B : OK
     B -> DB : HISTORIAL: DESBLOQUEO
     F --> SYS : "Usuario desbloqueado."
     SYS --> A : "Usuario desbloqueado."
+    DB --> B : OK
+    B --> F : OK
   end
 end
 

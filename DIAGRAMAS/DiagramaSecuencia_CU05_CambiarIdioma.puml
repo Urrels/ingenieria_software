@@ -31,13 +31,19 @@ IM -> IM : Notificar()
 loop por cada observador
   IM -> O : ActualizarIdioma()
   O -> IM : Traducir(clave)
+  IM --> O : OK
   O -> O : traducción o texto\npor defecto
+  O --> IM : OK
 end
 alt hay sesión iniciada
+  IM --> FA : OK
   FA -> DB : USUARIO_ACTUALIZAR_IDIOMA\n(UsuarioBLL)
+  DB --> FA : OK
 else 5a. sin sesión
   note right of FA : no se guarda\nla preferencia
+  IM --> FA : OK
 end
+FA --> F : OK
 F --> SYS : pantallas traducidas
 SYS --> U : pantallas traducidas
 

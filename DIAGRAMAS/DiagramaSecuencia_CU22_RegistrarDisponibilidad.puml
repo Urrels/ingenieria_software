@@ -1,6 +1,6 @@
 @startuml DiagramaSecuencia_CU22_RegistrarDisponibilidad
 
-title CU-22 — Registrar disponibilidad horaria — Diagrama de Secuencia
+title CU-22 — Alta de disponibilidad horaria — Diagrama de Secuencia
 
 skinparam shadowing false
 skinparam roundcorner 6
@@ -25,16 +25,18 @@ E -> SYS : abrir "Disponibilidad"
 SYS -> F : abrir "Disponibilidad"
 F -> F : semana = lunes de la semana siguiente
 F -> S : getUsuario()
+S --> F : OK
 F -> FB : ListarTodas()
 FB -> DB : FRANJA_HORARIA_LISTAR_TODAS
+DB --> FB : filas
+FB --> F : resultado
 F -> F : filtrar franjas del rol del empleado
 F -> D : ObtenerPrevia(usuario, semana)
 D -> DB : DISPONIBILIDAD_OBTENER_POR_USUARIO_SEMANA
-opt ya cargó disponibilidad
-  F -> F : marcar franjas + aviso "Ya habías cargado..."
-end
-F --> SYS : franjas con día y fecha
-SYS --> E : franjas con día y fecha
+DB --> D : filas
+D --> F : resultado
+F --> SYS : franjas con día y fecha (sin marcar)
+SYS --> E : franjas con día y fecha (sin marcar)
 E -> SYS : marcar franjas + "Aceptar"
 SYS -> F : marcar franjas + "Aceptar"
 alt 5a. ninguna franja marcada
@@ -42,12 +44,9 @@ alt 5a. ninguna franja marcada
   SYS --> E : "Tenés que indicar al menos una franja."
 else
   F -> D : RegistrarDisponibilidad(usuario, semana, franjas)
-  D -> DB : DISPONIBILIDAD_OBTENER_POR_USUARIO_SEMANA
-  alt ya existía
-    D -> DB : DISPONIBILIDAD_FRANJA_ELIMINAR_POR_DISPONIBILIDAD\n+ N × DISPONIBILIDAD_FRANJA_INSERTAR
-  else nueva
-    D -> DB : DISPONIBILIDAD_INSERTAR\n+ N × DISPONIBILIDAD_FRANJA_INSERTAR
-  end
+  D -> DB : DISPONIBILIDAD_INSERTAR\n+ N × DISPONIBILIDAD_FRANJA_INSERTAR
+  DB --> D : OK
+  D --> F : OK
   F --> SYS : "Disponibilidad registrada correctamente."
   SYS --> E : "Disponibilidad registrada correctamente."
 end

@@ -24,6 +24,8 @@ E -> SYS : abrir "Cubrir turno"
 SYS -> F : abrir "Cubrir turno"
 F -> T : ListarPendientesPorRol(rol del empleado)
 T -> DB : TURNO_LISTAR_PENDIENTES_POR_ROL
+DB --> T : filas
+T --> F : resultado
 F --> SYS : turnos pendientes de su rol
 SYS --> E : turnos pendientes de su rol
 E -> SYS : seleccionar turno + "Tomar turno"
@@ -35,8 +37,10 @@ else
   F -> T : TomarCobertura(turno, empleado)
   T -> DB : TURNO_HORAS_ASIGNADAS_SEMANA
   alt 3a. supera el límite de horas
+    DB --> T : resultado
     T --> F : false
   else
+    DB --> T : resultado
     T -> DB : TURNO_TOMAR_COBERTURA
     note right of DB
       UPDATE ... WHERE ESTADO = 'PendienteCobertura'
@@ -44,10 +48,14 @@ else
       solo uno actualiza la fila)
     end note
     alt 4a. otro empleado lo tomó primero
+      DB --> T : OK
       T --> F : false
     else ganó
+      DB --> T : OK
       T -> N : Notificar(cada admin, "X tomó el turno...")
       N -> DB : NOTIFICACION_INSERTAR
+      DB --> N : OK
+      N --> T : OK
       T --> F : true
     end
   end
@@ -59,6 +67,7 @@ else
     SYS --> E : "¡Listo! El turno quedó asignado a vos."
   end
   F -> T : ListarPendientesPorRol(...)
+  T --> F : resultado
 end
 
 @enduml

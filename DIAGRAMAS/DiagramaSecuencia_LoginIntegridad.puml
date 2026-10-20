@@ -48,6 +48,7 @@ opt no inicializado
   activate IB
   IB -> IB : RecalcularIntegridadUsuarios()
   deactivate IB
+  IB --> P : OK
 end
 
 P -> IB : VerificarIntegridad()
@@ -75,6 +76,7 @@ P -> L : Application.Run(new LogIn())
 ' ─────────────────────────────────────────
 == 2. Autenticación (btnIngresar_Click) ==
 
+L --> P : OK
 U -> SYS : usuario + contraseña\n+ click Ingresar
 SYS -> L : usuario + contraseña\n+ click Ingresar
 L -> LB : AutenticarUsuario(usuario, contrasena)
@@ -92,32 +94,42 @@ else credenciales por validar
 
   alt u != null  (credenciales válidas)
     LB -> UD : ResetearIntentos(usuario)
+    UD --> LB : OK
     LB -> SM : setUsuario(u)
+    SM --> LB : OK
     LB -> UP : ObtenerPermisos(u.Id)
     UP --> LB : List<string>
     LB -> SM : setPermisos(permisos)
+    SM --> LB : OK
     LB -> BB : RegistrarLogin(usuario)
 
     opt u.IdiomaId.HasValue
+      BB --> LB : OK
       LB -> IDB : ObtenerPorId(u.IdiomaId)
       IDB --> LB : idioma
       LB -> IDB : CargarTraducciones(idioma.Id)
       IDB --> LB : traducciones
       LB -> IDM : CambiarIdioma(idioma, traducciones)
+      IDM --> LB : OK
     end
 
+    BB --> LB : OK
     LB --> L : LoginResultado.Exito
   else u == null  (credenciales inválidas)
     LB -> UD : IncrementarIntentos(usuario)
     UD --> LB : quedoBloqueado : bool
     LB -> BB : RegistrarAccion("LOGIN_FALLIDO")
     alt quedoBloqueado
+      BB --> LB : OK
       LB -> BB : RegistrarAccion("USUARIO_BLOQUEADO")
+      BB --> LB : OK
       LB -> UD : ObtenerIdPorNombre(usuario)
       UD --> LB : id
       LB -> UH : RegistrarCambio(id, "BLOQUEO", "sistema")
+      UH --> LB : OK
       LB --> L : LoginResultado.UsuarioBloqueado
     else aún con intentos disponibles
+      BB --> LB : OK
       LB --> L : LoginResultado.CredencialesInvalidas
     end
   end
@@ -150,10 +162,15 @@ alt resultado == Exito
       note right of FR : log a integridad_error.log
 
       alt admin elige "Recalcular y continuar"
+        P --> FR : OK
         FR -> IB : RecalcularIntegridadUsuarios()
+        IB --> FR : OK
         FR --> L : DialogResult.OK
+        L --> SYS : OK
+        SYS --> U : OK
       else admin elige "Restaurar desde historial"
         loop por cada id en IdsUsuariosAfectados
+          P --> FR : OK
           FR -> UH : ObtenerHistorial(id)
           UH --> FR : List<UsuarioHistorial>
           opt tiene historial
@@ -167,7 +184,9 @@ alt resultado == Exito
         end
 
         alt alMenosUnoConHistorial == true
+          P --> FR : OK
           FR -> IB : RecalcularIntegridadUsuarios()
+          IB --> FR : OK
           FR --> L : DialogResult.OK
         else alMenosUnoConHistorial == false
           note right of FR
@@ -178,10 +197,16 @@ alt resultado == Exito
             diálogo); solo queda disponible
             "Recalcular y continuar".
           end note
+          P --> FR : OK
+          FR --> L : OK
         end
+          L --> SYS : OK
+          SYS --> U : OK
       else admin cancela
+        P --> FR : OK
         FR --> L : DialogResult.Cancel
         L -> SM : cerrarSesion()
+        SM --> L : OK
         L --> SYS : (vuelve al login)
         SYS --> U : (vuelve al login)
       end
@@ -190,6 +215,7 @@ alt resultado == Exito
       L --> SYS : MessageBox "Error del sistema"
       SYS --> U : MessageBox "Error del sistema"
       L -> SM : cerrarSesion()
+      SM --> L : OK
     end
 
   else ResultadoIntegridad OK
@@ -198,6 +224,9 @@ alt resultado == Exito
       actualiza DVH tras
       ResetearIntentos
     end note
+    IB --> L : OK
+    L --> SYS : OK
+    SYS --> U : OK
   end
 
   L --> SYS : MessageBox "Bienvenido"
@@ -205,9 +234,11 @@ alt resultado == Exito
   L -> FM : new frmMenu().Show()
   L -> L : this.Hide()
 
+  FM --> L : OK
 else resultado == UsuarioBloqueado / CredencialesInvalidas
   opt integridad OK
     L -> IB : RecalcularIntegridadUsuarios()
+    IB --> L : OK
   end
   L --> SYS : MessageBox de error
   SYS --> U : MessageBox de error
