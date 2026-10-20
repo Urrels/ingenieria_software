@@ -49,7 +49,6 @@ namespace BE
         public override string ToString() => NombreCompleto;
     }
 
-    // Una fila por empleado y día: lo fichado contra lo asignado y lo que corresponde pagar.
     public class LiquidacionDia
     {
         public int UsuarioId { get; set; }
@@ -105,7 +104,6 @@ namespace BE
             $"{Desde:dd/MM/yyyy} - {Hasta:dd/MM/yyyy} ({Estado})";
     }
 
-    // Turno asignado ya ubicado en una fecha concreta del calendario.
     public class TurnoAsignadoFecha
     {
         public int UsuarioId { get; set; }
@@ -129,7 +127,6 @@ namespace BE
         public int Minutos => (int)Math.Round((Fin - Inicio).TotalMinutes);
     }
 
-    // Datos de entrada del cálculo; la lógica pura vive en BLL.LiquidacionCalculo.
     public class EntradaLiquidacion
     {
         public List<RegistroAsistenciaPersonal> Fichajes { get; set; } = new List<RegistroAsistenciaPersonal>();

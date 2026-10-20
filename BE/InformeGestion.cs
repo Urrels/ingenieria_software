@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace BE
 {
-    // Informe de gestión (CU-41): se arma desde los tres procesos y se exporta a PDF y a JSON.
     public class InformeGestion
     {
         public DateTime Desde { get; set; }
@@ -68,8 +67,8 @@ namespace BE
 
     public class InformeConclusion
     {
-        public string Area { get; set; }       // Cobertura, Costos, Asistencia, Mantenimiento
-        public string Prioridad { get; set; }  // Alta, Media, Informativa
+        public string Area { get; set; }
+        public string Prioridad { get; set; }
         public string Texto { get; set; }
     }
 

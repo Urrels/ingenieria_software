@@ -19,8 +19,6 @@ namespace BLL
             if (existente != null)
             {
                 existente.Turnos = _turnoDAL.ListarPorGrilla(existente.Id);
-                // en una propuesta se completan las franjas que todavía no tienen turnos
-                // (por ejemplo, porque al generarla les faltaba historial de asistencia)
                 if (existente.Estado == "Propuesta")
                     AgregarTurnosSegunDemanda(existente);
                 return existente;

@@ -45,8 +45,6 @@ namespace BLL
             return BE.ResultadoFichaje.Ok;
         }
 
-        // ---------- Corrección administrativa ----------
-
         public List<BE.RegistroAsistenciaPersonal> Listar(DateTime desde, DateTime hasta, bool soloIncompletos)
         {
             var lista = _dal.ListarRango(desde, hasta);
@@ -102,7 +100,6 @@ namespace BLL
             return motivo;
         }
 
-        // Un período ya liquidado no se puede modificar: sus números quedaron congelados.
         private void ValidarPeriodoAbierto(DateTime fecha)
         {
             if (_liquidacionDAL.HayLiquidacionEnRango(fecha, fecha))

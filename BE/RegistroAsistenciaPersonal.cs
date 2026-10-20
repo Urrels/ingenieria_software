@@ -16,7 +16,6 @@ namespace BE
 
         public DateTime Ingreso => Fecha.Date + HoraIngreso;
 
-        // Un egreso anterior al ingreso es un turno que cruza la medianoche.
         public DateTime? Egreso
         {
             get

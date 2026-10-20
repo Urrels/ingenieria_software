@@ -6,8 +6,6 @@ using System.Windows.Forms;
 
 namespace CAPAS
 {
-    // Carga de datos de demostración desde la interfaz: la ofrece cuando el sistema está vacío
-    // y también está disponible en Administración → Cargar datos de demostración.
     internal static class DemoUI
     {
         private const string ClaveRegistro = @"Software\GestionGimnasio";
@@ -82,7 +80,6 @@ namespace CAPAS
             MsgBox.Show(resumen + "\n\n" + nota, "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
 
-        // La pregunta se recuerda por servidor y base: cambiar de base (o crear una nueva) vuelve a ofrecerla.
         private static string NombreValor()
         {
             string base_ = new BLL.ConexionBLL().Identificador().Replace('\\', '_');

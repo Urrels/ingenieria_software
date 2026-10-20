@@ -9,8 +9,6 @@ using System.Text;
 
 namespace BLL
 {
-    // Informe de gestión (CU-41): junta lo que producen los tres procesos en un período
-    // y saca conclusiones para decidir (reforzar franjas, controlar costos, revisar equipos).
     public class InformeGestionBLL
     {
         private static readonly CultureInfo Es = new CultureInfo("es-AR");
@@ -45,8 +43,6 @@ namespace BLL
             return informe;
         }
 
-        // ---------- Proceso 3: horas y costos ----------
-
         private void CompletarHoras(BE.InformeGestion i)
         {
             var dias = _liquidacionBLL.Calcular(i.Desde, i.Hasta);
@@ -78,8 +74,6 @@ namespace BLL
             }).ToList();
         }
 
-        // ---------- Proceso 1 + 3: cobertura por franja y socios ----------
-
         private void CompletarCobertura(BE.InformeGestion i)
         {
             DateTime primerLunes = LunesDe(i.Desde);
@@ -107,8 +101,6 @@ namespace BLL
             i.CostoPorSocio = i.SociosAtendidos == 0 ? 0 : Math.Round(i.CostoTotal / i.SociosAtendidos, 2);
         }
 
-        // ---------- Proceso 2: mantenimiento ----------
-
         private void CompletarEquipos(BE.InformeGestion i)
         {
             i.AlertasPendientes = _alertaBLL.ListarPendientes().Count;
@@ -123,8 +115,6 @@ namespace BLL
                 DiasHastaCritico = _equipoBLL.EstimarDiasHastaCritico(e)
             }).OrderByDescending(e => e.UsoPct).ToList();
         }
-
-        // ---------- Conclusiones automáticas ----------
 
         private static void CompletarConclusiones(BE.InformeGestion i)
         {
@@ -181,8 +171,6 @@ namespace BLL
                 c.Add(Conclusion("General", "Informativa", "No se detectaron desvíos relevantes en el período."));
         }
 
-        // ---------- Serialización ----------
-
         public static string ADatosJson(BE.InformeGestion informe) =>
             JsonConvert.SerializeObject(informe, Formatting.Indented);
 
@@ -197,8 +185,6 @@ namespace BLL
             string usuario = SessionManager.getInstance().getUsuario()?.Usuario ?? "sistema";
             _bitacora.RegistrarAccion(usuario, "INFORME_GESTION_EXPORTADO:" + formato);
         }
-
-        // ---------- Utilidades ----------
 
         private static BE.InformeConclusion Conclusion(string area, string prioridad, string texto) =>
             new BE.InformeConclusion { Area = area, Prioridad = prioridad, Texto = texto };

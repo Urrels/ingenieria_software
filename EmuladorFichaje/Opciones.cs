@@ -3,12 +3,11 @@ using System.Globalization;
 
 namespace EmuladorFichaje
 {
-    // Argumentos de la línea de comandos: --nombre valor
     public class Opciones
     {
         public DateTime Desde { get; private set; }
         public DateTime Hasta { get; private set; }
-        public double Velocidad { get; private set; } = 3600; // segundos simulados por segundo real
+        public double Velocidad { get; private set; } = 3600;
         public int Puerto { get; private set; } = 5060;
         public bool SinApi { get; private set; }
         public bool SinEmpleados { get; private set; }

@@ -50,8 +50,6 @@ namespace CAPAS
                 nudValor, dtpVigente, dtpFeriado, cboEmpleadoValor);
         }
 
-        // ---------- Parámetros ----------
-
         private void CargarParametros()
         {
             var p = _liquidacionBLL.ObtenerParametros();
@@ -87,8 +85,6 @@ namespace CAPAS
                 "Éxito", MsgBox.Botones.OK, MsgBox.Icono.Exito);
         }
 
-        // ---------- Valor hora ----------
-
         private void CargarValores()
         {
             dgvValores.DataSource = null;
@@ -120,8 +116,6 @@ namespace CAPAS
             }
             CargarValores();
         }
-
-        // ---------- Feriados ----------
 
         private void CargarFeriados()
         {

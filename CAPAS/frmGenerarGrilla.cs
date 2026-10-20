@@ -28,7 +28,6 @@ namespace CAPAS
         private readonly BLL.FranjaHorariaBLL _franjaBLL = new BLL.FranjaHorariaBLL();
         private readonly BLL.UsuarioBLL _usuarioBLL = new BLL.UsuarioBLL();
 
-
         private BE.GrillaDeTurnos _grilla;
         private List<TurnoFilaVM> _filas;
 
@@ -66,7 +65,6 @@ namespace CAPAS
             AvisarFranjasSinTurnos();
         }
 
-        // Una franja sin las 4 semanas de asistencia de socios tiene demanda 0 y no genera turnos
         private void AvisarFranjasSinTurnos()
         {
             var franjas = _franjaBLL.ListarTodas();

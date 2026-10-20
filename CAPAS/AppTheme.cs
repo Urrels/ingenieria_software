@@ -20,7 +20,6 @@ namespace CAPAS
         internal static readonly Color Borde           = Color.FromArgb(213, 220, 232);
         internal static readonly Color Seleccion       = Color.FromArgb(248, 215, 227);
         internal static readonly Color SeleccionTexto  = Color.FromArgb( 43,  45,  66);
-        // Resultados de cobertura en los informes: falta (rosa), ajustado (verde), exceso (azul)
         internal static readonly Color ResultadoFalta    = AcentoHover;
         internal static readonly Color ResultadoAjustado = Color.FromArgb( 76, 153, 110);
         internal static readonly Color ResultadoExceso   = Acento;

@@ -19,7 +19,6 @@ namespace ConfiguradorBD
             return (string)add?.Attribute("connectionString");
         }
 
-        // El emulador de fichaje (herramienta incluida en el instalador) usa la misma base que la aplicación.
         internal static string RutaConfigEmulador =>
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmuladorFichaje.exe.config");
 

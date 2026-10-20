@@ -7,7 +7,6 @@ using System.Windows.Forms;
 
 namespace CAPAS
 {
-    // Exporta la liquidación a Excel: resumen por empleado (para pagar), detalle por día (para auditar) y criterios aplicados.
     public static class LiquidacionExcel
     {
         private const string FormatoHoras = "0.00";
@@ -95,7 +94,6 @@ namespace CAPAS
                 fila++;
             }
 
-            // Fila de totales con fórmulas, para que el Excel siga sirviendo si se edita a mano.
             int ultima = fila - 1;
             hoja.Cell(fila, 1).Value = Textos.T("xl_Total", "TOTAL");
             foreach (int col in new[] { 2, 4, 5, 7, 8, 9, 10, 11, 12 })
@@ -215,7 +213,6 @@ namespace CAPAS
             rango.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
         }
 
-        // Las observaciones las genera la BLL en español; se traducen por frase conocida.
         internal static string TraducirObservacion(string observacion)
         {
             if (string.IsNullOrEmpty(observacion)) return observacion;

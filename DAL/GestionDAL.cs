@@ -6,7 +6,6 @@ using System.Data.SqlClient;
 
 namespace DAL
 {
-    // Accesos a datos de la carga de demostración y del informe de gestión.
     public class GestionDAL
     {
         private readonly Acceso _acceso = new Acceso();

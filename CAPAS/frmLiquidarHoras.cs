@@ -44,7 +44,7 @@ namespace CAPAS
         private List<BE.LiquidacionDia> _dias = new List<BE.LiquidacionDia>();
         private List<BE.LiquidacionResumenEmpleado> _resumen = new List<BE.LiquidacionResumenEmpleado>();
         private List<BE.LiquidacionDia> _detalle = new List<BE.LiquidacionDia>();
-        private BE.Liquidacion _liquidacionCerrada; // null = vista previa sin cerrar
+        private BE.Liquidacion _liquidacionCerrada;
         private bool _cargando;
 
         public frmLiquidarHoras()
@@ -70,8 +70,6 @@ namespace CAPAS
         {
             ExcluirDeTraduccion(dtpDesde, dtpHasta, cboLiquidaciones, lblEstado, lblAdvertencias);
         }
-
-        // ---------- Carga ----------
 
         private void CargarLiquidaciones(int? seleccionarId)
         {
@@ -256,8 +254,6 @@ namespace CAPAS
             btnRecibo.Enabled = hayDatos && dgvResumen.CurrentRow != null;
         }
 
-        // ---------- Acciones ----------
-
         private void btnAprobarExcedente_Click(object sender, EventArgs e)
         {
             CambiarExcedente(true);
@@ -354,8 +350,6 @@ namespace CAPAS
         {
             this.Close();
         }
-
-        // ---------- Encabezados ----------
 
         private void ActualizarEncabezados()
         {

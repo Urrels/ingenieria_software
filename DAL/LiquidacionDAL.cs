@@ -15,8 +15,6 @@ namespace DAL
             return new SqlParameter(nombre, SqlDbType.Decimal) { Precision = 12, Scale = 2, Value = valor };
         }
 
-        // ---------- Parámetros ----------
-
         public ParametrosLiquidacion ObtenerParametros()
         {
             var p = new ParametrosLiquidacion();
@@ -74,8 +72,6 @@ namespace DAL
             }
             finally { _acceso.Cerrar(); }
         }
-
-        // ---------- Empleados y valor hora ----------
 
         public List<EmpleadoLiquidable> ListarEmpleados()
         {
@@ -139,8 +135,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // ---------- Feriados ----------
-
         public List<Feriado> ListarFeriados(DateTime desde, DateTime hasta)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
@@ -192,8 +186,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // ---------- Excedentes aprobados ----------
-
         public HashSet<(int usuarioId, DateTime fecha)> ListarExcedentesAprobados(DateTime desde, DateTime hasta)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
@@ -244,8 +236,6 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        // ---------- Turnos asignados ----------
-
         public List<TurnoAsignadoFecha> ListarTurnosAsignados(DateTime desde, DateTime hasta)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
@@ -277,14 +267,11 @@ namespace DAL
             return lista.FindAll(t => t.Fecha >= desde.Date && t.Fecha <= hasta.Date);
         }
 
-        // Las franjas guardan el día en inglés ("Monday"...); la semana de la grilla arranca el lunes.
         public static DateTime? FechaDeFranja(DateTime lunes, string dia)
         {
             if (!Enum.TryParse(dia, true, out DayOfWeek diaSemana)) return null;
             return lunes.Date.AddDays(((int)diaSemana - (int)DayOfWeek.Monday + 7) % 7);
         }
-
-        // ---------- Liquidaciones cerradas ----------
 
         public bool HayLiquidacionEnRango(DateTime desde, DateTime hasta)
         {
