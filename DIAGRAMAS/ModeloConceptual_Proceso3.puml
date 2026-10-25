@@ -1,0 +1,90 @@
+@startuml ModeloConceptual_Proceso3
+
+title Modelo conceptual — Proceso 3: horas trabajadas y liquidación
+
+skinparam shadowing false
+skinparam roundcorner 4
+skinparam defaultFontSize 11
+skinparam dpi 130
+skinparam classAttributeIconSize 0
+hide circle
+hide methods
+
+class Empleado {
+  legajo
+  nombre
+  rol
+}
+class Administrador {
+  legajo
+  nombre
+}
+class Fichaje {
+  fecha
+  horaIngreso
+  horaEgreso
+  corregido
+  motivoCorreccion
+}
+class Turno {
+  rolRequerido
+  estado
+}
+class ValorHora {
+  valor
+  vigenteDesde
+}
+class Feriado {
+  fecha
+  descripcion
+}
+class ExcedenteAprobado {
+  fecha
+  aprobadoPor
+}
+class ParametroLiquidacion {
+  clave
+  valor
+}
+class Liquidacion {
+  desde
+  hasta
+  estado
+  fechaCierre
+  fechaPago
+}
+class LiquidacionDia {
+  fecha
+  minutosTrabajados
+  minutosAsignados
+  minutosPagables
+  minutosNormales
+  minutosExtra
+  minutosFeriado
+  importe
+}
+class InformeGestion {
+  desde
+  hasta
+  indicadores
+  conclusiones
+}
+
+Empleado "1" -- "0..*" Fichaje : registra
+Empleado "1" -- "0..*" Turno : tiene asignados
+Empleado "1" -- "1..*" ValorHora : tiene
+Empleado "1" -- "0..*" ExcedenteAprobado : genera
+Administrador "1" -- "0..*" Liquidacion : cierra y paga
+Administrador "1" -- "0..*" Fichaje : corrige
+Administrador "1" -- "0..*" ExcedenteAprobado : aprueba
+Liquidacion "1" *-- "1..*" LiquidacionDia : se compone de
+Empleado "1" -- "0..*" LiquidacionDia : se liquida en
+Fichaje ..> LiquidacionDia : base del cálculo
+Turno ..> LiquidacionDia : horas asignadas
+ValorHora ..> LiquidacionDia : valoriza
+Feriado ..> LiquidacionDia : recargo
+ParametroLiquidacion ..> LiquidacionDia : tolerancia y recargos
+Administrador "1" -- "0..*" InformeGestion : genera
+InformeGestion ..> Liquidacion : usa
+
+@enduml

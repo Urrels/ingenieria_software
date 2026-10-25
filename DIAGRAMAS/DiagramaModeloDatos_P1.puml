@@ -1,0 +1,107 @@
+@startuml DiagramaModeloDatos_P1
+
+title Modelo de datos — Proceso 1 — Planificación de horarios
+
+skinparam shadowing false
+skinparam roundcorner 4
+skinparam linetype ortho
+skinparam defaultFontSize 11
+skinparam dpi 120
+hide circle
+hide empty methods
+
+!define PK(x) <b>PK</b> x
+!define FK(x) <i>FK</i> x
+
+package "Proceso 1 — Planificación de horarios" #E8F4E8 {
+  entity "FRANJA_HORARIA" as FRANJA {
+    PK(ID) : int
+    --
+    DIA : varchar
+    HORA_INICIO : time
+    HORA_FIN : time
+    ROL_REQUERIDO : varchar
+  }
+  entity "DISPONIBILIDAD" as DISP {
+    PK(ID) : int
+    --
+    FK(USUARIO_ID) : int
+    SEMANA : date
+  }
+  entity "DISPONIBILIDAD_FRANJA" as DISPF {
+    FK(DISPONIBILIDAD_ID) : int
+    FK(FRANJA_ID) : int
+  }
+  entity "GRILLA_TURNOS" as GRILLA {
+    PK(ID) : int
+    --
+    FK(ADMINISTRADOR_ID) : int
+    SEMANA : date
+    ESTADO : varchar
+  }
+  entity "TURNO" as TURNO {
+    PK(ID) : int
+    --
+    FK(GRILLA_ID) : int
+    FK(FRANJA_ID) : int
+    FK(USUARIO_ID) : int <<null>>
+    ROL_REQUERIDO : varchar
+    ESTADO : varchar
+  }
+  entity "DEMANDA_ESTIMADA" as DEM {
+    PK(ID) : int
+    --
+    FK(FRANJA_ID) : int
+    SEMANA : date
+    CANTIDAD_PERSONAL_NECESARIO : int
+    ORIGEN_DATO : varchar
+  }
+  entity "EVALUACION_COBERTURA" as EVAL {
+    PK(ID) : int
+    --
+    FK(FRANJA_ID) : int
+    SEMANA : date
+    RESULTADO : varchar
+  }
+  entity "HISTORIAL_ASISTENCIA_SOCIOS" as HIST {
+    PK(ID) : int
+    --
+    FK(FRANJA_ID) : int
+    FECHA : date
+    CANTIDAD_SOCIOS : int
+  }
+  entity "NOTIFICACION" as NOTIF {
+    PK(ID) : int
+    --
+    FK(GRILLA_ID) : int <<null>>
+    FK(USUARIO_ID) : int
+    MENSAJE : varchar
+    FECHA_ENVIO : datetime
+    ESTADO : varchar
+  }
+}
+
+entity "USUARIO" as USUARIO #FFFFFF {
+  PK(ID) : int
+  --
+  USUARIO : varchar
+  NOMBRE : varchar
+  APELLIDO : varchar
+  EMAIL : varchar
+  TELEFONO : varchar
+}
+
+USUARIO ||--o{ DISP
+DISP ||--o{ DISPF
+FRANJA ||--o{ DISPF
+USUARIO ||--o{ GRILLA : administra
+GRILLA ||--o{ TURNO
+FRANJA ||--o{ TURNO
+USUARIO |o--o{ TURNO : asignado a
+FRANJA ||--o{ DEM
+FRANJA ||--o{ EVAL
+FRANJA ||--o{ HIST
+GRILLA |o--o{ NOTIF
+USUARIO ||--o{ NOTIF
+
+@enduml
