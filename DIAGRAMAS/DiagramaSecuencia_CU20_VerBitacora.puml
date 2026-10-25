@@ -5,8 +5,6 @@ title CU-20 — Ver bitácora — Diagrama de Secuencia
 skinparam shadowing false
 skinparam roundcorner 6
 skinparam sequenceArrowThickness 1.2
-skinparam ParticipantPadding 6
-skinparam BoxPadding 4
 skinparam maxMessageSize 115
 skinparam sequenceMessageAlign center
 skinparam defaultFontSize 12
