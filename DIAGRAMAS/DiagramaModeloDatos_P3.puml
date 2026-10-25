@@ -1,0 +1,98 @@
+@startuml DiagramaModeloDatos_P3
+
+title Modelo de datos — Proceso 3 — Horas trabajadas y liquidación
+
+skinparam shadowing false
+skinparam roundcorner 4
+skinparam linetype ortho
+skinparam defaultFontSize 11
+skinparam dpi 120
+hide circle
+hide empty methods
+
+!define PK(x) <b>PK</b> x
+!define FK(x) <i>FK</i> x
+
+package "Proceso 3 — Horas trabajadas y liquidación" #FEFECE {
+  entity "ASISTENCIA_PERSONAL" as ASIST {
+    PK(ID) : int
+    --
+    FK(USUARIO_ID) : int
+    FECHA : date
+    HORA_INGRESO : time
+    HORA_EGRESO : time <<null>>
+    CORREGIDO : bit
+    MOTIVO_CORRECCION : varchar
+    CORREGIDO_POR : varchar
+    FECHA_CORRECCION : datetime
+  }
+  entity "VALOR_HORA_EMPLEADO" as VALOR {
+    PK(ID) : int
+    --
+    FK(USUARIO_ID) : int
+    VALOR : decimal
+    VIGENTE_DESDE : date
+  }
+  entity "FERIADO" as FERIADO {
+    PK(FECHA) : date
+    --
+    DESCRIPCION : varchar
+  }
+  entity "EXCEDENTE_APROBADO" as EXC {
+    PK(USUARIO_ID) : int
+    PK(FECHA) : date
+    --
+    APROBADO_POR : varchar
+    FECHA_APROBACION : datetime
+  }
+  entity "PARAMETRO_LIQUIDACION" as PARAM {
+    PK(CLAVE) : varchar
+    --
+    VALOR : decimal
+    DESCRIPCION : varchar
+  }
+  entity "LIQUIDACION" as LIQ {
+    PK(ID) : int
+    --
+    DESDE : date
+    HASTA : date
+    ESTADO : varchar
+    CERRADA_POR : varchar
+    FECHA_CIERRE : datetime
+    PAGADA_POR : varchar
+    FECHA_PAGO : datetime
+  }
+  entity "LIQUIDACION_DIA" as LIQD {
+    PK(ID) : int
+    --
+    FK(LIQUIDACION_ID) : int
+    FK(USUARIO_ID) : int
+    FECHA : date
+    MIN_TRABAJADOS : int
+    MIN_ASIGNADOS : int
+    MIN_PAGABLES : int
+    MIN_NORMALES : int
+    MIN_EXTRA : int
+    MIN_FERIADO : int
+    VALOR_HORA : decimal
+    IMPORTE : decimal
+  }
+}
+
+entity "USUARIO" as USUARIO #FFFFFF {
+  PK(ID) : int
+  --
+  USUARIO : varchar
+  NOMBRE : varchar
+  APELLIDO : varchar
+  EMAIL : varchar
+  TELEFONO : varchar
+}
+
+USUARIO ||--o{ ASIST : ficha
+USUARIO ||--o{ VALOR
+USUARIO ||--o{ EXC
+LIQ ||--o{ LIQD
+USUARIO ||--o{ LIQD
+
+@enduml

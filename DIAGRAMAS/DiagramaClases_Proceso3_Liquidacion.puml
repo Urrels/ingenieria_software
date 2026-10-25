@@ -1,0 +1,128 @@
+@startuml DiagramaClases_Proceso3_Liquidacion
+
+title Diagrama de clases — Proceso 3: horas trabajadas y liquidación
+
+skinparam shadowing false
+skinparam roundcorner 4
+skinparam defaultFontSize 11
+skinparam dpi 120
+skinparam classAttributeIconSize 0
+hide circle
+left to right direction
+
+package "UI (CAPAS)" #FEFECE {
+  class frmLiquidarHoras
+  class frmCorregirFichajes
+  class frmInformeGestion
+  class frmParametrosLiquidacion
+  class LiquidacionExcel
+  class ReciboHoras
+  class InformePdf
+  class PdfDocumento
+  class DemoUI
+}
+
+package "BLL" #E8F4E8 {
+  class AsistenciaPersonalBLL {
+    +ObtenerEstado()
+    +RegistrarIngreso()
+    +RegistrarEgreso()
+    +Listar()
+    +Corregir()
+    +AgregarManual()
+  }
+  class PresenciaBLL {
+    +ObtenerFichajes()
+    +{static} EmpleadosPresentes()
+  }
+  class LiquidacionBLL {
+    +Calcular()
+    +Resumir()
+    +Cerrar()
+    +MarcarPagada()
+    +AprobarExcedente()
+    +GuardarParametros()
+    +GuardarValorHora()
+    +GuardarFeriado()
+  }
+  class LiquidacionCalculo <<static>> {
+    +Calcular()
+    +Resumir()
+    +ValorHoraVigente()
+  }
+  class InformeGestionBLL {
+    +Generar()
+    +{static} GuardarJson()
+    +RegistrarExportacion()
+  }
+  class DatosDemoBLL {
+    +{static} Leer()
+    +ContarDatos()
+    +Cargar()
+  }
+  class PlanificadorFichajes {
+    +Planificar()
+  }
+  class Reloj <<static>> {
+    +Ahora
+    +Hoy
+    +Usar()
+  }
+  class BitacoraBLL
+}
+
+package "DAL" #E8E8F4 {
+  class LiquidacionDAL
+  class AsistenciaPersonalDAL
+  class GestionDAL
+}
+
+package "BE" #FFFFFF {
+  class RegistroAsistenciaPersonal
+  class LiquidacionDia
+  class LiquidacionResumenEmpleado
+  class Liquidacion
+  class ParametrosLiquidacion
+  class ValorHoraEmpleado
+  class Feriado
+  class EntradaLiquidacion
+  class InformeGestion
+  class DatosDemo
+}
+
+frmCorregirFichajes --> AsistenciaPersonalBLL
+frmLiquidarHoras --> LiquidacionBLL
+frmLiquidarHoras --> LiquidacionExcel
+frmLiquidarHoras --> ReciboHoras
+frmLiquidarHoras --> frmParametrosLiquidacion
+frmInformeGestion --> InformeGestionBLL
+frmInformeGestion --> InformePdf
+InformePdf --> PdfDocumento
+DemoUI --> DatosDemoBLL
+
+LiquidacionBLL --> LiquidacionCalculo : delega el cálculo
+LiquidacionBLL --> PresenciaBLL : fichajes
+LiquidacionBLL --> LiquidacionDAL
+LiquidacionBLL --> BitacoraBLL
+AsistenciaPersonalBLL --> AsistenciaPersonalDAL
+AsistenciaPersonalBLL --> Reloj
+AsistenciaPersonalBLL --> BitacoraBLL
+PresenciaBLL --> AsistenciaPersonalDAL
+InformeGestionBLL --> LiquidacionBLL
+InformeGestionBLL --> BitacoraBLL
+DatosDemoBLL --> PlanificadorFichajes
+DatosDemoBLL --> GestionDAL
+PlanificadorFichajes --> Reloj
+
+LiquidacionCalculo ..> EntradaLiquidacion
+LiquidacionCalculo ..> LiquidacionDia
+LiquidacionBLL ..> Liquidacion
+LiquidacionBLL ..> ParametrosLiquidacion
+LiquidacionBLL ..> ValorHoraEmpleado
+LiquidacionBLL ..> Feriado
+LiquidacionBLL ..> LiquidacionResumenEmpleado
+AsistenciaPersonalBLL ..> RegistroAsistenciaPersonal
+InformeGestionBLL ..> InformeGestion
+DatosDemoBLL ..> DatosDemo
+
+@enduml

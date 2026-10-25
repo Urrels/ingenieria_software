@@ -1,0 +1,69 @@
+@startuml DiagramaActividad_Proceso3_Liquidacion
+
+title Proceso 3 — Horas trabajadas y liquidación del personal
+
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #555555
+skinparam ActivityDiamondBackgroundColor #FFF2CC
+skinparam ActivityDiamondBorderColor #BF9000
+skinparam ArrowColor #333333
+skinparam swimlaneTitleFontStyle bold
+skinparam ActivityBackgroundColor<<objeto>> #DAE8FC
+skinparam ActivityBorderColor<<objeto>> #6C8EBF
+
+|Empleado|
+start
+:Fichar el ingreso;
+:Fichar el egreso;
+|Sistema|
+:Registrar el fichaje;
+:Fichaje\n(registrado); <<objeto>>
+if (¿Hay un ingreso sin egreso\ncon más de 16 horas?) then (sí)
+  |Administrador|
+  :Corregir el fichaje o agregar\nuno manual, con el motivo;
+  |Sistema|
+  :Guardar la corrección\ny registrarla en la bitácora;
+endif
+|Administrador|
+:Elegir el período a liquidar;
+repeat
+  |Sistema|
+  :Obtener los fichajes, los turnos asignados,\nel valor hora, los feriados\ny los excedentes aprobados;
+  :Calcular las horas por empleado y día\n(tolerancia, redondeo y mínimo\nentre lo fichado y lo asignado);
+  if (¿Hay horas por encima\nde lo asignado?) then (sí)
+    |Administrador|
+    :Aprobar el excedente;
+    |Sistema|
+    :Registrar el excedente aprobado;
+  endif
+  :Separar horas normales, extra y de domingo\no feriado y valorizarlas con el\nvalor hora vigente ese día;
+  :Liquidación\n(calculada); <<objeto>>
+  |Administrador|
+  backward:Corregir los fichajes\no cargar el valor hora;
+repeat while (¿Hay fichajes incompletos\no horas sin valor hora?) is (sí) not (no)
+:Revisar el resumen por empleado;
+if (¿Necesita el archivo\no el recibo?) then (sí)
+  :Exportar a Excel o\nimprimir el recibo;
+endif
+:Cerrar el período;
+|Sistema|
+:Guardar la liquidación\n(no se vuelve a recalcular);
+:Liquidación\n(cerrada); <<objeto>>
+|Administrador|
+:Marcar el período como pagado;
+|Sistema|
+:Liquidación\n(pagada); <<objeto>>
+|Administrador|
+:Generar el informe de gestión;
+|Sistema|
+:Integrar los procesos 1, 2 y 3,\ncalcular los indicadores y armar\nlas conclusiones por reglas;
+:Informe de gestión\n(generado); <<objeto>>
+|Administrador|
+:Exportar el informe a PDF o JSON;
+stop
+
+@enduml

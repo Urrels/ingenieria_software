@@ -1,0 +1,76 @@
+@startuml DiagramaModeloDatos_P2
+
+title Modelo de datos — Proceso 2 — Mantenimiento de equipamiento
+
+skinparam shadowing false
+skinparam roundcorner 4
+skinparam linetype ortho
+skinparam defaultFontSize 11
+skinparam dpi 120
+hide circle
+hide empty methods
+
+!define PK(x) <b>PK</b> x
+!define FK(x) <i>FK</i> x
+
+package "Proceso 2 — Mantenimiento de equipamiento" #E8E8F4 {
+  entity "EQUIPO" as EQUIPO {
+    PK(ID) : int
+    --
+    NOMBRE : varchar
+    USO_ACUMULADO : int
+    NIVEL_USO_CRITICO : int
+    ESTADO : varchar
+    FK(TECNICO_HABITUAL_ID) : int <<null>>
+  }
+  entity "EQUIPO_USO_LOG" as USOLOG {
+    PK(ID) : int
+    --
+    FK(EQUIPO_ID) : int
+    FECHA : datetime
+    INCREMENTO : int
+  }
+  entity "ALERTA_REVISION" as ALERTA {
+    PK(ID) : int
+    --
+    FK(EQUIPO_ID) : int
+    FECHA_GENERACION : datetime
+    ESTADO : varchar
+  }
+  entity "VISITA_TECNICA" as VISITA {
+    PK(ID) : int
+    --
+    FK(ALERTA_ID) : int
+    FK(TECNICO_ID) : int
+    FECHA_COORDINADA : datetime
+    ESTADO : varchar
+  }
+  entity "INFORME_MANTENIMIENTO" as INFORME {
+    PK(ID) : int
+    --
+    FK(VISITA_ID) : int
+    RESULTADO : varchar
+    PENDIENTE_REPUESTO : bit
+    FECHA_EMISION : datetime
+    CERRADO : bit
+  }
+}
+
+entity "USUARIO" as USUARIO #FFFFFF {
+  PK(ID) : int
+  --
+  USUARIO : varchar
+  NOMBRE : varchar
+  APELLIDO : varchar
+  EMAIL : varchar
+  TELEFONO : varchar
+}
+
+EQUIPO ||--o{ USOLOG
+EQUIPO ||--o{ ALERTA
+ALERTA ||--o{ VISITA
+USUARIO ||--o{ VISITA : técnico
+VISITA ||--o| INFORME
+USUARIO |o--o{ EQUIPO : técnico habitual
+
+@enduml

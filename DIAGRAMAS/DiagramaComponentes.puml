@@ -17,15 +17,21 @@ scale 0.8
 
 frame "cmp Arquitectura de Componentes - TP_IS" {
 
-  component "BE (Entidades de Negocio)\n--\n+ USUARIO\n+ UsuarioHistorial\n+ Permiso\n+ Rol\n+ NodoPermiso\n+ IDIOMA\n+ CONTROL_IDIOMA\n+ BITACORA\n+ LoginResultado\n+ PaginaResultado<T>" as BE
+  component "BE (Entidades de Negocio)\n--\n+ USUARIO / UsuarioHistorial\n+ Rol / Permiso / NodoPermiso\n+ IDIOMA / CONTROL_IDIOMA / BITACORA\n+ GrillaDeTurnos / Turno / FranjaHoraria\n+ Equipo / AlertaRevision / VisitaTecnica\n+ RegistroAsistenciaPersonal\n+ Liquidacion / LiquidacionDia\n+ InformeGestion / DatosDemo\n+ LoginResultado / PaginaResultado<T>" as BE
 
-  component "CAPAS (Interfaz de Usuario)\n--\n+ LogIn\n+ frmMenu\n+ frmAdminUsuarios\n+ frmNuevoUsuario\n+ frmEditarUsuario\n+ frmContraseña\n+ frmAsignarPerfiles\n+ frmPerfiles\n+ frmIdiomas\n+ frmHistorialUsuario\n+ frmBitacora\n+ frmRestaurarIntegridad\n+ AppTheme\n+ IdiomaUIHelper\n+ MsgBox" as CAPAS
+  component "CAPAS (Interfaz de Usuario)\n--\n+ LogIn / frmMenu\n+ Seguridad: frmAdminUsuarios, frmPerfiles,\n   frmIdiomas, frmBitacora, frmRestaurarIntegridad\n+ Horarios: frmGenerarGrilla, frmRegistrarDisponibilidad,\n   frmGestionFranjas\n+ Mantenimiento: frmRegistrarUsoMaquina,\n   frmEvaluarAutorizarVisita\n+ Asistencia: frmFicharAsistencia, frmCorregirFichajes,\n   frmLiquidarHoras, frmInformeGestion\n+ InformePdf / PdfDocumento / LiquidacionExcel\n+ AppTheme / IdiomaUIHelper / MsgBox" as CAPAS
 
-  component "BLL (Logica del Negocio)\n--\n+ LoginBLL\n+ UsuarioBLL\n+ UsuarioPerfilBLL\n+ UsuarioHistorialBLL\n+ PerfilBLL\n+ IdiomaBLL\n+ IntegridadBLL\n+ BitacoraBLL" as BLL
+  component "BLL (Logica del Negocio)\n--\n+ LoginBLL / UsuarioBLL / PerfilBLL\n+ IdiomaBLL / IntegridadBLL / BitacoraBLL\n+ GrillaBLL / TurnoBLL / EvaluacionCoberturaBLL\n+ EquipoBLL / AlertaRevisionBLL\n+ AsistenciaPersonalBLL / PresenciaBLL\n+ LiquidacionBLL / LiquidacionCalculo\n+ InformeGestionBLL / DatosDemoBLL / Reloj" as BLL
 
   component "SeguridadYServicios\n--\n+ SessionManager\n+ Hasher\n+ ValidadorContrasena\n+ CalculadorDVH\n+ IdiomaManager\n+ IObservadorIdioma" as SyS
 
-  component "DAL (Acceso a Datos)\n--\n+ Acceso\n+ UsuarioDAL\n+ UsuarioPerfilDAL\n+ UsuarioHistorialDAL\n+ PerfilDAL\n+ IdiomaDAL\n+ IntegridadDAL\n+ BitacoraDAL" as DAL
+  component "DAL (Acceso a Datos)\n--\n+ Acceso\n+ UsuarioDAL / PerfilDAL / IdiomaDAL\n+ IntegridadDAL / BitacoraDAL\n+ TurnoDAL / DemandaEstimadaDAL / EquipoDAL\n+ AsistenciaPersonalDAL / LiquidacionDAL\n+ GestionDAL" as DAL
+
+  component "ConfiguradorBD\n--\n+ frmConfigurador (modo /auto)\n+ InstaladorBaseDatos\n+ InstanciaSql" as CFG
+
+  component "EmuladorFichaje\n--\n+ Reloj acelerado\n+ API local de fichaje\n+ PlanificadorFichajes" as EMU
+
+  database "BDCAPAS\n(SQL Server)" as BD
 
   CAPAS -[dashed]left-> BLL
   BLL -[dashed]left-> SyS
@@ -36,6 +42,10 @@ frame "cmp Arquitectura de Componentes - TP_IS" {
   BLL -[dashed]up-> BE
   SyS -[dashed]up-> BE
   DAL -[dashed]up-> BE
+
+  DAL -[dashed]down-> BD
+  CFG -[dashed]down-> BD
+  EMU -[dashed]left-> BLL
 }
 
 @enduml
