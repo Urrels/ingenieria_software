@@ -5,7 +5,6 @@ title Diagrama de Secuencia — Login + Verificación de Integridad
 skinparam shadowing false
 skinparam roundcorner 6
 skinparam sequenceArrowThickness 1.2
-skinparam ParticipantPadding 12
 skinparam sequenceMessageAlign center
 hide footbox
 scale 0.7
