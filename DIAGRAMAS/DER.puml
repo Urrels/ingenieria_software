@@ -18,6 +18,7 @@ entity USUARIO {
   IDIOMA_ID : INT <<FK, nullable>>
   TELEFONO : VARCHAR(30) <<nullable>>
   EMAIL : VARCHAR(100) <<nullable>>
+  LIMITE_HORAS_SEMANALES : INT <<nullable>>
 }
 
 entity ROL {
@@ -57,6 +58,7 @@ entity IDIOMA {
   --
   NOMBRE : VARCHAR(50)
   HABILITADO : BIT
+  PREDETERMINADO : BIT
 }
 
 entity CONTROL_IDIOMA {
