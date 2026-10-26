@@ -40,6 +40,7 @@ namespace CAPAS
             this.corregirFichajesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.informeGestionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cargarDemoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.emuladorFichajeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configuraciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cambiarContraseñaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -306,7 +307,8 @@ namespace CAPAS
             this.usuariosBloqueadosToolStripMenuItem,
             this.perfilesToolStripMenuItem,
             this.idiomasToolStripMenuItem,
-            this.cargarDemoToolStripMenuItem});
+            this.cargarDemoToolStripMenuItem,
+            this.emuladorFichajeToolStripMenuItem});
             this.administracionToolStripMenuItem.Name = "administracionToolStripMenuItem";
             this.administracionToolStripMenuItem.Size = new System.Drawing.Size(140, 29);
             this.administracionToolStripMenuItem.Text = "Administración";
@@ -338,6 +340,13 @@ namespace CAPAS
             this.cargarDemoToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
             this.cargarDemoToolStripMenuItem.Text = "Cargar datos de demostración";
             this.cargarDemoToolStripMenuItem.Click += new System.EventHandler(this.cargarDemoToolStripMenuItem_Click);
+            //
+            // emuladorFichajeToolStripMenuItem
+            //
+            this.emuladorFichajeToolStripMenuItem.Name = "emuladorFichajeToolStripMenuItem";
+            this.emuladorFichajeToolStripMenuItem.Size = new System.Drawing.Size(280, 34);
+            this.emuladorFichajeToolStripMenuItem.Text = "Emulador de fichaje";
+            this.emuladorFichajeToolStripMenuItem.Click += new System.EventHandler(this.emuladorFichajeToolStripMenuItem_Click);
             //
             // statusStrip1
             //
@@ -413,6 +422,7 @@ namespace CAPAS
         private System.Windows.Forms.ToolStripMenuItem corregirFichajesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem informeGestionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cargarDemoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem emuladorFichajeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem panelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configuraciónToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cambiarContraseñaToolStripMenuItem;

@@ -59,6 +59,7 @@ namespace CAPAS
                 { corregirFichajesToolStripMenuItem, "Liquidar horas" },
                 { informeGestionToolStripMenuItem, "Generar informes de gestión" },
                 { cargarDemoToolStripMenuItem, "Cargar datos de demostración" },
+                { emuladorFichajeToolStripMenuItem, "Cargar datos de demostración" },
                 { panelToolStripMenuItem, "Ver panel de indicadores" },
                 { cambiarContraseñaToolStripMenuItem, "Cambiar contraseña" },
                 { bitacoraToolStripMenuItem, "Ver bitácora" },
@@ -256,6 +257,37 @@ namespace CAPAS
         {
             DemoUI.CargarConConfirmacion(this);
             ActualizarVisibilidadMenu();
+        }
+
+        private void emuladorFichajeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string exe = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmuladorFichaje.exe");
+            if (!System.IO.File.Exists(exe))
+            {
+                MsgBox.Show(Textos.T("msg_FaltaEmulador", "No se encontró EmuladorFichaje.exe junto a la aplicación."), "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                return;
+            }
+
+            string periodo = Microsoft.VisualBasic.Interaction.InputBox(
+                Textos.T("input_PeriodoEmulador", "Período a simular, con la forma aaaa-mm-dd aaaa-mm-dd (desde y hasta). Si lo dejás vacío se simula la semana pasada."),
+                Textos.T("input_EmuladorFichaje", "Emulador de fichaje"));
+            string argumentos = "--horas-por-segundo 1";
+            if (!string.IsNullOrWhiteSpace(periodo))
+            {
+                string[] fechas = periodo.Split(new[] { ' ', ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (fechas.Length != 2 || !DateTime.TryParse(fechas[0], out DateTime desde) || !DateTime.TryParse(fechas[1], out DateTime hasta) || hasta < desde)
+                {
+                    MsgBox.Show(Textos.T("msg_PeriodoEmuladorInvalido", "Ingresá dos fechas válidas (desde y hasta) con la forma aaaa-mm-dd aaaa-mm-dd."), "Aviso", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+                    return;
+                }
+                argumentos = $"--desde {desde:yyyy-MM-dd} --hasta {hasta:yyyy-MM-dd} " + argumentos;
+            }
+
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, argumentos)
+            {
+                WorkingDirectory = System.IO.Path.GetDirectoryName(exe),
+                UseShellExecute = true
+            });
         }
 
         private void corregirFichajesToolStripMenuItem_Click(object sender, EventArgs e)
