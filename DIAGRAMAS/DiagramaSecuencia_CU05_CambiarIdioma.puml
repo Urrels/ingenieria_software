@@ -16,7 +16,7 @@ boundary ":Sistema" as SYS #FFFFFF
 participant ":Formulario" as F #FEFECE
 participant ":FachadaIdioma" as FA #E8F4E8
 participant ":IdiomaManager" as IM #F4E8E8
-participant ":Pantallas abiertas" as O #FEFECE
+participant ":FormBase" as O #FEFECE
 database ":DB" as DB #E8E8F4
 
 U -> SYS : elegir idioma\nen el selector

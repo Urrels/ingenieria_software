@@ -19,7 +19,7 @@ database ":DB" as DB #E8E8F4
 
 E -> SYS : abrir "Fichar asistencia"
 SYS -> F : abrir "Fichar asistencia"
-F -> AB : TieneIngresoAbierto(usuario)
+F -> AB : ObtenerEstado(usuario)
 AB -> DB : ASISTENCIA_OBTENER_ABIERTA(hoy)
 DB --> AB : filas
 AB --> F : resultado

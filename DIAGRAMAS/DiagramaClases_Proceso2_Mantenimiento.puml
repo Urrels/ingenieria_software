@@ -36,6 +36,7 @@ package "BLL" #E8F4E8 {
     + MarcarEnMantenimiento(equipoId)
     + ListarTodos() : List<Equipo>
     + ObtenerPorNombre(nombre) : Equipo
+    + ObtenerPorId(id : int) : Equipo
   }
   class AlertaRevisionBLL {
     + GenerarAlerta(equipoId) : AlertaRevision
@@ -46,6 +47,8 @@ package "BLL" #E8F4E8 {
     + MarcarCoordinada(alerta)
     + MantenerActiva(alertaId)
     + MarcarResuelta(alertaId)
+    + ObtenerEquipoDeAlerta(alerta : AlertaRevision) : Equipo
+    + ObtenerPorId(id : int) : AlertaRevision
   }
   class VisitaTecnicaBLL {
     + ObtenerTecnicoHabitual(equipo) : USUARIO
@@ -70,12 +73,16 @@ package "DAL" #E8E8F4 {
     + ObtenerUsoUltimosDias()
     + ReiniciarContador()
     + MarcarEnMantenimiento()
+    + ListarTodos() : List<Equipo>
+    + ObtenerPorId(id : int) : Equipo
+    + ObtenerPorNombre(nombre : string) : Equipo
   }
   class AlertaRevisionDAL {
     + Insertar()
     + ActualizarEstado()
     + ListarPendientes()
     + ListarAutorizadas()
+    + Obtener(id : int) : AlertaRevision
   }
   class VisitaTecnicaDAL {
     + Insertar()
@@ -86,6 +93,7 @@ package "DAL" #E8E8F4 {
     + Insertar()
     + ListarPendientesCierre()
     + MarcarCerrado()
+    + Obtener(id : int) : InformeMantenimiento
   }
   class NotificacionDAL
   class Acceso <<stored procedures>>
