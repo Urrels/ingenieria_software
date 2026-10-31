@@ -2,7 +2,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Gestión de gimnasio"
            Manufacturer="TP Ingeniería de Software"
-           Version="1.0.6"
+           Version="1.0.7"
            UpgradeCode="AB5393F6-89D0-43A6-980E-68196A37FA92"
            Language="3082"
            Codepage="1252"
@@ -72,6 +72,12 @@
     <CustomAction Id="AbrirConfigurador" Directory="INSTALLFOLDER"
                   ExeCommand="&quot;[INSTALLFOLDER]ConfiguradorBD.exe&quot; /auto"
                   Execute="immediate" Impersonate="yes" Return="asyncNoWait" />
+
+    <!-- Dentro del bundle el MSI se instala sin pantallas, así que el diálogo final no aparece: el configurador se abre
+         al terminar la instalación (el motor de instalación corre elevado, y el configurador lo pide). -->
+    <InstallExecuteSequence>
+      <Custom Action="AbrirConfigurador" After="InstallFinalize" Condition="NOT Installed AND UILevel &lt; 4" />
+    </InstallExecuteSequence>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
     <UI>

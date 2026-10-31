@@ -23,7 +23,7 @@ Todo queda registrado en `%ProgramData%\GestionGimnasio\install.log`.
 
 ## Modo automático (un solo clic)
 
-El instalador abre el configurador con `ConfiguradorBD.exe /auto` (botón "Configurar base de datos" del bundle y casilla de la pantalla final del MSI). Si hay una instancia local de SQL Server, el configurador la elige, crea la base y guarda la cadena de conexión sin más clics. No instala ningún motor de base de datos: si no encuentra ninguno, muestra las instrucciones del caso 2 y queda abierto. Si el servicio está detenido, pregunta antes de iniciarlo (caso 3). También acepta `/servidor=<nombre>` para forzar una instancia.
+El instalador abre el configurador con `ConfiguradorBD.exe /auto` (se abre solo al terminar la instalación; también está en el menú Inicio como "Configurar base de datos"). Si hay una instancia local de SQL Server, el configurador la elige, crea la base y guarda la cadena de conexión sin más clics. No instala ningún motor de base de datos: si no encuentra ninguno, muestra las instrucciones del caso 2 y queda abierto. Si el servicio está detenido, pregunta antes de iniciarlo (caso 3). También acepta `/servidor=<nombre>` para forzar una instancia.
 
 **Reintentos tras arrancar el motor:** el servicio o LocalDB recién iniciado tarda unos segundos en aceptar conexiones, y esa era la causa de que la base no se configurara al primer intento. Si el configurador acaba de iniciar el motor, `InstaladorBaseDatos` reintenta la conexión hasta 10 veces (cada 3 s). No se reintentan los errores de credenciales (18456/18452/18451).
 
