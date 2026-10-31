@@ -4,7 +4,7 @@
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 hide empty members
-scale 0.6
+scale 0.54
 
 ' ─────────────────────────────────────────
 ' CAPA BE
@@ -123,10 +123,6 @@ package "SeguridadYServicios" #D5E8D4 {
 
   interface IObservadorIdioma {
     + ActualizarIdioma() : void
-  }
-
-  interface IEntidadVerificable {
-    + ObtenerAtributosParaDVH() : string[]
   }
 
   class Hasher <<static>> {

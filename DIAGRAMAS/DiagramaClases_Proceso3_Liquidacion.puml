@@ -5,10 +5,9 @@ title Diagrama de clases — Proceso 3: horas trabajadas y liquidación
 skinparam shadowing false
 skinparam roundcorner 4
 skinparam defaultFontSize 11
-skinparam dpi 120
 skinparam classAttributeIconSize 0
 hide circle
-left to right direction
+scale 0.7
 
 package "UI (CAPAS)" #FEFECE {
   class frmLiquidarHoras
@@ -69,25 +68,47 @@ package "BLL" #E8F4E8 {
     +Usar()
   }
   class BitacoraBLL
+  class EventoFichaje
+  class ProbabilidadesFichaje
+  class TipoFichaje <<enum>>
+  class ConexionBLL
 }
 
 package "DAL" #E8E8F4 {
   class LiquidacionDAL
   class AsistenciaPersonalDAL
   class GestionDAL
+  class ConexionDAL
 }
 
 package "BE" #FFFFFF {
   class RegistroAsistenciaPersonal
+  class ResultadoFichaje
+  class EstadoFichaje
+  class EntradaLiquidacion
+  class TurnoAsignadoFecha
+  class EmpleadoLiquidable
+  class ValorHoraEmpleado
+  class Feriado
+  class ParametrosLiquidacion
   class LiquidacionDia
   class LiquidacionResumenEmpleado
   class Liquidacion
-  class ParametrosLiquidacion
-  class ValorHoraEmpleado
-  class Feriado
-  class EntradaLiquidacion
   class InformeGestion
+  class InformeEmpleado
+  class InformeCobertura
+  class InformeEquipo
+  class InformeConclusion
+  class EvaluacionFranjaSemana
+  class SociosEnFecha
   class DatosDemo
+  class EmpleadoDemo
+  class FranjaDemo
+  class EquipoDemo
+  class FeriadoDemo
+  class ComportamientoDemo
+  class DatosNegocio
+  class ResultadoCargaDemo
 }
 
 frmCorregirFichajes --> AsistenciaPersonalBLL
@@ -114,15 +135,10 @@ DatosDemoBLL --> PlanificadorFichajes
 DatosDemoBLL --> GestionDAL
 PlanificadorFichajes --> Reloj
 
-LiquidacionCalculo ..> EntradaLiquidacion
-LiquidacionCalculo ..> LiquidacionDia
-LiquidacionBLL ..> Liquidacion
-LiquidacionBLL ..> ParametrosLiquidacion
-LiquidacionBLL ..> ValorHoraEmpleado
-LiquidacionBLL ..> Feriado
-LiquidacionBLL ..> LiquidacionResumenEmpleado
-AsistenciaPersonalBLL ..> RegistroAsistenciaPersonal
-InformeGestionBLL ..> InformeGestion
-DatosDemoBLL ..> DatosDemo
+
+PlanificadorFichajes ..> EventoFichaje
+PlanificadorFichajes ..> ProbabilidadesFichaje
+EventoFichaje ..> TipoFichaje
+ConexionBLL --> ConexionDAL
 
 @enduml
