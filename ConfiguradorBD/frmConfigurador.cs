@@ -13,7 +13,6 @@ namespace ConfiguradorBD
 {
     internal class frmConfigurador : Form
     {
-        private const string UrlLocalDb = "https://learn.microsoft.com/sql/database-engine/configure-windows/sql-server-express-localdb";
         private const string UrlSqlExpress = "https://www.microsoft.com/sql-server/sql-server-downloads";
         private const long EspacioMinimoBytes = 300L * 1024 * 1024;
 
@@ -41,6 +40,7 @@ namespace ConfiguradorBD
         private readonly Button btnCerrar = new Button();
         private readonly Panel pnlSinMotor = new Panel();
         private readonly Button btnInstalarMotor = new Button();
+        private readonly Button btnDescargarMotor = new Button();
         private readonly ProgressBar prgProgreso = new ProgressBar();
         private readonly TextBox txtRegistro = new TextBox();
 
@@ -77,22 +77,8 @@ namespace ConfiguradorBD
 
             if (candidatos.Count == 0)
             {
-                string msi = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Prerequisitos", "SqlLocalDB.msi");
-                if (File.Exists(msi))
-                {
-                    _log.Escribir("No hay ningún motor de SQL Server: se instala LocalDB.");
-                    await InstalarMotorAsync();
-                    if (LocalDb.EstaInstalado()) candidatos.Add(LocalDb.Servidor);
-                }
-            }
-
-            if (candidatos.Count == 0)
-            {
-                _log.Escribir("No se encontró ningún motor de SQL Server y no hay LocalDB para instalar.");
-                MessageBox.Show(this,
-                    "No se encontró ningún motor de SQL Server en este equipo.\n\n" +
-                    "Instalá SQL Server Express LocalDB con el botón de abajo (o escribí un servidor de la red) y tocá \"Crear base de datos\".",
-                    "Falta el motor de base de datos", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _log.Escribir("No se encontró ningún motor de SQL Server en este equipo: se muestran las instrucciones para instalarlo.");
+                MostrarInstruccionesSinMotor();
                 return;
             }
 
@@ -170,15 +156,18 @@ namespace ConfiguradorBD
             pnlSinMotor.Visible = false;
             var lblSinMotor = new Label
             {
-                Text = "No se encontró ningún motor de SQL Server en este equipo. Podés instalar " +
-                       "SQL Server Express LocalDB (gratuito) o escribir arriba un servidor de la red.",
+                Text = "No se encontró ningún motor de SQL Server en este equipo. Instalalo vos (este programa no lo instala) " +
+                       "o escribí arriba un servidor de la red. Después tocá \"Buscar instancias\".",
                 Location = new Point(10, 8),
                 Size = new Size(380, 55)
             };
-            ConfigurarBoton(btnInstalarMotor, "Instalar LocalDB", new Point(400, 18), new Size(190, 34), true);
-            btnInstalarMotor.Click += async (s, e) => await InstalarMotorAsync();
+            ConfigurarBoton(btnInstalarMotor, "Cómo instalarlo", new Point(400, 8), new Size(190, 26), true);
+            btnInstalarMotor.Click += (s, e) => MostrarInstruccionesSinMotor();
+            ConfigurarBoton(btnDescargarMotor, "Abrir la descarga", new Point(400, 38), new Size(190, 26), false);
+            btnDescargarMotor.Click += (s, e) => AbrirEnNavegador(UrlSqlExpress);
             pnlSinMotor.Controls.Add(lblSinMotor);
             pnlSinMotor.Controls.Add(btnInstalarMotor);
+            pnlSinMotor.Controls.Add(btnDescargarMotor);
 
             var grpAutenticacion = new GroupBox
             {
@@ -391,35 +380,37 @@ namespace ConfiguradorBD
             return true;
         }
 
-        private async Task InstalarMotorAsync()
+        // Caso "no existe el motor": no se instala nada; se explican los pasos y se ofrece abrir la descarga.
+        private void MostrarInstruccionesSinMotor()
         {
-            string msi = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Prerequisitos", "SqlLocalDB.msi");
-            if (!File.Exists(msi))
-            {
-                if (_automatico)
-                {
-                    _log.Escribir("Este instalador no incluye LocalDB (Prerequisitos\\SqlLocalDB.msi).");
-                    return;
-                }
-                if (MessageBox.Show(this,
-                        "Este instalador no incluye LocalDB. Se va a abrir la página oficial de Microsoft para descargarlo.\n\n" +
-                        "Después de instalarlo, volvé a esta pantalla y tocá \"Buscar instancias\".",
-                        "Descargar LocalDB", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-                    AbrirEnNavegador(UrlLocalDb);
-                return;
-            }
+            var respuesta = MessageBox.Show(this,
+                "No se encontró ningún motor de SQL Server en este equipo.\n\n" +
+                "Para continuar:\n" +
+                "1. Descargá SQL Server Express (gratuito) desde la página de Microsoft y elegí la instalación \"Básica\".\n" +
+                "    Si preferís un motor más liviano, SQL Server Express LocalDB también sirve.\n" +
+                "2. Terminá el asistente de instalación.\n" +
+                "3. Volvé a esta pantalla y tocá \"Buscar instancias\"; después, \"Crear base de datos\".\n\n" +
+                "Si la base va a estar en otra computadora, escribí arriba el nombre del servidor " +
+                "(por ejemplo SERVIDOR\\SQLEXPRESS o 192.168.0.10,1433) y no hace falta instalar nada acá.\n\n" +
+                "Se necesita SQL Server 2019 o posterior. Este programa no instala nada por su cuenta.\n\n" +
+                "¿Querés abrir la página de descarga ahora?",
+                "Falta el motor de base de datos", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (respuesta == DialogResult.Yes) AbrirEnNavegador(UrlSqlExpress);
+        }
 
-            bool instalado = false;
-            if (await EjecutarAsync(() => instalado = LocalDb.InstalarSilencioso(msi, _log)) && instalado)
-            {
-                await BuscarInstanciasAsync();
-                cboServidor.Text = LocalDb.Servidor;
-            }
-            else if (Confirmar("No se pudo instalar LocalDB automáticamente. ¿Abrir la página de descarga de SQL Server Express?",
-                         "Instalación fallida", MessageBoxIcon.Warning, false))
-            {
-                AbrirEnNavegador(UrlSqlExpress);
-            }
+        // Caso "no se encuentra la instancia": se muestran las instancias que sí existen y cómo averiguar el nombre.
+        private void MostrarInstruccionesInstanciaNoEncontrada(string servidor)
+        {
+            string detectadas = _instancias.Count == 0 ? "ninguna" : string.Join(", ", _instancias.Select(i => i.Servidor));
+            Avisar($"No se encontró la instancia \"{servidor}\" en este equipo.\n\n" +
+                   $"Instancias detectadas: {detectadas}.\n\n" +
+                   "Para resolverlo:\n" +
+                   "• Elegí una instancia de la lista o tocá \"Buscar instancias\".\n" +
+                   "• Para ver el nombre exacto, abrí services.msc y buscá \"SQL Server (NOMBRE)\": lo que está entre paréntesis es la instancia " +
+                   "(MSSQLSERVER es la predeterminada y se escribe solo con el nombre del equipo o un punto).\n" +
+                   "• Si SQL Server está en otra computadora, escribí su nombre o su IP.\n" +
+                   "• Si no tenés SQL Server instalado, usá \"Cómo instalarlo\".",
+                "No se encontró la instancia", MessageBoxIcon.Warning);
         }
 
         private bool PrepararMotor(string servidor)
@@ -433,11 +424,27 @@ namespace ConfiguradorBD
 
             string servicio = InstanciaSql.ServicioDe(servidor);
             ServiceControllerStatus? estado = InstanciaSql.EstadoServicio(servicio);
-            if (servicio == null || estado == null || estado == ServiceControllerStatus.Running) return true;
-
-            if (!Confirmar($"El servicio de SQL Server ({servicio}) está detenido.\n\n¿Querés iniciarlo ahora?",
-                    "Servicio detenido", MessageBoxIcon.Question, true))
+            if (servicio == null) return true;
+            if (estado == null)
+            {
+                MostrarInstruccionesInstanciaNoEncontrada(servidor);
                 return false;
+            }
+            if (estado == ServiceControllerStatus.Running) return true;
+
+            // Caso "servicio detenido": siempre se pregunta, también en modo automático (no se inicia nada sin que el usuario lo acepte).
+            _log.Escribir($"El servicio {servicio} está detenido.");
+            var respuesta = MessageBox.Show(this,
+                $"El servicio de SQL Server ({servicio}) está detenido.\n\n" +
+                "¿Querés que este programa lo inicie ahora?\n\n" +
+                $"Si preferís hacerlo a mano: abrí services.msc, buscá \"{servicio}\", clic derecho → Iniciar, " +
+                "y después tocá \"Crear base de datos\" de nuevo.",
+                "Servicio detenido", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (respuesta != DialogResult.Yes)
+            {
+                _log.Escribir("El servicio quedó detenido: se pidió iniciarlo a mano desde services.msc.");
+                return false;
+            }
 
             bool ok = EjecutarSincronico(() =>
             {
@@ -561,7 +568,8 @@ namespace ConfiguradorBD
         {
             _log.Escribir("ERROR: " + ex);
             string detalle = ex is SqlException sql && (sql.Number == -1 || sql.Number == 2 || sql.Number == 53 || sql.Number == 26)
-                ? "No se encontró el servidor o no responde. Verificá el nombre de la instancia y que el servicio esté iniciado."
+                ? "No se encontró el servidor o no responde. Verificá el nombre de la instancia y que el servicio esté iniciado " +
+                  "(services.msc → SQL Server (NOMBRE) → Iniciar). Si no tenés SQL Server instalado, usá \"Cómo instalarlo\"."
                 : ex.Message;
             if (!_silencioso)
                 MessageBox.Show(this, detalle + "\n\nEl detalle completo quedó en:\n" + _log.Ruta,
@@ -570,7 +578,7 @@ namespace ConfiguradorBD
 
         private void HabilitarControles(bool habilitar)
         {
-            foreach (Control c in new Control[] { cboServidor, btnBuscar, btnProbar, btnInstalar, btnCerrar, btnInstalarMotor, rbWindows, rbSql })
+            foreach (Control c in new Control[] { cboServidor, btnBuscar, btnProbar, btnInstalar, btnCerrar, btnInstalarMotor, btnDescargarMotor, rbWindows, rbSql })
                 c.Enabled = habilitar;
             txtUsuario.Enabled = txtContrasena.Enabled = habilitar && rbSql.Checked;
             prgProgreso.Visible = !habilitar;
