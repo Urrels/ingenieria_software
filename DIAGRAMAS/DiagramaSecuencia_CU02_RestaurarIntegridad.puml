@@ -16,12 +16,15 @@ boundary ":Sistema" as SYS #FFFFFF
 participant ":LogIn" as LI #FEFECE
 participant ":frmRestaurarIntegridad" as F #FEFECE
 participant ":frmHistorialUsuario" as FH #FEFECE
+participant ":Program" as PG #FEFECE
+participant ":SessionManager" as SM #F4E8E8
 participant ":IntegridadBLL" as I #E8F4E8
 database ":DB" as DB #E8E8F4
 
 LI -> F : ShowDialog(resultado)
 F -> F : mostrar errores
-F -> F : GuardarLogIntegridad()\n→ integridad_error.log
+F -> PG : GuardarLogIntegridad()\n→ integridad_error.log
+PG --> F : OK
 F -> F : "Restaurar" habilitado si\nhay usuarios afectados
 alt "Recalcular y continuar"
   F --> LI : OK
@@ -68,7 +71,8 @@ else 4b. "Cancelar"
   A -> SYS : click
   SYS -> F : click
   F --> LI : Cancel
-  LI -> LI : cerrarSesion()
+  LI -> SM : cerrarSesion()
+  SM --> LI : OK
   F --> SYS : OK
   SYS --> A : OK
 end

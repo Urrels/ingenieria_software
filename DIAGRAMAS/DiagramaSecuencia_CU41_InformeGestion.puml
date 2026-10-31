@@ -32,7 +32,7 @@ DB --> L : filas
 L --> I : resultado
 I -> DB : EVALUACION_COBERTURA_LISTAR_RANGO + HISTORIAL_ASISTENCIA_LISTAR_RANGO\n(Procesos 1 y 3: cobertura por franja y socios)
 DB --> I : resultado
-I -> DB : EQUIPO_LISTAR_TODOS + ALERTA_REVISION_LISTAR_PENDIENTES\n(Proceso 2: mantenimiento)
+I -> DB : EQUIPO_LISTAR_TODOS + ALERTA_LISTAR_PENDIENTES\n(Proceso 2: mantenimiento)
 DB --> I : filas
 I -> I : indicadores (cumplimiento, % con recargo,\nausentismo, costo por socio) y conclusiones por reglas
 I --> F : BE.InformeGestion

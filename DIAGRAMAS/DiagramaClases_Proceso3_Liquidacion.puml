@@ -14,8 +14,12 @@ package "UI (CAPAS)" #FEFECE {
   class frmCorregirFichajes
   class frmInformeGestion
   class frmParametrosLiquidacion
-  class LiquidacionExcel
-  class ReciboHoras
+  class LiquidacionExcel {
+    + {static} Exportar(dias : List<LiquidacionDia>, desde : DateTime, hasta : DateTime, estado : string, parametros : ParametrosLiquidacion) : void
+  }
+  class ReciboHoras {
+    + {static} Mostrar(padre : IWin32Window, diasEmpleado : List<LiquidacionDia>, desde : DateTime, hasta : DateTime, estado : string) : void
+  }
   class InformePdf
   class PdfDocumento
   class DemoUI
@@ -43,21 +47,36 @@ package "BLL" #E8F4E8 {
     +GuardarParametros()
     +GuardarValorHora()
     +GuardarFeriado()
+    + EliminarFeriado(fecha : DateTime, administrador : USUARIO) : void
+    + ListarEmpleados() : List<EmpleadoLiquidable>
+    + ListarFeriados(desde : DateTime, hasta : DateTime) : List<Feriado>
+    + ListarLiquidaciones() : List<Liquidacion>
+    + ListarValoresHora() : List<ValorHoraEmpleado>
+    + ObtenerDiasDeLiquidacion(liquidacionId : int) : List<LiquidacionDia>
+    + ObtenerIncompletos(desde : DateTime, hasta : DateTime) : List<RegistroAsistenciaPersonal>
+    + ObtenerParametros() : ParametrosLiquidacion
+    + ResumenReciente(dias : int) : List<LiquidacionResumenEmpleado>
+    + RevocarExcedente(usuarioId : int, empleado : string, fecha : DateTime, administrador : USUARIO) : void
   }
   class LiquidacionCalculo <<static>> {
     +Calcular()
     +Resumir()
     +ValorHoraVigente()
+    + {static} Hhmm(minutos : int) : string
+    + {static} Horas(minutos : int) : decimal
+    + {static} Redondear(minutos : int, multiplo : int) : int
   }
   class InformeGestionBLL {
     +Generar()
     +{static} GuardarJson()
     +RegistrarExportacion()
+    + {static} ADatosJson(informe : InformeGestion) : string
   }
   class DatosDemoBLL {
     +{static} Leer()
     +ContarDatos()
     +Cargar()
+    + {static} BuscarArchivo() : string
   }
   class PlanificadorFichajes {
     +Planificar()
@@ -71,14 +90,44 @@ package "BLL" #E8F4E8 {
   class EventoFichaje
   class ProbabilidadesFichaje
   class TipoFichaje <<enum>>
-  class ConexionBLL
+  class ConexionBLL {
+    + Disponible() : bool
+    + Identificador() : string
+  }
 }
 
 package "DAL" #E8E8F4 {
-  class LiquidacionDAL
+  class LiquidacionDAL {
+    + AprobarExcedente(usuarioId : int, fecha : DateTime, aprobadoPor : string) : void
+    + EliminarFeriado(fecha : DateTime) : void
+    + {static} FechaDeFranja(lunes : DateTime, dia : string) : DateTime?
+    + GuardarFeriado(fecha : DateTime, descripcion : string) : void
+    + GuardarLiquidacion(desde : DateTime, hasta : DateTime, cerradaPor : string, dias : List<LiquidacionDia>) : int
+    + GuardarParametros(p : ParametrosLiquidacion) : void
+    + GuardarValorHora(usuarioId : int, valor : decimal, vigenteDesde : DateTime, creadoPor : string) : void
+    + HayLiquidacionEnRango(desde : DateTime, hasta : DateTime) : bool
+    + ListarDiasDeLiquidacion(liquidacionId : int) : List<LiquidacionDia>
+    + ListarEmpleados() : List<EmpleadoLiquidable>
+    + ListarFeriados(desde : DateTime, hasta : DateTime) : List<Feriado>
+    + ListarLiquidaciones() : List<Liquidacion>
+    + ListarTurnosAsignados(desde : DateTime, hasta : DateTime) : List<TurnoAsignadoFecha>
+    + ListarValoresHora() : List<ValorHoraEmpleado>
+    + MarcarPagada(id : int, pagadaPor : string) : void
+    + ObtenerParametros() : ParametrosLiquidacion
+    + RevocarExcedente(usuarioId : int, fecha : DateTime) : void
+  }
   class AsistenciaPersonalDAL
-  class GestionDAL
-  class ConexionDAL
+  class GestionDAL {
+    + ContarDatosNegocio() : DatosNegocio
+    + InsertarEquipo(nombre : string, usoAcumulado : int, nivelCritico : int?) : int
+    + InsertarUsoConFecha(equipoId : int, fecha : DateTime, incremento : int) : void
+    + ListarEvaluaciones(desde : DateTime, hasta : DateTime) : List<EvaluacionFranjaSemana>
+    + ListarSocios(desde : DateTime, hasta : DateTime) : List<SociosEnFecha>
+  }
+  class ConexionDAL {
+    + Identificador() : string
+    + Probar() : bool
+  }
 }
 
 package "BE" #FFFFFF {

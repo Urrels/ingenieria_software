@@ -198,7 +198,7 @@ package "DAL" #DAE8FC {
     + EstaBloqueado(u : string) : bool
     + IncrementarIntentos(u : string) : bool
     + ResetearIntentos(u : string) : void
-    + ListarTodos() : List<USUARIO>
+    + ListarPaginado(busqueda : string, pagina : int, tamanio : int) : PaginaResultado<USUARIO>
     + ListarPaginado(busqueda : string, pagina : int, tamanio : int) : PaginaResultado<USUARIO>
     + Eliminar(id : int) : void
     + Crear(usuario : string, passHash : string, rolId : int, nombre : string, apellido : string, telefono : string = null, email : string = null) : bool
@@ -208,6 +208,7 @@ package "DAL" #DAE8FC {
     + ActualizarDatos(id : int, nombre : string, apellido : string, telefono : string, email : string) : void
     + ActualizarIdioma(id : int, idiomaId : int) : void
     + Desbloquear(u : string) : void
+    + ListarPorRol(rol : string) : List<USUARIO>
   }
 
   class PerfilDAL {
@@ -234,7 +235,7 @@ package "DAL" #DAE8FC {
   class BitacoraDAL {
     - _acceso : Acceso
     + Registrar(usuario : string, accion : string) : void
-    + Listar() : List<BITACORA>
+    + ListarPaginado(usuario : string, accion : string, fechaDesde : DateTime?, fechaHasta : DateTime?, pagina : int, tamanio : int) : PaginaResultado<BITACORA>
     + ListarPaginado(usuario : string, accion : string, fechaDesde : DateTime?, fechaHasta : DateTime?, pagina : int, tamanio : int) : PaginaResultado<BITACORA>
     + ListarUsuariosDistinct() : List<string>
     + ListarAccionesDistinct() : List<string>
@@ -317,13 +318,14 @@ package "BLL" #FFE6CC {
     + ObtenerPorId(id : int) : USUARIO
     + VerificarContrasena(u : string, contrasena : string) : bool
     + CambiarContrasena(u : string, nuevaContrasena : string) : bool
-    + ListarTodos() : List<USUARIO>
+    + ListarPaginado(busqueda : string, pagina : int, tamanio : int) : PaginaResultado<USUARIO>
     + ListarPaginado(busqueda : string, pagina : int, tamanio : int) : PaginaResultado<USUARIO>
     + Eliminar(id : int) : void
     + Crear(usuario : string, contrasena : string, rolId : int, nombre : string, apellido : string, telefono : string = null, email : string = null) : bool
     + ActualizarDatos(id : int, nombre : string, apellido : string, telefono : string, email : string) : void
     + ActualizarIdioma(id : int, idiomaId : int) : void
     + Desbloquear(u : string) : void
+    + ListarAdmins() : List<USUARIO>
   }
 
   class LoginBLL {
@@ -369,7 +371,7 @@ package "BLL" #FFE6CC {
     + RegistrarLogin(usuario : string) : void
     + RegistrarLogout(usuario : string) : void
     + RegistrarAccion(usuario : string, accion : string) : void
-    + Listar() : List<BITACORA>
+    + ListarPaginado(usuario : string, accion : string, fechaDesde : DateTime?, fechaHasta : DateTime?, pagina : int, tamanio : int) : PaginaResultado<BITACORA>
     + ListarPaginado(usuario : string, accion : string, fechaDesde : DateTime?, fechaHasta : DateTime?, pagina : int, tamanio : int) : PaginaResultado<BITACORA>
     + ListarUsuariosDistinct() : List<string>
     + ListarAccionesDistinct() : List<string>
@@ -514,6 +516,7 @@ package "CAPAS" #F8CECC {
     - _menuDefaults : Dictionary<string, string>
     - _fachadaIdioma : FachadaIdioma
     + ActualizarIdioma() : void
+    + ActualizarVisibilidadMenu() : void
   }
 
   class frmRestaurarIntegridad {

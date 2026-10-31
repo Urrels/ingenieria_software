@@ -71,6 +71,7 @@ package "BLL" #E8F4E8 {
     - SOCIOS_POR_EMPLEADO : int = 15
     + EvaluarSemana(semana) : List<ResultadoEvaluacionFranjaVM>
     + ObtenerResumen() : Dictionary<string,int>
+    + {static} Clasificar(personalPresente : int, socios : int) : string
   }
   class HistorialAsistenciaSociosBLL {
     + RegistrarAsistencia(franja, fecha, cantidad)
@@ -78,7 +79,7 @@ package "BLL" #E8F4E8 {
   class AsistenciaPersonalBLL {
     + RegistrarIngreso(usuario) : bool
     + RegistrarEgreso(usuario) : bool
-    + TieneIngresoAbierto(usuario) : bool
+    + ObtenerEstado(usuario : USUARIO) : EstadoFichaje
   }
 }
 
@@ -97,26 +98,47 @@ package "DAL" #E8E8F4 {
     + HorasAsignadasEnSemana()
     + TomarCobertura()
     + ListarPorGrilla()
+    + ContarAsignadosPorFranja(grillaId : int, franjaId : int) : int
+    + ListarPendientesPorRol(rolRequerido : string) : List<Turno>
+    + ListarPorUsuario(usuarioId : int) : List<Turno>
   }
   class DemandaEstimadaDAL {
     + ObtenerHistorial()
     + Insertar()
     + ObtenerEvaluacionCobertura()
     + InsertarEvaluacionCobertura()
+    + ObtenerResumenCobertura() : Dictionary<string, int>
   }
   class DisponibilidadDAL {
     + ObtenerPorUsuarioYSemana()
     + Guardar()
     + Actualizar()
   }
-  class FranjaHorariaDAL
+  class FranjaHorariaDAL {
+    + Eliminar(id : int) : bool
+    + Insertar(dia : string, horaInicio : TimeSpan, horaFin : TimeSpan, rolRequerido : string) : int
+    + ListarTodas() : List<FranjaHoraria>
+    + ObtenerPorId(id : int) : FranjaHoraria
+  }
   class NotificacionDAL {
     + Guardar()
     + ExisteHoy()
     + ListarPorUsuario()
   }
-  class HistorialAsistenciaSociosDAL
-  class AsistenciaPersonalDAL
+  class HistorialAsistenciaSociosDAL {
+    + Insertar(franjaId : int, fecha : DateTime, cantidadSocios : int) : int
+    + ObtenerPorFranja(franjaId : int, semanas : int) : List<int>
+    + ObtenerPorFranjaYSemana(franjaId : int, lunes : DateTime) : List<int>
+  }
+  class AsistenciaPersonalDAL {
+    + Corregir(id : int, horaIngreso : TimeSpan, horaEgreso : TimeSpan, motivo : string, corregidoPor : string) : void
+    + InsertarManual(usuarioId : int, fecha : DateTime, horaIngreso : TimeSpan, horaEgreso : TimeSpan, motivo : string, corregidoPor : string) : int
+    + ListarRango(desde : DateTime, hasta : DateTime, usuarioId : int?) : List<RegistroAsistenciaPersonal>
+    + ObtenerAbierta(usuarioId : int) : RegistroAsistenciaPersonal
+    + ObtenerPorId(id : int) : RegistroAsistenciaPersonal
+    + RegistrarEgreso(id : int, horaEgreso : TimeSpan) : void
+    + RegistrarIngreso(usuarioId : int, fecha : DateTime, horaIngreso : TimeSpan) : int
+  }
   class Acceso <<stored procedures>>
 }
 
