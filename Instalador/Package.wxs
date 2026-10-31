@@ -2,7 +2,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Gestión de gimnasio"
            Manufacturer="TP Ingeniería de Software"
-           Version="1.0.5"
+           Version="1.0.6"
            UpgradeCode="AB5393F6-89D0-43A6-980E-68196A37FA92"
            Language="3082"
            Codepage="1252"
@@ -21,9 +21,6 @@
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="Gestión de gimnasio">
         <Directory Id="CarpetaScripts" Name="Scripts" />
-        <?ifdef IncluirLocalDB ?>
-        <Directory Id="CarpetaPrerequisitos" Name="Prerequisitos" />
-        <?endif?>
       </Directory>
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder">
@@ -40,9 +37,6 @@
       <Files Directory="CarpetaScripts" Include="$(var.Scripts)*.sql" />
       <!-- Datos de demostración serializados (JSON): los carga la aplicación para no mostrar el sistema vacío -->
       <Files Directory="CarpetaScripts" Include="$(var.Scripts)datos_demo.json" />
-      <?ifdef IncluirLocalDB ?>
-      <Files Directory="CarpetaPrerequisitos" Include="Prerequisitos\SqlLocalDB.msi" />
-      <?endif?>
       <ComponentRef Id="AccesosDirectos" />
     </Feature>
 

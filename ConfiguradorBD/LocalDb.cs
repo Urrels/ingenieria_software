@@ -50,16 +50,6 @@ namespace ConfiguradorBD
                     "No se pudo iniciar la instancia de LocalDB (código " + codigo + "). Revisá el detalle en el registro.");
         }
 
-        internal static bool InstalarSilencioso(string rutaMsi, RegistroInstalacion log)
-        {
-            log.Escribir("Instalando SQL Server Express LocalDB en modo silencioso: " + rutaMsi);
-            int codigo = Ejecutar("msiexec.exe",
-                "/i \"" + rutaMsi + "\" /qn IACCEPTSQLLOCALDBLICENSETERMS=YES", log);
-            bool ok = codigo == 0 || codigo == 3010;
-            log.Escribir(ok ? "LocalDB instalado correctamente." : "La instalación de LocalDB terminó con código " + codigo + ".");
-            return ok;
-        }
-
         private static int Ejecutar(string archivo, string argumentos, RegistroInstalacion log)
         {
             var inicio = new ProcessStartInfo(archivo, argumentos)
