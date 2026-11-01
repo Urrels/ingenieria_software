@@ -409,7 +409,7 @@ namespace DAL
             return lista;
         }
 
-        public void MarcarPagada(int id, string pagadaPor)
+        public int MarcarPagada(int id, string pagadaPor)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
             {
@@ -419,7 +419,7 @@ namespace DAL
             try
             {
                 _acceso.Abrir();
-                _acceso.Escribir("LIQUIDACION_MARCAR_PAGADA", parametros);
+                return _acceso.Escribir("LIQUIDACION_MARCAR_PAGADA", parametros);
             }
             finally { _acceso.Cerrar(); }
         }

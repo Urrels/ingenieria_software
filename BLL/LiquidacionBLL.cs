@@ -70,7 +70,8 @@ namespace BLL
         {
             if (liquidacion.Estado != "Cerrada")
                 throw new InvalidOperationException("Solo se puede marcar como pagada una liquidación cerrada.");
-            _dal.MarcarPagada(liquidacion.Id, administrador.Usuario);
+            if (_dal.MarcarPagada(liquidacion.Id, administrador.Usuario) == 0)
+                throw new InvalidOperationException("La liquidación ya no está en estado Cerrada: otro administrador pudo haberla marcado.");
             _bitacora.RegistrarAccion(administrador.Usuario,
                 $"LIQUIDACION_PAGADA:{liquidacion.Desde:yyyyMMdd}-{liquidacion.Hasta:yyyyMMdd}");
         }

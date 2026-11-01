@@ -112,10 +112,15 @@ namespace BLL
             DateTime fin = fecha.Date + egreso;
             if (fin < inicio) fin = fin.AddDays(1);
 
+            int max = _liquidacionDAL.ObtenerParametros().MaxHorasFichajeAbierto;
+            if ((fin - inicio).TotalHours > max)
+                throw new InvalidOperationException($"El fichaje no puede durar más de {max} horas.");
+
             foreach (var otro in _dal.ListarRango(fecha.AddDays(-1), fecha.AddDays(1), usuarioId))
             {
-                if (otro.Id == ignorarId || !otro.Egreso.HasValue) continue;
-                if (inicio < otro.Egreso.Value && fin > otro.Ingreso)
+                if (otro.Id == ignorarId) continue;
+                DateTime finOtro = otro.Egreso ?? Reloj.Ahora;   // un ingreso abierto cuenta hasta ahora
+                if (inicio < finOtro && fin > otro.Ingreso)
                     throw new InvalidOperationException("El fichaje se superpone con otro del mismo empleado.");
             }
         }
