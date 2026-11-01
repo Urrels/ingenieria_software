@@ -7,6 +7,7 @@ namespace BLL
     public class AsistenciaPersonalBLL
     {
         private const int LargoMaximoMotivo = 150;
+        private const string PermisoCorregir = "Liquidar horas";
 
         private readonly DAL.AsistenciaPersonalDAL _dal = new DAL.AsistenciaPersonalDAL();
         private readonly DAL.LiquidacionDAL _liquidacionDAL = new DAL.LiquidacionDAL();
@@ -57,6 +58,7 @@ namespace BLL
 
         public void Corregir(int id, TimeSpan ingreso, TimeSpan egreso, string motivo, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoCorregir);
             motivo = ValidarMotivo(motivo);
             if (ingreso == egreso)
                 throw new InvalidOperationException("El ingreso y el egreso no pueden ser iguales.");
@@ -79,6 +81,7 @@ namespace BLL
         public void AgregarManual(int usuarioId, string empleado, DateTime fecha, TimeSpan ingreso, TimeSpan egreso,
             string motivo, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoCorregir);
             motivo = ValidarMotivo(motivo);
             if (ingreso == egreso)
                 throw new InvalidOperationException("El ingreso y el egreso no pueden ser iguales.");

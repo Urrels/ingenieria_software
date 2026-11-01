@@ -15,6 +15,7 @@ namespace DAL
 
         public void Abrir()
         {
+            Cerrar();   // una segunda llamada no deja abierta la conexión anterior
             conexion = new SqlConnection(CadenaConexion());
             conexion.Open();
         }
@@ -72,22 +73,24 @@ namespace DAL
 
         public int Escribir(string sql, List<SqlParameter> parametros = null)
         {
-            SqlCommand cmd = CrearComando(sql, parametros);
-            int filas = cmd.ExecuteNonQuery();
-            cmd.Parameters.Clear();
-            return filas;
+            using (SqlCommand cmd = CrearComando(sql, parametros))
+            {
+                int filas = cmd.ExecuteNonQuery();
+                cmd.Parameters.Clear();
+                return filas;
+            }
         }
 
 
         public DataTable Leer(string sql, List<SqlParameter> parametros = null)
         {
-            SqlDataAdapter adaptador = new SqlDataAdapter();
-            adaptador.SelectCommand = CrearComando(sql, parametros);
-            DataTable tabla = new DataTable();
-
-            adaptador.Fill(tabla);
-
-            return tabla;
+            using (SqlCommand cmd = CrearComando(sql, parametros))
+            using (SqlDataAdapter adaptador = new SqlDataAdapter(cmd))
+            {
+                DataTable tabla = new DataTable();
+                adaptador.Fill(tabla);
+                return tabla;
+            }
 
         }
 

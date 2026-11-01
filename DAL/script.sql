@@ -454,6 +454,7 @@ CREATE TABLE [dbo].[USUARIO](
 	[TELEFONO] [varchar](30) NULL,
 	[EMAIL] [varchar](100) NULL,
 	[LIMITE_HORAS_SEMANALES] [int] NULL,
+	[FECHA_BLOQUEO] [datetime] NULL,
  CONSTRAINT [PK_USUARIO] PRIMARY KEY CLUSTERED
 (
 	[ID] ASC
@@ -1917,7 +1918,7 @@ GO
 CREATE PROCEDURE [dbo].[USUARIO_DESBLOQUEAR]
     @usuario VARCHAR(50)
 AS
-    UPDATE USUARIO SET BLOQUEADO = 0, INTENTOS_FALLIDOS = 0 WHERE USUARIO = @usuario
+    UPDATE USUARIO SET BLOQUEADO = 0, INTENTOS_FALLIDOS = 0, FECHA_BLOQUEO = NULL WHERE USUARIO = @usuario
 GO
 /****** Object:  StoredProcedure [dbo].[USUARIO_ELIMINAR]    Script Date: 04/10/2026 12:15:33 AM ******/
 SET ANSI_NULLS ON
@@ -2024,6 +2025,7 @@ AS
 BEGIN
     UPDATE USUARIO
     SET INTENTOS_FALLIDOS = INTENTOS_FALLIDOS + 1,
+        FECHA_BLOQUEO = CASE WHEN BLOQUEADO = 0 AND INTENTOS_FALLIDOS + 1 >= 3 THEN GETDATE() ELSE FECHA_BLOQUEO END,
         BLOQUEADO = CASE WHEN INTENTOS_FALLIDOS + 1 >= 3 THEN 1 ELSE BLOQUEADO END
     WHERE USUARIO = @usuario
 
@@ -2201,6 +2203,25 @@ CREATE PROCEDURE [dbo].[USUARIO_VERIFICAR_BLOQUEO]
     @usuario VARCHAR(50)
 AS
     SELECT BLOQUEADO FROM USUARIO WHERE USUARIO = @usuario
+GO
+
+-- Desbloqueo automático (auditoría QA): una cuenta con el permiso 'Administrar usuarios' que quedó bloqueada se libera sola
+-- pasado el tiempo indicado; si fuera la única, nadie más podría desbloquearla. Devuelve DESBLOQUEADO = 1 si lo hizo.
+CREATE OR ALTER PROCEDURE dbo.USUARIO_DESBLOQUEAR_SI_EXPIRO
+    @usuario VARCHAR(50),
+    @minutos INT
+AS
+BEGIN
+    UPDATE u SET BLOQUEADO = 0, INTENTOS_FALLIDOS = 0, FECHA_BLOQUEO = NULL
+    FROM USUARIO u
+    WHERE u.USUARIO = @usuario AND u.BLOQUEADO = 1 AND u.FECHA_BLOQUEO IS NOT NULL
+      AND DATEDIFF(MINUTE, u.FECHA_BLOQUEO, GETDATE()) >= @minutos
+      AND EXISTS (SELECT 1 FROM USUARIO_PERFIL up
+                  JOIN ROL_PERMISO rp ON rp.ROL_ID = up.PERFIL_ID
+                  JOIN PERMISO p ON p.ID = rp.PERMISO_ID
+                  WHERE up.USUARIO_ID = u.ID AND p.NOMBRE = 'Administrar usuarios')
+    SELECT CAST(@@ROWCOUNT AS INT) AS DESBLOQUEADO
+END
 GO
 /****** Object:  StoredProcedure [dbo].[VISITA_INSERTAR]    Script Date: 04/10/2026 12:15:33 AM ******/
 SET ANSI_NULLS ON

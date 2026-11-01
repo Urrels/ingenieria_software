@@ -62,6 +62,26 @@ namespace DAL
             }
         }
 
+        // Libera una cuenta con permiso de administración que lleva bloqueada al menos "minutos"; true si la liberó.
+        public bool DesbloquearSiExpiro(string usuario, int minutos)
+        {
+            List<SqlParameter> parametros = new List<SqlParameter>
+            {
+                _acceso.CrearParametro("@usuario", usuario),
+                _acceso.CrearParametro("@minutos", minutos)
+            };
+            try
+            {
+                _acceso.Abrir();
+                DataTable tabla = _acceso.Leer("USUARIO_DESBLOQUEAR_SI_EXPIRO", parametros);
+                return Convert.ToInt32(tabla.Rows[0]["DESBLOQUEADO"]) > 0;
+            }
+            finally
+            {
+                _acceso.Cerrar();
+            }
+        }
+
         public bool EstaBloqueado(string usuario)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
