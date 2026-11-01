@@ -188,7 +188,7 @@ namespace BLL
             {
                 if (e.Tipo == TipoFichaje.Ingreso)
                 {
-                    abiertos[e.UsuarioId] = _asistenciaDAL.RegistrarIngreso(e.UsuarioId, e.Cuando.Date, e.Cuando.TimeOfDay);
+                    abiertos[e.UsuarioId] = _asistenciaDAL.RegistrarIngreso(e.UsuarioId, e.Cuando.Date, e.Cuando.TimeOfDay, permitirAbierto: true);
                     cantidad++;
                 }
                 else if (!e.Omitir && abiertos.TryGetValue(e.UsuarioId, out int id))

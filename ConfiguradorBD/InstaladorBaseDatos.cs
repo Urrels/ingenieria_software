@@ -19,6 +19,7 @@ namespace ConfiguradorBD
         private readonly SqlConnectionStringBuilder _cadena;
         private readonly RegistroInstalacion _log;
         private readonly int _intentos;
+        private bool _creadaPorEsteProceso;
 
         // "intentos" > 1 se usa justo después de iniciar el servicio o LocalDB: el motor tarda unos segundos
         // en aceptar conexiones y sin reintentos el primer intento fallaba.
@@ -58,9 +59,14 @@ namespace ConfiguradorBD
         internal void CrearBase(string rutaEsquema, string rutaTraducciones)
         {
             _log.Escribir("Creando la base de datos " + NombreBase + "...");
+            using (SqlConnection conexion = AbrirMaster())
+                if (Escalar(conexion, $"SELECT DB_ID('{NombreBase}')") != DBNull.Value)
+                    throw new InvalidOperationException(
+                        "La base " + NombreBase + " ya existe en el servidor; no se vuelve a crear.");
             try
             {
-                EjecutarScript(rutaEsquema);
+                // Solo se la considera propia una vez que el primer lote (CREATE DATABASE) se ejecutó bien.
+                EjecutarScript(rutaEsquema, () => _creadaPorEsteProceso = true);
                 EjecutarScript(rutaTraducciones);
             }
             catch (Exception ex)
@@ -102,7 +108,7 @@ namespace ConfiguradorBD
             actual.Clear();
         }
 
-        private void EjecutarScript(string ruta)
+        private void EjecutarScript(string ruta, Action trasPrimerLote = null)
         {
             List<string> lotes = SepararLotes(File.ReadAllText(ruta, Encoding.UTF8));
             _log.Escribir($"Ejecutando {Path.GetFileName(ruta)} ({lotes.Count} lotes)...");
@@ -115,6 +121,7 @@ namespace ConfiguradorBD
                     {
                         using (var comando = new SqlCommand(lotes[i], conexion) { CommandTimeout = 600 })
                             comando.ExecuteNonQuery();
+                        if (i == 0) trasPrimerLote?.Invoke();
                     }
                     catch (SqlException ex)
                     {
@@ -128,6 +135,11 @@ namespace ConfiguradorBD
 
         private void Deshacer()
         {
+            if (!_creadaPorEsteProceso)
+            {
+                _log.Escribir("Rollback omitido: esta ejecución no creó la base, no se elimina nada.");
+                return;
+            }
             try
             {
                 SqlConnection.ClearAllPools();

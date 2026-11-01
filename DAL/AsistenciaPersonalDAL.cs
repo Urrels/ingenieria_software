@@ -25,13 +25,15 @@ namespace DAL
             finally { _acceso.Cerrar(); }
         }
 
-        public int RegistrarIngreso(int usuarioId, DateTime fecha, TimeSpan horaIngreso)
+        // Devuelve 0 si el empleado ya tiene un ingreso abierto (salvo que se permita, como en los datos de demostración).
+        public int RegistrarIngreso(int usuarioId, DateTime fecha, TimeSpan horaIngreso, bool permitirAbierto = false)
         {
             List<SqlParameter> parametros = new List<SqlParameter>
             {
                 _acceso.CrearParametro("@usuario_id", usuarioId),
                 new SqlParameter("@fecha", fecha),
-                new SqlParameter("@hora_ingreso", horaIngreso)
+                new SqlParameter("@hora_ingreso", horaIngreso),
+                new SqlParameter("@permitir_abierto", SqlDbType.Bit) { Value = permitirAbierto }
             };
             try
             {

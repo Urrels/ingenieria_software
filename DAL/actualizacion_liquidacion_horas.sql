@@ -115,6 +115,31 @@ END
 GO
 
 /****** Procedimientos ******/
+CREATE OR ALTER PROCEDURE dbo.ASISTENCIA_REGISTRAR_INGRESO
+    @usuario_id       INT,
+    @fecha            DATE,
+    @hora_ingreso     TIME,
+    @permitir_abierto BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON
+    DECLARE @id INT
+    BEGIN TRAN
+    -- Devuelve ID = 0 si el empleado ya tiene un ingreso abierto (dos fichajes simultáneos no crean dos).
+    IF @permitir_abierto = 0
+       AND EXISTS (SELECT 1 FROM ASISTENCIA_PERSONAL WITH (UPDLOCK, HOLDLOCK) WHERE USUARIO_ID = @usuario_id AND HORA_EGRESO IS NULL)
+    BEGIN
+        ROLLBACK
+        SELECT CAST(0 AS INT) AS ID
+        RETURN
+    END
+    INSERT INTO ASISTENCIA_PERSONAL (USUARIO_ID, FECHA, HORA_INGRESO) VALUES (@usuario_id, @fecha, @hora_ingreso)
+    SET @id = CAST(SCOPE_IDENTITY() AS INT)
+    COMMIT
+    SELECT @id AS ID
+END
+GO
+
 CREATE OR ALTER PROCEDURE dbo.ASISTENCIA_OBTENER_ABIERTA
     @usuario_id INT
 AS
@@ -294,6 +319,9 @@ CREATE OR ALTER PROCEDURE dbo.LIQUIDACION_INSERTAR
     @cerrada_por VARCHAR(50)
 AS
 BEGIN
+    -- La verificación de superposición va dentro de la misma transacción que el INSERT: dos cierres simultáneos no pasan los dos.
+    IF EXISTS (SELECT 1 FROM LIQUIDACION WITH (UPDLOCK, HOLDLOCK) WHERE DESDE <= @hasta AND HASTA >= @desde)
+        THROW 50010, 'Ya existe una liquidación que se superpone con ese período.', 1;
     INSERT INTO LIQUIDACION (DESDE, HASTA, ESTADO, CERRADA_POR) VALUES (@desde, @hasta, 'Cerrada', @cerrada_por)
     SELECT SCOPE_IDENTITY() AS ID
 END
