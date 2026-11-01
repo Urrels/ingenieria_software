@@ -31,7 +31,8 @@ namespace BLL
             if (estado.Abierto != null)
                 return estado.Vencido ? BE.ResultadoFichaje.IngresoVencido : BE.ResultadoFichaje.IngresoAbierto;
 
-            _dal.RegistrarIngreso(usuario.Id, Reloj.Hoy, Reloj.Ahora.TimeOfDay);
+            if (_dal.RegistrarIngreso(usuario.Id, Reloj.Hoy, Reloj.Ahora.TimeOfDay) == 0)
+                return BE.ResultadoFichaje.IngresoAbierto;
             return BE.ResultadoFichaje.Ok;
         }
 
