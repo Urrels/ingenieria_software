@@ -45,6 +45,7 @@ namespace BLL
 
         public void Eliminar(int id)
         {
+            Autorizacion.Exigir("Administrar usuarios");
             new PerfilBLL().ValidarQueQuedeAdministracion(usuarioId: id, nuevosRolIds: new List<int>());
 
             string admin = SessionManager.getInstance().getUsuario().Usuario;
@@ -80,6 +81,7 @@ namespace BLL
 
         public void Desbloquear(string usuario)
         {
+            Autorizacion.Exigir("Administrar usuarios");
             _dal.Desbloquear(usuario);
             string admin = SessionManager.getInstance().getUsuario().Usuario;
             _bitacora.RegistrarAccion(admin, "DESBLOQUEO_USUARIO:" + usuario);

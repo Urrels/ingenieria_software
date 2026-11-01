@@ -6,6 +6,9 @@ namespace BLL
 {
     public class LoginBLL
     {
+        // Un administrador bloqueado se libera solo: si fuera el único, nadie podría desbloquearlo.
+        private const int MinutosBloqueoAdministrador = 15;
+
         private readonly DAL.UsuarioDAL      _dal       = new DAL.UsuarioDAL();
         private readonly BitacoraBLL         _bitacora  = new BitacoraBLL();
         private readonly UsuarioPerfilBLL    _perfilBll = new UsuarioPerfilBLL();
@@ -15,6 +18,13 @@ namespace BLL
         {
             if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(contrasena))
                 return LoginResultado.CredencialesInvalidas;
+
+            if (_dal.DesbloquearSiExpiro(usuario, MinutosBloqueoAdministrador))
+            {
+                _bitacora.RegistrarAccion(usuario, "DESBLOQUEO_AUTOMATICO");
+                int? idLiberado = _dal.ObtenerIdPorNombre(usuario);
+                if (idLiberado.HasValue) _historial.RegistrarCambio(idLiberado.Value, "DESBLOQUEO", "sistema");
+            }
 
             if (_dal.EstaBloqueado(usuario))
                 return LoginResultado.UsuarioBloqueado;

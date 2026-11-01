@@ -6,6 +6,10 @@ namespace BLL
 {
     public class LiquidacionBLL
     {
+        private const string PermisoLiquidar = "Liquidar horas";
+        private const decimal ValorHoraMaximo = 99999999m;      // la columna es DECIMAL(10,2)
+        private const int LargoMaximoDescripcionFeriado = 100;  // FERIADO.DESCRIPCION es VARCHAR(100)
+
         private readonly DAL.LiquidacionDAL _dal = new DAL.LiquidacionDAL();
         private readonly PresenciaBLL _presenciaBLL = new PresenciaBLL();
         private readonly BitacoraBLL _bitacora = new BitacoraBLL();
@@ -40,6 +44,7 @@ namespace BLL
 
         public int Cerrar(DateTime desde, DateTime hasta, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
             ValidarRango(desde, hasta);
             if (hasta.Date >= Reloj.Hoy)
                 throw new InvalidOperationException("Solo se puede liquidar un período que ya terminó.");
@@ -68,6 +73,7 @@ namespace BLL
 
         public void MarcarPagada(BE.Liquidacion liquidacion, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
             if (liquidacion.Estado != "Cerrada")
                 throw new InvalidOperationException("Solo se puede marcar como pagada una liquidación cerrada.");
             if (_dal.MarcarPagada(liquidacion.Id, administrador.Usuario) == 0)
@@ -83,6 +89,7 @@ namespace BLL
 
         public void AprobarExcedente(int usuarioId, string empleado, DateTime fecha, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
             ValidarPeriodoAbierto(fecha);
             _dal.AprobarExcedente(usuarioId, fecha, administrador.Usuario);
             _bitacora.RegistrarAccion(administrador.Usuario, $"EXCEDENTE_APROBADO:{fecha:yyyyMMdd} {empleado}");
@@ -90,6 +97,7 @@ namespace BLL
 
         public void RevocarExcedente(int usuarioId, string empleado, DateTime fecha, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
             ValidarPeriodoAbierto(fecha);
             _dal.RevocarExcedente(usuarioId, fecha);
             _bitacora.RegistrarAccion(administrador.Usuario, $"EXCEDENTE_REVOCADO:{fecha:yyyyMMdd} {empleado}");
@@ -99,6 +107,8 @@ namespace BLL
 
         public void GuardarParametros(BE.ParametrosLiquidacion p, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
+            if (p == null) throw new ArgumentNullException(nameof(p));
             if (p.ToleranciaMinutos < 0 || p.ToleranciaMinutos > 60)
                 throw new InvalidOperationException("La tolerancia debe estar entre 0 y 60 minutos.");
             if (p.RedondeoMinutos < 0 || p.RedondeoMinutos > 60)
@@ -120,8 +130,11 @@ namespace BLL
 
         public void GuardarValorHora(BE.EmpleadoLiquidable empleado, decimal valor, DateTime vigenteDesde, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
             if (valor <= 0m)
                 throw new InvalidOperationException("El valor hora debe ser mayor a cero.");
+            if (valor > ValorHoraMaximo)
+                throw new InvalidOperationException($"El valor hora no puede superar {ValorHoraMaximo:N2}.");
             _dal.GuardarValorHora(empleado.Id, valor, vigenteDesde, administrador.Usuario);
             _bitacora.RegistrarAccion(administrador.Usuario, "VALOR_HORA_MODIFICADO:" + empleado.NombreCompleto);
         }
@@ -130,18 +143,48 @@ namespace BLL
 
         public void GuardarFeriado(DateTime fecha, string descripcion, BE.USUARIO administrador)
         {
-            _dal.GuardarFeriado(fecha, (descripcion ?? "").Trim());
+            Autorizacion.Exigir(PermisoLiquidar);
+            descripcion = (descripcion ?? "").Trim();
+            if (descripcion.Length > LargoMaximoDescripcionFeriado)
+                throw new InvalidOperationException($"La descripción no puede superar los {LargoMaximoDescripcionFeriado} caracteres.");
+            _dal.GuardarFeriado(fecha, descripcion);
             _bitacora.RegistrarAccion(administrador.Usuario, "FERIADO_GUARDADO:" + fecha.ToString("yyyyMMdd"));
+        }
+
+        // Descarga los feriados nacionales del año y agrega los que todavía no están cargados (no pisa los cargados a mano).
+        // Devuelve cuántos agregó. Es una importación puntual: la liquidación nunca consulta la API.
+        public int ImportarFeriados(int anio, BE.USUARIO administrador)
+        {
+            Autorizacion.Exigir(PermisoLiquidar);
+            if (anio < Reloj.Hoy.Year - 1 || anio > Reloj.Hoy.Year + 1)
+                throw new InvalidOperationException("Solo se pueden importar los feriados del año anterior, el actual y el siguiente.");
+
+            var existentes = new HashSet<DateTime>(
+                _dal.ListarFeriados(new DateTime(anio, 1, 1), new DateTime(anio, 12, 31)).Select(f => f.Fecha.Date));
+            int agregados = 0;
+            foreach (var f in FeriadosApi.Descargar(anio))
+            {
+                if (existentes.Contains(f.Fecha.Date)) continue;
+                string descripcion = f.Descripcion.Length > LargoMaximoDescripcionFeriado
+                    ? f.Descripcion.Substring(0, LargoMaximoDescripcionFeriado) : f.Descripcion;
+                _dal.GuardarFeriado(f.Fecha.Date, descripcion);
+                agregados++;
+            }
+            _bitacora.RegistrarAccion(administrador.Usuario, "FERIADOS_IMPORTADOS:" + anio);
+            return agregados;
         }
 
         public void EliminarFeriado(DateTime fecha, BE.USUARIO administrador)
         {
+            Autorizacion.Exigir(PermisoLiquidar);
             _dal.EliminarFeriado(fecha);
             _bitacora.RegistrarAccion(administrador.Usuario, "FERIADO_ELIMINADO:" + fecha.ToString("yyyyMMdd"));
         }
 
         public List<BE.LiquidacionResumenEmpleado> ResumenReciente(int dias)
         {
+            if (dias < 1 || dias > 62)
+                throw new ArgumentOutOfRangeException(nameof(dias), "Los días deben estar entre 1 y 62.");
             DateTime hasta = Reloj.Hoy;
             DateTime desde = hasta.AddDays(-(dias - 1));
             return Resumir(Calcular(desde, hasta));
