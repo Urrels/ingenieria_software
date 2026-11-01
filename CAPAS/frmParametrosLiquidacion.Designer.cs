@@ -45,6 +45,7 @@ namespace CAPAS
             this.btnGuardarFeriado = new System.Windows.Forms.Button();
             this.dgvFeriados = new System.Windows.Forms.DataGridView();
             this.btnEliminarFeriado = new System.Windows.Forms.Button();
+            this.btnImportarFeriados = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabParametros.SuspendLayout();
@@ -320,6 +321,7 @@ namespace CAPAS
             //
             // tabFeriados
             //
+            this.tabFeriados.Controls.Add(this.btnImportarFeriados);
             this.tabFeriados.Controls.Add(this.btnEliminarFeriado);
             this.tabFeriados.Controls.Add(this.dgvFeriados);
             this.tabFeriados.Controls.Add(this.btnGuardarFeriado);
@@ -403,6 +405,16 @@ namespace CAPAS
             this.btnEliminarFeriado.UseVisualStyleBackColor = true;
             this.btnEliminarFeriado.Click += new System.EventHandler(this.btnEliminarFeriado_Click);
             //
+            // btnImportarFeriados
+            //
+            this.btnImportarFeriados.Location = new System.Drawing.Point(200, 315);
+            this.btnImportarFeriados.Name = "btnImportarFeriados";
+            this.btnImportarFeriados.Size = new System.Drawing.Size(260, 30);
+            this.btnImportarFeriados.TabIndex = 7;
+            this.btnImportarFeriados.Text = "Importar feriados del año";
+            this.btnImportarFeriados.UseVisualStyleBackColor = true;
+            this.btnImportarFeriados.Click += new System.EventHandler(this.btnImportarFeriados_Click);
+            //
             // btnCerrar
             //
             this.btnCerrar.Location = new System.Drawing.Point(655, 515);
@@ -481,6 +493,7 @@ namespace CAPAS
         private System.Windows.Forms.Button btnGuardarFeriado;
         private System.Windows.Forms.DataGridView dgvFeriados;
         private System.Windows.Forms.Button btnEliminarFeriado;
+        private System.Windows.Forms.Button btnImportarFeriados;
         private System.Windows.Forms.Button btnCerrar;
     }
 }

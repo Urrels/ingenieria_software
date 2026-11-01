@@ -52,6 +52,7 @@
     <Compile Include="DisponibilidadBLL.cs" />
     <Compile Include="EquipoBLL.cs" />
     <Compile Include="EvaluacionCoberturaBLL.cs" />
+    <Compile Include="FeriadosApi.cs" />
     <Compile Include="FranjaHorariaBLL.cs" />
     <Compile Include="GrillaBLL.cs" />
     <Compile Include="HistorialAsistenciaSociosBLL.cs" />

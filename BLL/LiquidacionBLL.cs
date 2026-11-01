@@ -151,6 +151,29 @@ namespace BLL
             _bitacora.RegistrarAccion(administrador.Usuario, "FERIADO_GUARDADO:" + fecha.ToString("yyyyMMdd"));
         }
 
+        // Descarga los feriados nacionales del año y agrega los que todavía no están cargados (no pisa los cargados a mano).
+        // Devuelve cuántos agregó. Es una importación puntual: la liquidación nunca consulta la API.
+        public int ImportarFeriados(int anio, BE.USUARIO administrador)
+        {
+            Autorizacion.Exigir(PermisoLiquidar);
+            if (anio < Reloj.Hoy.Year - 1 || anio > Reloj.Hoy.Year + 1)
+                throw new InvalidOperationException("Solo se pueden importar los feriados del año anterior, el actual y el siguiente.");
+
+            var existentes = new HashSet<DateTime>(
+                _dal.ListarFeriados(new DateTime(anio, 1, 1), new DateTime(anio, 12, 31)).Select(f => f.Fecha.Date));
+            int agregados = 0;
+            foreach (var f in FeriadosApi.Descargar(anio))
+            {
+                if (existentes.Contains(f.Fecha.Date)) continue;
+                string descripcion = f.Descripcion.Length > LargoMaximoDescripcionFeriado
+                    ? f.Descripcion.Substring(0, LargoMaximoDescripcionFeriado) : f.Descripcion;
+                _dal.GuardarFeriado(f.Fecha.Date, descripcion);
+                agregados++;
+            }
+            _bitacora.RegistrarAccion(administrador.Usuario, "FERIADOS_IMPORTADOS:" + anio);
+            return agregados;
+        }
+
         public void EliminarFeriado(DateTime fecha, BE.USUARIO administrador)
         {
             Autorizacion.Exigir(PermisoLiquidar);

@@ -146,6 +146,33 @@ namespace CAPAS
             CargarFeriados();
         }
 
+        // Descarga los feriados nacionales del año de la fecha elegida (API pública) y agrega los que faltan.
+        private async void btnImportarFeriados_Click(object sender, EventArgs e)
+        {
+            int anio = dtpFeriado.Value.Year;
+            if (MsgBox.Show(Textos.T("msg_ImportarFeriados",
+                    "Se consultarán por internet los feriados nacionales de {0} y se agregarán los que todavía no estén cargados. ¿Continuar?", anio),
+                    "Confirmar", MsgBox.Botones.SiNo, MsgBox.Icono.Pregunta) != DialogResult.Yes) return;
+
+            btnImportarFeriados.Enabled = false;
+            try
+            {
+                var administrador = Actor;
+                int agregados = await System.Threading.Tasks.Task.Run(() => _liquidacionBLL.ImportarFeriados(anio, administrador));
+                CargarFeriados();
+                MsgBox.Show(Textos.T("msg_FeriadosImportados", "Se agregaron {0} feriado(s) de {1}.", agregados, anio),
+                    "Feriados", MsgBox.Botones.OK, MsgBox.Icono.Exito);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MsgBox.Show(ex.Message, "Atención", MsgBox.Botones.OK, MsgBox.Icono.Atencion);
+            }
+            finally
+            {
+                btnImportarFeriados.Enabled = true;
+            }
+        }
+
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
